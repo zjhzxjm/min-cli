@@ -54,7 +54,12 @@ $ min dev
 发布后的组件即为一个随时可用的 npm 包：
 
 ``` bash
-$ min publish *name
+# 例如发布 loading 组件
+$ cd ~/your-weapp-project/packages/wxc-loading
+$ npm publish
+
+# 发布scope的npm包到外网，它是默认被限制的，发布到外网要带上`--access=public`
+$ npm publish --access=public
 ```
 
 ## ○ 组件应用
@@ -310,13 +315,13 @@ export default App({...})
 }
 @b search {
     padding: 0;
-    
+
     @e submit{
         padding: 1rem;
-            
+
         @m button{
             border: 1px solid #ccc;
-        } 
+        }
     }
 }
 </style>
@@ -450,7 +455,7 @@ customFileTypes:
 
 ## ○ 更新记录
 
-#### v0.0.1（2017.10.24）
+#### v0.0.1（2017.11.02）
 
 - 初始版本
 

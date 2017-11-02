@@ -7,8 +7,8 @@ import init, { InitCommand } from './cli/init'
 import install, { InstallCommand } from './cli/install'
 import create, { CreateCommand } from './cli/create'
 import dev, { DevCommand } from './cli/dev'
-import packages, { PackagesCommand } from './cli/packages'
-import publish, { PublishCommand } from './cli/publish'
+// import packages, { PackagesCommand } from './cli/packages'
+// import publish, { PublishCommand } from './cli/publish'
 import update, { UpdateCommand } from './cli/update'
 // import upgrade, { UpgradeCommand } from './cli/upgrade'
 
@@ -20,8 +20,8 @@ export {
   InstallCommand,
   CreateCommand,
   DevCommand,
-  PackagesCommand,
-  PublishCommand,
+  // PackagesCommand,
+  // PublishCommand,
   UpdateCommand,
   // UpgradeCommand,
   DevType
@@ -32,11 +32,11 @@ export default [
   create, // new
   dev,
   build,
-  publish,
+  // publish,
 
   install,
-  update,
-  packages
+  update
+  // packages
 
   // commit,
   // changelog
