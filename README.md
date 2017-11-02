@@ -7,8 +7,7 @@
 
 [MinUI](https://github.com/meili/minui)，是基于 Min 平台产出的一套 UI 组件库，同时也是蘑菇街小程序在应用的 UI 组件库。通过下面的小程序二维码，可以在手机中体验 MinUI（微信基础库版本 1.6.3 以上支持）：
 
-![](https://s10.mogucdn.com/mlcdn/c45406/171025_372ah9gk0l874l358hjkjidfkf140_200x200.png)
-
+<img width="200" src="https://s10.mogucdn.com/mlcdn/c45406/171101_6k682blbc5j30lj08galbk1k0g95h_1280x1280.jpg" style="display:block;margin:0 auto;" />
 
 ## ○ 环境安装
 
