@@ -9,6 +9,8 @@
 
 <img width="200" src="https://s10.mogucdn.com/mlcdn/c45406/171101_6k682blbc5j30lj08galbk1k0g95h_1280x1280.jpg" style="display:block;margin:0 auto;" />
 
+> 注：如提示“小程序尚未发布”，就再等等再扫 :p
+
 ## ○ 环境安装
 
 ``` bash
