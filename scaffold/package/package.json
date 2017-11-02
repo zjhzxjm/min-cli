@@ -6,7 +6,7 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/meili/minui/tree/master/src/packages/<%= pkgName %>"
+    "url": "https://github.com/meili/minui/tree/master/packages/<%= pkgName %>"
   },
   "author": "",
   "license": "MIT",
