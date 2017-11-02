@@ -1,0 +1,13 @@
+<template>
+  <view>Footer</view>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style>
+
+</style>
