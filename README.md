@@ -61,7 +61,7 @@ $ min dev
 $ cd ~/your-weapp-project/packages/wxc-loading
 $ npm publish
 
-# 发布scope的npm包到外网，它是默认被限制的，发布到外网要带上`--access=public`
+# 发布 scope 的 npm 包到外网，需带上 `--access=public`
 $ npm publish --access=public
 ```
 
