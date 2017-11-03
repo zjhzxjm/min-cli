@@ -64,7 +64,7 @@ $ npm publish
 # 发布 scope 的 npm 包到外网，需带上 `--access=public`
 $ npm publish --access=public
 ```
-> 其实也可以采用 `$ min publish` 方法发布组件，支持单个发布和批量发布，支持自动升级版本号、远程仓库更新推送、自动打 tag 等。只不过某些情况下还有点小坑，最近几天会解决。如果您看到本文档时这段话还存在，可以先选择上面的 npm publish 方式发布 :p 
+> 其实也可以采用 `$ min publish` 方法发布组件，支持单个发布和批量发布，支持自动升级版本号、远程仓库更新推送、自动打 tag 等。只不过某些情况下还有点小坑，最近几天会解决。如果您看到本文档时这段话还存在，可以先选择上面的 npm publish 方式发布 :p
 
 ## ○ 组件应用
 
@@ -81,6 +81,18 @@ $ min install @minui/wxc-loading
 
 ``` bash
 $ min install @minui/wxc-loading @minui/wxc-tast
+```
+
+注：通过 `min install` 安装组件NPM包后同 npm install 一样放入到 node_modules 目录下，此时cli会将其进行编译并保存到小程序开发的目录下，默认在 `dist/packages` 目录下，用户可以进行自定义设置，使用姿势参考如下：
+
+在 ~/you-weapp-project 目录下，有个 min.config.json 配置文件，如果不存在将其创建
+```
+{
+  "npm": {
+    // NPM 依赖包编译后的保存路径
+    "dest": "custom-path" // 默认是 "dist/packages"，相对于项目根目录
+  }
+}
 ```
 
 ### ☞ 使用组件
