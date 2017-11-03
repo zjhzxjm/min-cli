@@ -90,7 +90,7 @@ $ min install @minui/wxc-loading @minui/wxc-tast
 ``` json
 {
   "npm": {
-    "dest": "custom-path" // 默认是 "dist/packages"，相对于项目根目录
+    "dest": "custom-path"
   }
 }
 ```
