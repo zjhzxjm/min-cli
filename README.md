@@ -24,6 +24,7 @@ $ npm install -g @mindev/min-cli
 ``` bash
 $ cd ~/your-custom-project
 $ min init
+$ npm install
 
 # 创建完毕后，执行下 $ min dev，生成 dist/ 目录。
 # 在 "微信开发者工具" 中新建一个小程序项目，项目目录指向 dist/。如此，组件就能在开发者工具中进行预览了。
