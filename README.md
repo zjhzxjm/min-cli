@@ -109,6 +109,16 @@ $ min install @minui/wxc-loading @minui/wxc-tast
 }
 ```
 
+注：在不同场景下用户提供的自定义组件文件路径存在区别。场景1)在已有的小程序应用里使用自定义组件，用户提供的文件路径必须是相对于当前文件，并指向到 min install 组件编译后的保存路径，上面的演示代码所示；场景2)通过 min init 创建小程序应用，用户提供的文件路径可以是场景1的使用姿势，也可以是一个组件NPM包名称，在 min dev 构建过程中会将其更改为NPM包编译后的保存路径，这里用 [MinUI](https://github.com/meili/minui) 的 loading 举例
+
+```json
+{
+  "usingComponents": {
+    "wxc-loading": "@minui/wxc-loading"
+  }
+}
+```
+
 这样，在页面的 `wxml` 中就可以像使用内置组件一样使用自定义组件。节点名即自定义组件的标签名，节点属性即传递给组件的属性值。
 
 **代码示例：**
