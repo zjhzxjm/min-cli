@@ -24,7 +24,6 @@ $ npm install -g @mindev/min-cli
 ``` bash
 $ cd ~/your-custom-project
 $ min init
-$ npm install
 
 # 创建完毕后，执行下 $ min dev，生成 dist/ 目录。
 # 在 "微信开发者工具" 中新建一个小程序项目，项目目录指向 dist/。如此，组件就能在开发者工具中进行预览了。
@@ -64,6 +63,7 @@ $ npm publish
 # 发布 scope 的 npm 包到外网，需带上 `--access=public`
 $ npm publish --access=public
 ```
+
 > 其实也可以采用 `$ min publish` 方法发布组件，支持单个发布和批量发布，支持自动升级版本号、远程仓库更新推送、自动打 tag 等。只不过某些情况下还有点小坑，最近几天会解决。如果您看到本文档时这段话还存在，可以先选择上面的 npm publish 方式发布 :p
 
 ## ○ 组件应用
@@ -86,10 +86,10 @@ $ min install @minui/wxc-loading @minui/wxc-tast
 注：通过 `min install` 安装组件NPM包后同 npm install 一样放入到 node_modules 目录下，此时cli会将其进行编译并保存到小程序开发的目录下，默认在 `dist/packages` 目录下，用户可以进行自定义设置，使用姿势参考如下：
 
 在 ~/you-weapp-project 目录下，有个 min.config.json 配置文件，如果不存在将其创建
-```
+
+``` json
 {
   "npm": {
-    // NPM 依赖包编译后的保存路径
     "dest": "custom-path" // 默认是 "dist/packages"，相对于项目根目录
   }
 }
@@ -109,7 +109,7 @@ $ min install @minui/wxc-loading @minui/wxc-tast
 }
 ```
 
-注：在不同场景下用户提供的自定义组件文件路径存在区别。场景1)在已有的小程序应用里使用自定义组件，用户提供的文件路径必须是相对于当前文件，并指向到 min install 组件编译后的保存路径，上面的演示代码所示；场景2)通过 min init 创建小程序应用，用户提供的文件路径可以是场景1的使用姿势，也可以是一个组件NPM包名称，在 min dev 构建过程中会将其更改为NPM包编译后的保存路径，这里用 [MinUI](https://github.com/meili/minui) 的 loading 举例
+注：在不同场景下用户提供的自定义组件文件路径存在区别。场景1)在已有的小程序应用里使用自定义组件，用户提供的文件路径必须是相对于当前文件，并指向到 min install 组件编译后的保存路径，上面的演示代码所示；场景2)通过 min init 创建小程序应用，用户提供的文件路径可以是场景1的使用姿势，也可以是一个组件NPM包名称，在 min dev 构建过程中会将其更改为NPM包编译后的保存路径，这里用 [MinUI](https://github.com/meili/minui) 的 loading 组件举例
 
 ```json
 {
