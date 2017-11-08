@@ -17,7 +17,6 @@ export class WxSFC implements WxFile.Core {
   style: WxSFMStyle
   script: WxSFMScript
 
-
   /**
    * Creates an instance of WxSFC.
    * @param {string} source
@@ -50,14 +49,13 @@ export class WxSFC implements WxFile.Core {
     })
   }
 
-
   /**
    * 单文件模块列表，包括模板，脚本和样式
    *
    * @readonly
    * @memberof WxSFC
    */
-  get sfms() {
+  get sfms () {
     return [this.template, this.style, this.script]
   }
 

@@ -27,7 +27,7 @@ export default {
   options: [],
   on: {
     '--help': () => {
-      new CLIExample('min commit')
+      new CLIExample('commit')
         .group('提交')
         .rule('')
     }

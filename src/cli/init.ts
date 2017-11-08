@@ -55,7 +55,7 @@ export default {
   ],
   on: {
     '--help': () => {
-      new CLIExample('min init')
+      new CLIExample('init')
         .group('create project')
         .rule('')
         // .group('set project title')

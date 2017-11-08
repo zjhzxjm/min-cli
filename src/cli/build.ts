@@ -30,7 +30,7 @@ export default {
   options: [],
   on: {
     '--help': () => {
-      new CLIExample('min build')
+      new CLIExample('build')
         .group('编译')
         .rule('')
     }

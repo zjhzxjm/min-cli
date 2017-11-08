@@ -119,6 +119,115 @@ export class WxSFMScript extends WxSFM {
   }
 
   /**
+   * 返回 wxa wxp wxa 单文件中 script 模块的 config 属性
+   *
+   * @returns
+   * @memberof WxSFMScript
+   */
+  getConfig () {
+    return this.config
+  }
+
+  /**
+   * 返回 wxa wxp wxa 单文件中 script 模块所引用的 wxc 组件
+   *
+   * @returns
+   * @memberof WxSFMScript
+   */
+  getUsingComponents () {
+    return this.config.usingComponents || {}
+  }
+
+  /**
+   * 获取依赖列表
+   *
+   * @returns {Depend[]}
+   * @memberof WxSFMScript
+   */
+  getDepends (): Depend[] {
+    return this.depends
+  }
+
+  /**
+   * 更新依赖列表
+   *
+   * @param {Request.Core[]} useRequests 可用的请求列表
+   * @memberof WxSFMScript
+   */
+  updateDepends (useRequests: Request.Core[]): void {
+    let depends = this.getDepends()
+
+    useRequests.forEach(useRequest => {
+
+      depends
+      .filter(depend => {
+        return depend.requestType === useRequest.requestType && depend.request === useRequest.request
+      })
+      .forEach(depend => {
+        let request = ''
+        request = path.relative(path.dirname(this.dest), path.dirname(useRequest.dest))
+        request = path.join(request, path.basename(useRequest.dest, useRequest.ext))
+        request = request.charAt(0) !== '.' ? `./${request}` : request
+
+        switch (depend.requestType) {
+          case RequestType.SCRIPT:
+            depend.$node.value = request
+            break
+
+          case RequestType.WXC:
+          case RequestType.WXP:
+            this.config.usingComponents = Object.assign(this.config.usingComponents || {}, {
+              [depend.usingKey]: request
+            })
+            break
+        }
+      })
+    })
+  }
+
+  /**
+   * 将 AST 节点树生成 code 代码
+   *
+   * @returns {string}
+   * @memberof WxSFMScript
+   */
+  generator (): string {
+    let result = babel.transformFromAst(this.node, '', {
+      ast: false,
+      babelrc: false
+    })
+    let { code = '' } = result
+    return code
+  }
+
+  /**
+   * 保存文件
+   *
+   * @memberof WxSFMScript
+   */
+  save() {
+    super.save()
+  }
+
+  /**
+   * 移除文件
+   *
+   * @memberof WxSFMScript
+   */
+  remove () {
+    super.remove()
+  }
+
+  /**
+   * 保存文件后的处理函数
+   *
+   * @memberof WxSFMScript
+   */
+  afterSave (): void {
+    this.saveConfigFile()
+  }
+
+  /**
    * 初始化 AST 节点树
    *
    * @private
@@ -382,7 +491,7 @@ export class WxSFMScript extends WxSFM {
    * @param {WxSFMScript.UsingComponents} [usingComponents]
    * @memberof WxSFMScript
    */
-  private addWXCDepends(usingComponents?: WxSFMScript.UsingComponents) {
+  private addWXCDepends (usingComponents?: WxSFMScript.UsingComponents) {
     if (!usingComponents) {
       return
     }
@@ -500,117 +609,7 @@ export class WxSFMScript extends WxSFM {
     log.msg(LogType.WRITE, dester.destRelative)
     util.writeFile(dester.dest, JSON.stringify(configCopy, null, 2))
   }
-
-  /**
-   * 返回 wxa wxp wxa 单文件中 script 模块的 config 属性
-   *
-   * @returns
-   * @memberof WxSFMScript
-   */
-  getConfig () {
-    return this.config
-  }
-
-  /**
-   * 返回 wxa wxp wxa 单文件中 script 模块所引用的 wxc 组件
-   *
-   * @returns
-   * @memberof WxSFMScript
-   */
-  getUsingComponents () {
-    return this.config.usingComponents || {}
-  }
-
-  /**
-   * 获取依赖列表
-   *
-   * @returns {Depend[]}
-   * @memberof WxSFMScript
-   */
-  getDepends (): Depend[] {
-    return this.depends
-  }
-
-  /**
-   * 更新依赖列表
-   *
-   * @param {Request.Core[]} useRequests 可用的请求列表
-   * @memberof WxSFMScript
-   */
-  updateDepends (useRequests: Request.Core[]): void {
-    let depends = this.getDepends()
-
-    useRequests.forEach(useRequest => {
-
-      depends
-      .filter(depend => {
-        return depend.requestType === useRequest.requestType && depend.request === useRequest.request
-      })
-      .forEach(depend => {
-        let request = ''
-        request = path.relative(path.dirname(this.dest), path.dirname(useRequest.dest))
-        request = path.join(request, path.basename(useRequest.dest, useRequest.ext))
-        request = request.charAt(0) !== '.' ? `./${request}` : request
-
-        switch (depend.requestType) {
-          case RequestType.SCRIPT:
-            depend.$node.value = request
-            break;
-
-          case RequestType.WXC:
-          case RequestType.WXP:
-            this.config.usingComponents = Object.assign(this.config.usingComponents || {}, {
-              [depend.usingKey]: request
-            })
-            break;
-        }
-      })
-    })
-  }
-
-  /**
-   * 将 AST 节点树生成 code 代码
-   *
-   * @returns {string}
-   * @memberof WxSFMScript
-   */
-  generator (): string {
-    let result = babel.transformFromAst(this.node, '', {
-      ast: false,
-      babelrc: false
-    })
-    let { code = '' } = result
-    return code
-  }
-
-  /**
-   * 保存文件
-   *
-   * @memberof WxSFMScript
-   */
-  save() {
-    super.save()
-  }
-
-  /**
-   * 移除文件
-   *
-   * @memberof WxSFMScript
-   */
-  remove () {
-    super.remove()
-  }
-
-  /**
-   * 保存文件后的处理函数
-   *
-   * @memberof WxSFMScript
-   */
-  afterSave (): void {
-    this.saveConfigFile()
-  }
 }
-
 
 // 设置 config 的 usingComponents 的属性
   // private setConfigUsing (propKey: string, propValue: t.Expression) {

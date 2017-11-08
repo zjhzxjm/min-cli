@@ -77,7 +77,6 @@ export namespace Request {
     requestType: RequestType
   }
 
-
   /**
    * 路径
    *
@@ -300,7 +299,6 @@ export namespace Request {
   }
 }
 
-
 /**
  * 请求核心类
  *
@@ -327,7 +325,6 @@ export class RequestCore implements Request.Core {
     _.merge(this, resolveDep(options))
   }
 }
-
 
 /**
  * 请求扩展类
@@ -407,7 +404,6 @@ export class RequestExtend extends RequestCore implements Request.Extend {
     return this.isCss || this.isWxss || this.isLess || this.isPcss || this.isSass || this.isStylus
   }
 
-
   /**
    * Creates an instance of RequestExtend.
    * @param {Request.Options} options
@@ -424,7 +420,6 @@ export class RequestExtend extends RequestCore implements Request.Extend {
     }
   }
 }
-
 
 /**
  * 请求类

@@ -105,13 +105,6 @@ export namespace XcxTraverse {
 export class XcxTraverse {
 
   /**
-   * Creates an instance of XcxTraverse.
-   * @param {XcxTraverse.Options} options
-   * @memberof XcxTraverse
-   */
-  constructor(private options: XcxTraverse.Options) { }
-
-  /**
    * pages 页面路径列表，与 app.json 中的 pages 字段的格式一致
    *
    * @private
@@ -130,6 +123,13 @@ export class XcxTraverse {
   private components: string[] = []
 
   /**
+   * Creates an instance of XcxTraverse.
+   * @param {XcxTraverse.Options} options
+   * @memberof XcxTraverse
+   */
+  constructor (private options: XcxTraverse.Options) { }
+
+  /**
    * 转换，它是一个静态方法
    *
    * @static
@@ -137,7 +137,7 @@ export class XcxTraverse {
    * @param {XcxTraverse.Options} options
    * @memberof XcxTraverse
    */
-  public static traverse(parent: XcxNode | XcxNode[], options: XcxTraverse.Options) {
+  public static traverse (parent: XcxNode | XcxNode[], options: XcxTraverse.Options) {
     let xcxTraverse = new XcxTraverse(options)
     xcxTraverse.traverse(parent)
   }
@@ -148,7 +148,7 @@ export class XcxTraverse {
    * @param {(XcxNode | XcxNode[])} parent
    * @memberof XcxTraverse
    */
-  public traverse(parent: XcxNode | XcxNode[]) {
+  public traverse (parent: XcxNode | XcxNode[]) {
     if (_.isArray(parent) && parent.length === 0) {
       return
     }
@@ -180,7 +180,7 @@ export class XcxTraverse {
    * @returns {string}
    * @memberof XcxTraverse
    */
-  private pageReplacer(destRelative: string): string {
+  private pageReplacer (destRelative: string): string {
     let regExp = new RegExp(`(^${config.dest}/)|(${config.ext.wxp}$)`, 'g')
     return destRelative.replace(regExp, '')
   }
@@ -193,7 +193,7 @@ export class XcxTraverse {
    * @returns {string}
    * @memberof XcxTraverse
    */
-  private componentReplacer(destRelative: string): string {
+  private componentReplacer (destRelative: string): string {
     let regExp = new RegExp(`(^${config.dest}/)|(${config.ext.wxc}$)`, 'g')
     return destRelative.replace(regExp, '')
   }
@@ -229,7 +229,7 @@ export class XcxTraverse {
       case RequestType.WXA:
         // 触发 app 应用访问器
         this.trigger('app', xcxNode)
-        break;
+        break
 
       case RequestType.WXP:
         this.pages = _.union(this.pages, [
@@ -237,7 +237,7 @@ export class XcxTraverse {
         ])
         // 触发 page 页面访问器
         this.trigger('page', xcxNode)
-        break;
+        break
 
       case RequestType.WXC:
         this.components = _.union(this.components, [
@@ -245,10 +245,10 @@ export class XcxTraverse {
         ])
         // 触发 component 组件访问器
         this.trigger('component', xcxNode)
-        break;
+        break
 
       default:
-        break;
+        break
     }
 
     // 递归子集
@@ -266,7 +266,7 @@ export class XcxTraverse {
    * @param {(undefined | string[] | XcxNode | XcxNode[])} value
    * @memberof XcxTraverse
    */
-  private trigger(method: XcxTraverse.VisitType, value: undefined | string[] | XcxNode | XcxNode[]) {
+  private trigger (method: XcxTraverse.VisitType, value: undefined | string[] | XcxNode | XcxNode[]) {
     let _method = this.options[method]
     if (_.isFunction(_method)) {
       _method.call(this.options, value)

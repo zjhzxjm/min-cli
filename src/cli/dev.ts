@@ -28,7 +28,7 @@ export default {
   options: [],
   on: {
     '--help': () => {
-      new CLIExample('min dev')
+      new CLIExample('dev')
         .group('启动项目开发服务')
         .rule('')
         .group('启动多页面开发服务')

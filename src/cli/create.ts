@@ -64,7 +64,7 @@ export default {
   ],
   on: {
     '--help': () => {
-      new CLIExample('min new')
+      new CLIExample('new')
       .group('新建组件')
       .rule('loading')
 

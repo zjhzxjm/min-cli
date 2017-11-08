@@ -13,7 +13,6 @@ import { config } from '../util'
 // FATAL	指明非常严重的错误事件，可能会导致应用终止执行。
 // OFF	最高级别，用于关闭日志。
 
-
 export interface LogType {
   color: string
   desc: string
@@ -129,10 +128,10 @@ colors.setTheme(LogType)
 
 function getDateTime (date = new Date(), format = 'HH:mm:ss') {
   let fn = (d: number) => {
-    return ('0' + d).slice(-2);
-  };
+    return ('0' + d).slice(-2)
+  }
   if (date && _.isString(date)) {
-    date = new Date(Date.parse(date));
+    date = new Date(Date.parse(date))
   }
   const formats = {
     YYYY: date.getFullYear(),
@@ -141,35 +140,36 @@ function getDateTime (date = new Date(), format = 'HH:mm:ss') {
     HH: fn(date.getHours()),
     mm: fn(date.getMinutes()),
     ss: fn(date.getSeconds())
-  };
+  }
   return format.replace(/([a-z])\1+/ig, function (a) {
-    return formats[a] || a;
+    return formats[a] || a
   })
 }
 
 export const log = {
   type: LogType,
-  fatal(msg: string | Error) {
+  fatal (msg: string | Error) {
     this.msg(LogType.FATAL, msg)
   },
-  error(msg: string | Error) {
+  error (msg: string | Error) {
     this.msg(LogType.ERROR, msg)
   },
-  warn(msg: string) {
+  warn (msg: string) {
     this.msg(LogType.WARN, msg)
   },
-  tip(msg: string) {
+  tip (msg: string) {
     this.msg(LogType.TIP, msg)
   },
-  info(msg: string) {
+  info (msg: string) {
     this.msg(LogType.INFO, msg)
   },
-  debug(msg: string) {
+  debug (msg: string) {
     this.msg(LogType.DEBUG, msg)
   },
-  msg(logType: LogType, msg: string | Error | Object | any[]) {
-    if (logType.level < config.log.level)
+  msg (logType: LogType, msg: string | Error | Object | any[]) {
+    if (logType.level < config.log.level) {
       return
+    }
 
     let dateTime = config.log.time
       ? colors.gray(`[${getDateTime()}] `)
@@ -190,10 +190,10 @@ export const log = {
       console.log(msg)
     }
   },
-  output(logType: LogType, msg: string, file: string) {
+  output (logType: LogType, msg: string, file: string) {
     this.msg(logType, msg + ' in ' + path.relative(config.cwd, file))
   },
-  newline() {
+  newline () {
     console.log('')
   }
 }

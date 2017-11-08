@@ -129,34 +129,6 @@ export class WxSFMStyle extends WxSFM {
   }
 
   /**
-   * 初始化 depends 依赖列表
-   *
-   * @private
-   * @memberof WxSFMStyle
-   */
-  private initDepends() {
-    if (!this.source) return
-
-    let transformer: postcss.Transformer = root => {
-      root.walkAtRules((rule, index) => {
-        if (rule.name !== 'import') {
-          return
-        }
-        // ① 收集所有的依赖，用于后续的依赖加载和路径更新
-        this.depends.push({
-          request: rule.params.replace(/^('|")(.*)('|")$/g, (match, quotn, filename) => filename),
-          requestType: RequestType.STYLE,
-          $atRule: rule
-        })
-      })
-    }
-    let lazyResult = postcss([transformer]).process(this.source)
-    lazyResult.toString()
-
-    this.result = lazyResult['result']
-  }
-
-  /**
    * style 基础编译
    *
    * @returns
@@ -166,7 +138,7 @@ export class WxSFMStyle extends WxSFM {
     if (!this.result) return ''
 
     let processor = postcss([
-      postcssUnit2rpx,
+      postcssUnit2rpx
     ])
 
     // 更新依赖路径后，重新编译
@@ -182,7 +154,7 @@ export class WxSFMStyle extends WxSFM {
   async compileLess () {
     if (!this.result) return ''
 
-    let source = Global.config.style.lessCode + '\n' +  await this.compileStyle()
+    let source = Global.config.style.lessCode + '\n' + await this.compileStyle()
 
     return await less.render(source).then(result => result.css)
   }
@@ -208,7 +180,7 @@ export class WxSFMStyle extends WxSFM {
    * @returns {Promise<string>}
    * @memberof WxSFMStyle
    */
-  async generator(): Promise<string> {
+  async generator (): Promise<string> {
     switch (this.options.compileType) {
       case CompileType.LESS:
         return await this.compileLess()
@@ -226,7 +198,7 @@ export class WxSFMStyle extends WxSFM {
    *
    * @memberof WxSFMStyle
    */
-  save() {
+  save () {
     super.save()
   }
 
@@ -274,10 +246,38 @@ export class WxSFMStyle extends WxSFM {
           case RequestType.STYLE:
             // ② 更新依赖引用路径，将所有的扩展名统一改成 .wxss
             depend.$atRule.params = `'${request}'`
-            break;
+            break
         }
       })
     })
+  }
+
+  /**
+   * 初始化 depends 依赖列表
+   *
+   * @private
+   * @memberof WxSFMStyle
+   */
+  private initDepends () {
+    if (!this.source) return
+
+    let transformer: postcss.Transformer = root => {
+      root.walkAtRules((rule, index) => {
+        if (rule.name !== 'import') {
+          return
+        }
+        // ① 收集所有的依赖，用于后续的依赖加载和路径更新
+        this.depends.push({
+          request: rule.params.replace(/^('|")(.*)('|")$/g, (match, quotn, filename) => filename),
+          requestType: RequestType.STYLE,
+          $atRule: rule
+        })
+      })
+    }
+    let lazyResult = postcss([transformer]).process(this.source)
+    lazyResult.toString()
+
+    this.result = lazyResult['result']
   }
 }
 

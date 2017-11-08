@@ -1,5 +1,6 @@
 export interface Config extends CustomConfig {
   title: string
+  cli: string
   filename: string
   projectType: string // in customConfig. include min.config.json and minConfig of package.json
   cwd: string

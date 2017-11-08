@@ -29,7 +29,7 @@ export default {
   ],
   on: {
     '--help': () => {
-      new CLIExample('min publish')
+      new CLIExample('publish')
         .group('发布')
         .rule('')
     }

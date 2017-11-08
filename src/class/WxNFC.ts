@@ -1,7 +1,6 @@
 import { Depend, Request, WxFile, WxSFMTemplate, WxSFMScript, WxSFMStyle } from '../class'
 import { LangTypes } from '../declare'
 
-
 /**
  * 原生文件组合类
  *

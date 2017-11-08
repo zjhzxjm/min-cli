@@ -24,7 +24,6 @@ export namespace Depend{
     $node: t.StringLiteral // for script
   }
 
-
   /**
    * 依赖STYLE类型的接口
    *
@@ -36,7 +35,6 @@ export namespace Depend{
     requestType: RequestType.STYLE
     $atRule: postcss.AtRule // for style
   }
-
 
   /**
    * 依赖WXC类型的接口
@@ -50,7 +48,6 @@ export namespace Depend{
     usingKey: string // for wxc
   }
 
-
   /**
    * 依赖WXP类型的接口
    *
@@ -63,4 +60,3 @@ export namespace Depend{
     usingKey: string // for wxp
   }
 }
-
