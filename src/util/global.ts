@@ -43,6 +43,10 @@ export namespace Global {
  * @class Global
  */
 export class Global {
+  static _isDebug: boolean
+  static _pages: string[] = []
+  static _global: Global
+
   /**
    * 全局配置
    *
@@ -72,118 +76,13 @@ export class Global {
     this.setApp()
   }
 
-  /**
-   * 设置全局配置
-   *
-   * @private
-   * @memberof Global
-   */
-  private setConfig () {
-    let file = path.join(config.cwd, 'min.config.json')
-    let configData = fs.existsSync(file) ? fs.readJsonSync(file) : {}
-    let { style: styleConfig = {} } = configData
-    let lessCode = this.generateStyleVariables(styleConfig, 'Less')
-    let pcssCode = this.generateStyleVariables(styleConfig, 'Pcss')
-    this.config = {
-      style: {
-        config: configData,
-        lessCode,
-        pcssCode
-      }
-    }
-  }
-
-  /**
-   * 全局 Style 变量生成
-   *
-   * @private
-   * @param {Global.StyleConfig} styleConfig
-   * @param {StyleType} styleType
-   * @returns
-   * @memberof Global
-   */
-  private generateStyleVariables(styleConfig: Global.StyleConfig, styleType: StyleType) {
-    let map: string[] = []
-    let httpRegExp = /^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i
-    let symbol = ''
-    switch (styleType) {
-      case 'Less':
-        symbol = '@'
-        break;
-      case 'Pcss':
-        symbol = '$'
-        break;
-      default:
-        throw new Error('没有找到StyleType类型')
-    }
-    _.forIn(styleConfig, (value, key) => {
-      if (httpRegExp.test(value)) {
-        value = `'${value}'`
-      }
-      map.push(`${symbol}${key}: ${value};`)
-    })
-    return map.join('\n')
-  }
-
-  /**
-   * 设置 全局 App 模板布局、模板组件 和 App.config 配置
-   *
-   * @private
-   * @memberof Global
-   */
-  private setApp () {
-    let request = new Request({
-      request: `./app${config.ext.wxa}`,
-      parent: config.getPath('src'),
-      isMain: true
-    })
-
-    let template = ''
-    let appConfig = {}
-    let usingComponents = {}
-
-    if (request.src) {
-      let source = fs.readFileSync(request.src, 'utf-8')
-
-      // 单文件组合
-      let {
-        script: { code: scriptCode, compileType: scriptCompileType },
-        template: { code: templateCode }
-      } = dom.getSFC(source)
-
-      // script模块
-      let wxSFMScript = new WxSFMScript(scriptCode, request, {
-        compileType: scriptCompileType
-      })
-
-      template = templateCode
-      usingComponents = wxSFMScript.getUsingComponents()
-      appConfig = wxSFMScript.getConfig()
-    }
-
-    // 全局布局
-    this.layout = {
-      app: {
-        template,
-        usingComponents
-      }
-    }
-
-    // 全局 App 配置
-    this.appConfig = appConfig
-  }
-
-  static _isDebug: boolean
-  static _pages: string[] = []
-  static _global: Global
-
-  static get global () {
-    return this._global = this._global || new Global()
-  }
-
   static clear () {
     this._pages = []
     this._global = new Global()
+  }
+
+  static get global () {
+    return this._global = this._global || new Global()
   }
 
   static get isDebug () {
@@ -265,7 +164,7 @@ export class Global {
       if (tabBarList.length > 0 && _.indexOf(tabBarList, homePage) === -1) {
         this.addDevTabBar(tabBarList, homePage)
       }
-    } else if (tabBarList.length > 0){
+    } else if (tabBarList.length > 0) {
       homePage = tabBarList[0].pagePath
     } else {
       homePage = config.homePage
@@ -295,5 +194,105 @@ export class Global {
     // 写入
     fs.writeFileSync(appConfigPath, appConfigCont, 'utf8');
   }
-}
 
+  /**
+   * 设置全局配置
+   *
+   * @private
+   * @memberof Global
+   */
+  private setConfig () {
+    let file = path.join(config.cwd, 'min.config.json')
+    let configData = fs.existsSync(file) ? fs.readJsonSync(file) : {}
+    let { style: styleConfig = {} } = configData
+    let lessCode = this.generateStyleVariables(styleConfig, 'Less')
+    let pcssCode = this.generateStyleVariables(styleConfig, 'Pcss')
+    this.config = {
+      style: {
+        config: configData,
+        lessCode,
+        pcssCode
+      }
+    }
+  }
+
+  /**
+   * 全局 Style 变量生成
+   *
+   * @private
+   * @param {Global.StyleConfig} styleConfig
+   * @param {StyleType} styleType
+   * @returns
+   * @memberof Global
+   */
+  private generateStyleVariables (styleConfig: Global.StyleConfig, styleType: StyleType) {
+    let map: string[] = []
+    let httpRegExp = /^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i
+    let symbol = ''
+    switch (styleType) {
+      case 'Less':
+        symbol = '@'
+        break
+      case 'Pcss':
+        symbol = '$'
+        break
+      default:
+        throw new Error('没有找到StyleType类型')
+    }
+    _.forIn(styleConfig, (value, key) => {
+      if (httpRegExp.test(value)) {
+        value = `'${value}'`
+      }
+      map.push(`${symbol}${key}: ${value};`)
+    })
+    return map.join('\n')
+  }
+
+  /**
+   * 设置 全局 App 模板布局、模板组件 和 App.config 配置
+   *
+   * @private
+   * @memberof Global
+   */
+  private setApp () {
+    let request = new Request({
+      request: `./app${config.ext.wxa}`,
+      parent: config.getPath('src'),
+      isMain: true
+    })
+
+    let template = ''
+    let appConfig = {}
+    let usingComponents = {}
+
+    if (request.src) {
+      let source = fs.readFileSync(request.src, 'utf-8')
+
+      // 单文件组合
+      let {
+        script: { code: scriptCode, compileType: scriptCompileType },
+        template: { code: templateCode }
+      } = dom.getSFC(source)
+
+      // script模块
+      let wxSFMScript = new WxSFMScript(scriptCode, request, {
+        compileType: scriptCompileType
+      })
+
+      template = templateCode
+      usingComponents = wxSFMScript.getUsingComponents()
+      appConfig = wxSFMScript.getConfig()
+    }
+
+    // 全局布局
+    this.layout = {
+      app: {
+        template,
+        usingComponents
+      }
+    }
+
+    // 全局 App 配置
+    this.appConfig = appConfig
+  }
+}

@@ -312,17 +312,24 @@ export class Xcx {
 
     // Array.prototype.concat.apply([], [[], [], []])
     const images: {origin: string, target: string}[] = Array.prototype.concat.apply([], tabBarList.map(tabBarItem => {
-      return [
-        {
-          origin: config.getPath('src', tabBarItem.iconPath),
-          target: config.getPath('dest', tabBarItem.iconPath)
-        },
-        {
+      let map: {origin: string, target: string}[] = []
+      if (tabBarItem.iconPath) {
+        map.push(
+          {
+            origin: config.getPath('src', tabBarItem.iconPath),
+            target: config.getPath('dest', tabBarItem.iconPath)
+          }
+        )
+      }
+      if (tabBarItem.selectedIconPath) {
+        map.push({
           origin: config.getPath('src', tabBarItem.selectedIconPath),
           target: config.getPath('dest', tabBarItem.selectedIconPath)
-        }
-      ]
+        })
+      }
+      return map
     }))
+
     images.forEach(image => {
       if (!fs.existsSync(image.origin)) {
         log.fatal(`找不到文件：${image.origin}`)
