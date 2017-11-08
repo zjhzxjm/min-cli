@@ -11,8 +11,9 @@ const minPkg = require('../../package.json')
 const proPkgPath = path.join(config.cwd, 'package.json')
 const proPkg = fs.existsSync(proPkgPath) ? require(proPkgPath) : null
 
-// set version
-program.version(minPkg.version)
+program
+  .version(minPkg.version)
+  .usage('<command> [options]')
 
 commands.forEach(command => {
   // check
