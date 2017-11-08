@@ -2,6 +2,7 @@
 
 import * as fs from 'fs-extra'
 import * as path from 'path'
+import * as _ from 'lodash'
 import * as program from 'commander'
 import { config } from '../util'
 import commands from '../index'
@@ -42,6 +43,13 @@ commands.forEach(command => {
     let options: string[][] = command.options
     options.forEach((option: string[]) => {
       cmd.option(option[0], option[1])
+    })
+  }
+
+  // set on
+  if (_.isObject(command.on)) {
+    _.forIn(command.on, (value, key) => {
+      cmd.on(key, value)
     })
   }
 
