@@ -4,18 +4,18 @@ import * as _ from 'lodash'
 import { XcxNode } from '../class'
 import util, { config } from '../util'
 
-function src2relative(src: string) {
+function src2relative (src: string) {
   if (!path.isAbsolute(src)) {
     return src
   }
   return path.relative(config.cwd, src)
 }
 
-function bindFunChnageArg(target: Object, methods: string[]) {
+function bindFunChnageArg (target: Object, methods: string[]) {
   methods.forEach(method => {
     let fn = target[method]
     if (!_.isFunction(fn)) return
-    target[method] = (src: string, ...args:any[]) => {
+    target[method] = (src: string, ...args: any[]) => {
       src = src2relative(src)
       args.unshift(src)
       return fn.apply(target, args)
@@ -25,17 +25,29 @@ function bindFunChnageArg(target: Object, methods: string[]) {
 
 function getMdRootWxp (file: string) {
   let extName = path.extname(file)
+  let baseName = path.basename(file)
   let dirName = path.dirname(file)
+  let packageRegExp = new RegExp(`^${config.packages}/${config.prefix}([a-z-]+)$`)
+
   let mdRootWxpPath = ''
   if (
+    // demos/*.wxc
     (extName === config.ext.wxc && /\/demos$/.test(dirName)) ||
-    (extName === '.md' && /\/docs$/.test(dirName)))
-  {
-    mdRootWxpPath = path.join(dirName, `../index${config.ext.wxp}`)
+    // docs/*.md
+    (extName === '.md' && /\/docs$/.test(dirName))) {
+    // ~/you_project/src/pages/name/index.wxp
+    mdRootWxpPath = path.join(config.cwd, dirName, `../index${config.ext.wxp}`)
+  } else if (
+    // packages/wxc-name/README.md
+    (baseName.toLowerCase() === 'readme.md' && packageRegExp.test(dirName))) {
+    let matchs = dirName.match(packageRegExp)
+    let pageName = matchs && matchs.length > 1 ? matchs[1] : ''
+    // ~/you_project/src/pages/name/index.wxp
+    mdRootWxpPath = config.getPath('pages', pageName, `index${config.ext.wxp}`)
   }
 
   if (mdRootWxpPath && fs.existsSync(mdRootWxpPath)) {
-    return path.relative(config.cwd, mdRootWxpPath)
+    return mdRootWxpPath
   }
   return ''
 }
@@ -139,7 +151,6 @@ export const xcxNext = {
 
 bindFunChnageArg(xcxNext, ['addLack', 'removeLack', 'checkLack', 'watchNewFile', 'watchChangeFile', 'watchDeleteFile'])
 
-
 // let xcxAstCachePath = config.getPath('cache.xcxast')
 // fs.ensureDirSync(xcxAstCachePath)
 // // function getFiles () {
@@ -212,7 +223,7 @@ export const xcxCache = {
   changed: false,
   cachePath: config.getPath('cache.file'),
 
-  get() {
+  get () {
     if (this.cache) {
       return this.cache
     }
@@ -220,9 +231,9 @@ export const xcxCache = {
     if (util.isFile(this.cachePath)) {
       this.cache = util.readFile(this.cachePath)
       try {
-        this.cache = JSON.parse(this.cache);
+        this.cache = JSON.parse(this.cache)
       } catch (e) {
-        this.cache = null;
+        this.cache = null
       }
     }
 
@@ -249,14 +260,14 @@ export const xcxCache = {
     util.unlink(this.cachePath)
   },
 
-  save() {
+  save () {
     if (this.changed) {
       util.writeFile(this.cachePath, JSON.stringify(this.cache))
       this.changed = false
     }
   },
 
-  check(mpath: util.MPath) {
+  check (mpath: util.MPath) {
     let spath = util.pathToString(mpath)
     let cache = this.get()
     return cache[spath] && cache[spath] === util.getModifiedTime(spath)

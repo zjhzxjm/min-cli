@@ -188,7 +188,7 @@ export class Xcx {
   watch () {
     let watcher = chokidar.watch([config.src, config.packages, 'min.config.json'], {
       cwd: config.cwd,
-      ignored: /node_modules|\.git|\.txt|\.log|\.DS_Store|\.npmignore|package\.json|README\.md/i,
+      ignored: /node_modules|\.git|\.txt|\.log|\.DS_Store|\.npmignore|package\.json/i,
       persistent: true,
       ignoreInitial: true
     })
