@@ -13,6 +13,7 @@ import NodePath = traverse.NodePath
 
 const CONFIG_KEY = 'config'
 const DATA_KEY = 'data'
+const PATH_SEP = path.sep
 
 export namespace WxSFMScript {
 
@@ -168,7 +169,7 @@ export class WxSFMScript extends WxSFM {
         request = path.relative(path.dirname(this.dest), path.dirname(useRequest.dest))
         request = path.join(request, path.basename(useRequest.dest, useRequest.ext))
         request = request.charAt(0) !== '.' ? `./${request}` : request
-
+        request = request.split(path.sep).join('/')
         switch (depend.requestType) {
           case RequestType.SCRIPT:
             depend.$node.value = request
@@ -342,11 +343,15 @@ export class WxSFMScript extends WxSFM {
     }
 
     let properties: Array<t.ObjectProperty> = []
+    // [['src', 'pages'], ['abnor', 'index.wxp']] => ['src', 'pages', 'abnor', 'index.wxp'] => 'src\/pages\/abnor\/index.wxp'
+    let pattern = Array.prototype.concat.apply([], [config.pages.split('/'), ['([a-z]+)', `index${config.ext.wxp}`]]).join(`\\${PATH_SEP}`)
+
     // src/pages/abnor/index.wxp => ['src/pages/abnor/index.wxp', 'abnor']
-    let matchs = this.request.srcRelative.match(`^${config.pages}/([a-z]+)/index${config.ext.wxp}`)
+    let matchs = this.request.srcRelative.match(new RegExp(`^${pattern}$`))
     if (!matchs || matchs.length < 2) {
       return
     }
+
     // abnor => wxc-abnor
     let pkgDirName = `${config.prefix}${matchs[1]}`
     // ~/you_project_path/src/packages/wxc-abnor/README.md

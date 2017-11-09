@@ -1,4 +1,5 @@
 import * as _ from 'lodash'
+import * as path from 'path'
 import { XcxNode } from '../class'
 import { RequestType } from '../declare'
 import { config } from '../util'
@@ -181,8 +182,8 @@ export class XcxTraverse {
    * @memberof XcxTraverse
    */
   private pageReplacer (destRelative: string): string {
-    let regExp = new RegExp(`(^${config.dest}/)|(${config.ext.wxp}$)`, 'g')
-    return destRelative.replace(regExp, '')
+    let regExp = new RegExp(`(^${config.dest}\\${path.sep})|(${config.ext.wxp}$)`, 'g')
+    return destRelative.replace(regExp, '').split(path.sep).join('/')
   }
 
   /**
@@ -194,8 +195,8 @@ export class XcxTraverse {
    * @memberof XcxTraverse
    */
   private componentReplacer (destRelative: string): string {
-    let regExp = new RegExp(`(^${config.dest}/)|(${config.ext.wxc}$)`, 'g')
-    return destRelative.replace(regExp, '')
+    let regExp = new RegExp(`(^${config.dest}\\${path.sep})|(${config.ext.wxc}$)`, 'g')
+    return destRelative.replace(regExp, '').split(path.sep).join('/')
   }
 
   /**

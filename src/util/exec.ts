@@ -12,6 +12,7 @@ export function exec (command: string, args: string[], verbose: boolean = false,
         stdio: 'inherit'
       })
     }
+    command = /^win/.test(process.platform) ? `${command}.cmd` : command
     const child = spawn(command, args, options)
 
     let stdout = ''
