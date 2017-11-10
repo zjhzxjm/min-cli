@@ -158,7 +158,7 @@ function src2destRelative (srcRelative: string, isPublish?: boolean) {
   })
 
   // /wxc-hello/src/ => /wxc-hello/dist/
-  destRelative = destRelative.replace(new RegExp(`(${path.sep}${config.prefix}[a-z-]+\\${path.sep})([a-z]+)`), (match, $1, $2) => {
+  destRelative = destRelative.replace(new RegExp(`(\\${path.sep}${config.prefix}[a-z-]+\\${path.sep})([a-z]+)`), (match, $1, $2) => {
     if ($2 === config.package.src) {
       return `${$1}${config.package.dest}`
     }
