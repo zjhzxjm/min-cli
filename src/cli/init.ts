@@ -12,7 +12,7 @@ import * as memFs from 'mem-fs'
 import * as editor from 'mem-fs-editor'
 import { CLIExample } from '../class'
 import { DevType, ScaffoldType, ProjectType } from '../declare'
-import util, { systemConfig, exec, log, LogType } from '../util'
+import util, { defaultConfig, exec, log, LogType } from '../util'
 
 /**
  * 初始化命令行选项
@@ -80,13 +80,13 @@ export default {
       let defaults = {
         proName,
         proNameToCamelCase: changeCase.camelCase(proName),
-        title: systemConfig.title,
-        description: answers.title || systemConfig.title,
+        title: defaultConfig.title,
+        description: answers.title || defaultConfig.title,
         prefix: '',
-        useExample: true,
+        useExample: answers.projectType === ProjectType.Component ? true : false,
         useGlobalStyle: true,
         useGlobalLayout: true,
-        dest: systemConfig.dest,
+        dest: defaultConfig.dest,
         npmScope: '',
         npmDest: '',
         gitUrl: '',
@@ -166,7 +166,7 @@ function getAnswers (proName: string): Promise<Answers> {
       type: 'input',
       message: '请设置项目标题',
       name: 'title',
-      default: systemConfig.title,
+      default: defaultConfig.title,
       when (answers: any) {
         return !!answers.isContinue
       }
@@ -181,11 +181,11 @@ function getAnswers (proName: string): Promise<Answers> {
       type: 'input',
       message: '请设置组件名前缀',
       name: 'prefix',
-      default: systemConfig.prefix,
+      default: defaultConfig.prefix,
       when (answers: any) {
         return !!answers.isContinue && answers.projectType === ProjectType.Component
       }
-    }, {
+    }, /* {
       type: 'confirm',
       message: '是否使用系统自带的Example组件（编写组件Demo示例和Api文档）',
       name: 'useExample',
@@ -193,7 +193,7 @@ function getAnswers (proName: string): Promise<Answers> {
       when (answers: any) {
         return !!answers.isContinue && answers.projectType === ProjectType.Component
       }
-    }, {
+    }, */ {
       type: 'confirm',
       message: '是否使用全局变量',
       name: 'useGlobalStyle',
@@ -213,7 +213,7 @@ function getAnswers (proName: string): Promise<Answers> {
       type: 'input',
       message: '请设置项目打包保存路径',
       name: 'dest',
-      default: systemConfig.dest,
+      default: defaultConfig.dest,
       when (answers: any) {
         return !!answers.isContinue
       }
@@ -221,7 +221,7 @@ function getAnswers (proName: string): Promise<Answers> {
       type: 'input',
       message: '请设置 npm scope 名称',
       name: 'npmScope',
-      default: systemConfig.npm.scope,
+      default: defaultConfig.npm.scope,
       when (answers: any) {
         return !!answers.isContinue && answers.projectType === ProjectType.Component
       }
@@ -229,7 +229,7 @@ function getAnswers (proName: string): Promise<Answers> {
       type: 'input',
       message: '请设置 npm 依赖编译后的保存路径',
       name: 'npmDest',
-      default: systemConfig.npm.dest,
+      default: defaultConfig.npm.dest,
       when (answers: any) {
         return !!answers.isContinue && answers.projectType === ProjectType.Component
       }

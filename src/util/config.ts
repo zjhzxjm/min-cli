@@ -2,11 +2,16 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as _ from 'lodash'
 import { Config, CustomConfig } from '../declare'
-import defaultConfig from '../config'
+import systemConfig from '../config'
 
+/**
+ * 可访问路径类型
+ */
 type GetPathType = 'file' | 'src' | 'dest' | 'pages' | 'packages' | 'cache.file' | 'cache.xcxast' | 'npm.src' | 'npm.dest'
 
-// 自定义配置白名单成员
+/**
+ * 自定义配置白名单成员
+ */
 const CUSTOM_CONFIG_MEMBER: string[] = [
   'style',
   'src', // 源代码的路径
@@ -19,14 +24,23 @@ const CUSTOM_CONFIG_MEMBER: string[] = [
   'projectType'// 项目类型，如component 和 application
 ]
 
+/**
+ * 自定义配置文件路径
+ */
 function getCustomConfigFilePath (): string {
-  return path.join(defaultConfig.cwd, defaultConfig.filename)
+  return path.join(systemConfig.cwd, systemConfig.filename)
 }
 
+/**
+ * 项目 package.json 路径
+ */
 function getProjectPackagePath (): string {
-  return path.join(defaultConfig.cwd, 'package.json')
+  return path.join(systemConfig.cwd, 'package.json')
 }
 
+/**
+ * 获取自定义配置
+ */
 function getCustomConfig (): { [key: string]: CustomConfig } {
   const pkgPath = getProjectPackagePath()
   const filePath = getCustomConfigFilePath()
@@ -54,13 +68,15 @@ function getCustomConfig (): { [key: string]: CustomConfig } {
   }
 }
 
-function getSystemConfig (): Config {
-  return _.cloneDeep<Config>(defaultConfig)
-}
+/**
+ * 配置转换函数
+ * @param defaultConfig 默认配置
+ * @param customConfig 自定义配置
+ */
+function convertConfig (defaultConfig: Config, customConfig: CustomConfig = {}) {
 
-function getConfig (systemConfig: Config, customConfig: CustomConfig) {
-  // merge systemConfig and minConfig
-  let config = _.merge({}, systemConfig, customConfig)
+  // merge defaultConfig and minConfig
+  let config = _.merge({}, defaultConfig, customConfig)
 
   function engine (rootConfig: Config, childConfig = rootConfig) {
     _.forIn(childConfig, (value: any, key: string) => {
@@ -91,11 +107,18 @@ function getConfig (systemConfig: Config, customConfig: CustomConfig) {
   return config
 }
 
-let systemConfig = getSystemConfig()
-let { customConfig, customConfigFromPkg, customConfigFromFile } = getCustomConfig()
+let defaultConfig = convertConfig(systemConfig)
+let {
+  customConfig,
+  customConfigFromPkg,
+  customConfigFromFile
+} = getCustomConfig()
 
+/**
+ * 全部配置，基于默认和自定义配置的集合
+ */
 export const config = {
-  ...getConfig(systemConfig, customConfig),
+  ...convertConfig(defaultConfig, customConfig),
   getPath (name: GetPathType, ...paths: string[]) {
     let names = name.split('.')
 
@@ -112,8 +135,8 @@ export const config = {
     // 将 package.json 和 min.config.json 配置更新到 customConfig
     _.merge(customConfig, customConfigFromPkg, customConfigFromFile)
 
-    // 将 systemConfig 和 customConfig 合并到 config
-    _.merge(this, getConfig(systemConfig, customConfig))
+    // 将 defaultConfig 和 customConfig 合并到 config
+    _.merge(this, convertConfig(defaultConfig, customConfig))
 
     let filePath = getCustomConfigFilePath()
     fs.writeFileSync(filePath, JSON.stringify(customConfigFromFile, null, 2))
@@ -121,8 +144,23 @@ export const config = {
 }
 
 export {
-  systemConfig,
+  /**
+   * 默认配置
+   */
+  defaultConfig,
+
+  /**
+   * 自定义配置，基于自定义配置文件 和 项目 package.json 配置的集合
+   */
   customConfig,
-  customConfigFromPkg,
-  customConfigFromFile
+
+  /**
+   * 来自自定义文件的配置
+   */
+  customConfigFromFile,
+
+  /**
+   * 来自 项目 package.json 的配置
+   */
+  customConfigFromPkg
 }
