@@ -32,7 +32,7 @@ export default {
     }
   },
   async action (name: string, options: InstallCommand) {
-    let pkgNames: string[] = name.trim().split(',')
+    let pkgNames: string[] = name ? name.trim().split(',') : []
 
     try {
       await NpmDest.setAnswer()

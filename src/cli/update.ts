@@ -58,7 +58,7 @@ export default {
 function getPkgNames (name: string) {
   let pkgNames: string[] = []
 
-  if (name.trim()) { // from cli
+  if (name && name.trim()) { // from cli
     pkgNames = name.trim().split(',')
   } else { // from dependencies and devDependencies
     let pkgPath = path.join(config.cwd, 'package.json')
