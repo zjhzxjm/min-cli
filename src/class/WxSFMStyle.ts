@@ -240,6 +240,7 @@ export class WxSFMStyle extends WxSFM {
         request = path.relative(path.dirname(this.dest), path.dirname(useRequest.dest))
         request = path.join(request, path.basename(useRequest.dest, useRequest.ext))
         request = request.charAt(0) !== '.' ? `./${request}` : request
+        request = request.split(path.sep).join('/')
         request += config.ext.wxss
 
         switch (depend.requestType) {
