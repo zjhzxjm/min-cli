@@ -23,7 +23,7 @@ export namespace NpmDest {
           return true
         },
         filter (input: string) {
-          return input.split('/').join('/')
+          return input.split(path.sep).join('/')
         },
         when (answers: any) {
           return !customConfig.npm || !customConfig.npm.dest

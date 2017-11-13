@@ -51,7 +51,7 @@ function md2html (source: string, isFormat: boolean) {
   // 格式化：换行、缩进
   if (isFormat) {
     source = source.replace(/\n/g, '<br/>')
-    source = source.replace(/  /g, '<span class="md--tab"></span>')
+    source = source.replace(/[ ]{2}/g, '<span class="md--tab"></span>')
   }
   return source
 }
