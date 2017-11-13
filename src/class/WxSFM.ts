@@ -23,7 +23,6 @@ export namespace WxSFM {
   }
 }
 
-
 /**
  * 单文件模块
  *
@@ -48,7 +47,6 @@ export class WxSFM {
     this.destExt = options.destExt
     this.initDest()
   }
-
 
   /**
    * 是否.wxa扩展，同Request.isWxa
@@ -91,30 +89,6 @@ export class WxSFM {
   }
 
   /**
-   * 设置 dest目标绝对路径 和 destRelative目标相对路径
-   *
-   * @private
-   * @memberof WxSFM
-   */
-  private initDest () {
-    let dester = this.getDester(this.destExt)
-    this.dest = dester.dest
-    this.destRelative = dester.destRelative
-  }
-
-  /**
-   * 将内容写入到 dest目标绝对路径
-   *
-   * @private
-   * @param {string} code
-   * @memberof WxSFM
-   */
-  private write (code: string) {
-    log.msg(LogType.WRITE, this.destRelative)
-    util.writeFile(this.dest, code)
-  }
-
-  /**
    * 返回通过新的扩展名与 request.dest的目标绝对路径生成新的 dest目标绝对路径 和 destRelative目标相对路径
    *
    * @param {string} ext
@@ -140,7 +114,9 @@ export class WxSFM {
   }
 
   // 保存前
-  beforeSave (): void {}
+  beforeSave (): void {
+    //
+  }
 
   // 保存
   save (): void {
@@ -155,13 +131,17 @@ export class WxSFM {
   }
 
   // 保存后
-  afterSave (): void {}
+  afterSave (): void {
+    //
+  }
 
   // 移除前
-  beforeRemove (): void {}
+  beforeRemove (): void {
+    //
+  }
 
   // 移除
-  remove (): void  {
+  remove (): void {
     this.beforeRemove()
     log.msg(LogType.DELETE, this.destRelative)
     util.unlink(this.dest)
@@ -169,7 +149,9 @@ export class WxSFM {
   }
 
   // 移除后
-  afterRemove (): void {}
+  afterRemove (): void {
+    //
+  }
 
   // 获取依赖
   getDepends (): Depend[] {
@@ -180,5 +162,29 @@ export class WxSFM {
   // 更新依赖
   updateDepends (uses: Request.Core[]): void {
     log.fatal('WxSFM.updateRequest Method not implemented.')
+  }
+
+  /**
+   * 设置 dest目标绝对路径 和 destRelative目标相对路径
+   *
+   * @private
+   * @memberof WxSFM
+   */
+  private initDest () {
+    let dester = this.getDester(this.destExt)
+    this.dest = dester.dest
+    this.destRelative = dester.destRelative
+  }
+
+  /**
+   * 将内容写入到 dest目标绝对路径
+   *
+   * @private
+   * @param {string} code
+   * @memberof WxSFM
+   */
+  private write (code: string) {
+    log.msg(LogType.WRITE, this.destRelative)
+    util.writeFile(this.dest, code)
   }
 }

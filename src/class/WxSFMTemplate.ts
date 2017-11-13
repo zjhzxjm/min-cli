@@ -37,16 +37,6 @@ export namespace WxSFMTemplate {
  * @extends {WxSFM}
  */
 export class WxSFMTemplate extends WxSFM {
-
-  /**
-   * 依赖列表
-   *
-   * @private
-   * @type {Depend[]}
-   * @memberof WxSFMTemplate
-   */
-  private depends: Depend[] = []
-
   /**
    * DOM 树
    *
@@ -80,6 +70,15 @@ export class WxSFMTemplate extends WxSFM {
   demoElems: any[] = []
 
   /**
+   * 依赖列表
+   *
+   * @private
+   * @type {Depend[]}
+   * @memberof WxSFMTemplate
+   */
+  private depends: Depend[] = []
+
+  /**
    * Creates an instance of WxSFMTemplate.
    * @param {string} source
    * @param {Request} request
@@ -91,6 +90,68 @@ export class WxSFMTemplate extends WxSFM {
       destExt: config.ext.wxml
     })
     this.initDom()
+  }
+
+  /**
+   * 生成代码
+   *
+   * @returns {string}
+   * @memberof WxSFMTemplate
+   */
+  generator (): string {
+    let code = ''
+    if (!this.dom) return code
+
+    this.setCustomTagPidAttr()
+    this.addExampleMdDocTag()
+    this.setExampleDemoSourceAttr()
+
+    // code = htmlparser.DomUtils.getOuterHTML(this.dom)
+    code = getOuterHTML(this.dom)
+    code = beautifyHtml(code)
+
+    return code
+  }
+
+  /**
+   * 保存文件
+   *
+   * @memberof WxSFMTemplate
+   */
+  save () {
+    if (this.request.isWxa) {
+      return
+    }
+    super.save()
+  }
+
+  /**
+   * 移除文件
+   *
+   * @memberof WxSFMTemplate
+   */
+  remove () {
+    super.remove()
+  }
+
+  /**
+   * 获取依赖列表
+   *
+   * @returns {Depend[]}
+   * @memberof WxSFMTemplate
+   */
+  getDepends (): Depend[] {
+    return this.depends
+  }
+
+  /**
+   * 更新依赖列表
+   *
+   * @param {Request.Core[]} useRequests 可用的请求列表
+   * @memberof WxSFMTemplate
+   */
+  updateDepends (useRequests: Request.Core[]): void {
+    //
   }
 
   /**
@@ -207,66 +268,5 @@ export class WxSFMTemplate extends WxSFM {
         parent.attribs['source'] = `{{__code__.${pcName}}}`
       }
     })
-  }
-
-  /**
-   * 生成代码
-   *
-   * @returns {string}
-   * @memberof WxSFMTemplate
-   */
-  generator(): string {
-    let code = ''
-    if (!this.dom) return code
-
-    this.setCustomTagPidAttr()
-    this.addExampleMdDocTag()
-    this.setExampleDemoSourceAttr()
-
-    // code = htmlparser.DomUtils.getOuterHTML(this.dom)
-    code = getOuterHTML(this.dom)
-    code = beautifyHtml(code)
-
-    return code
-  }
-
-  /**
-   * 保存文件
-   *
-   * @memberof WxSFMTemplate
-   */
-  save() {
-    if (this.request.isWxa) {
-      return
-    }
-    super.save()
-  }
-
-  /**
-   * 移除文件
-   *
-   * @memberof WxSFMTemplate
-   */
-  remove () {
-    super.remove()
-  }
-
-  /**
-   * 获取依赖列表
-   *
-   * @returns {Depend[]}
-   * @memberof WxSFMTemplate
-   */
-  getDepends (): Depend[] {
-    return this.depends
-  }
-
-  /**
-   * 更新依赖列表
-   *
-   * @param {Request.Core[]} useRequests 可用的请求列表
-   * @memberof WxSFMTemplate
-   */
-  updateDepends (useRequests: Request.Core[]): void {
   }
 }

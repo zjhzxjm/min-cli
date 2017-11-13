@@ -16,14 +16,14 @@ export namespace WxFile {
      *
      * @memberof Core
      */
-    save() :void
+    save (): void
 
     /**
      * 移除文件
      *
      * @memberof Core
      */
-    remove() :void
+    remove (): void
 
     /**
      * 获取依赖列表
@@ -31,7 +31,7 @@ export namespace WxFile {
      * @returns {Depend[]}
      * @memberof Core
      */
-    getDepends(): Depend[]
+    getDepends (): Depend[]
 
     /**
      * 更新依赖列表
@@ -39,10 +39,9 @@ export namespace WxFile {
      * @param {Request.Core[]} useRequests 可用的请求列表
      * @memberof Core
      */
-    updateDepends(useRequests: Request.Core[]): void
+    updateDepends (useRequests: Request.Core[]): void
   }
 }
-
 
 /**
  * 文件管理类，主要负责单文件和原生文件的统一接口转换
@@ -54,13 +53,12 @@ export namespace WxFile {
 export class WxFile implements WxFile.Core {
   private core: WxFile.Core
 
-
   /**
    * Creates an instance of WxFile.
    * @param {Request} request
    * @memberof WxFile
    */
-  constructor(request: Request) {
+  constructor (request: Request) {
     let { ext, src, isSFC, isNFC } = request
     let source = fs.readFileSync(src, 'utf-8')
 
@@ -80,7 +78,7 @@ export class WxFile implements WxFile.Core {
    *
    * @memberof WxFile
    */
-  save(): void {
+  save (): void {
     this.core.save()
   }
 
@@ -89,7 +87,7 @@ export class WxFile implements WxFile.Core {
    *
    * @memberof WxFile
    */
-  remove(): void {
+  remove (): void {
     this.core.remove()
   }
 
@@ -99,7 +97,7 @@ export class WxFile implements WxFile.Core {
    * @returns {Depend[]}
    * @memberof WxFile
    */
-  getDepends(): Depend[] {
+  getDepends (): Depend[] {
     return this.core.getDepends()
   }
 
@@ -109,7 +107,7 @@ export class WxFile implements WxFile.Core {
    * @param {Request.Core[]} useRequests 可用的请求列表
    * @memberof WxFile
    */
-  updateDepends(useRequests: Request.Core[]): void {
+  updateDepends (useRequests: Request.Core[]): void {
     this.core.updateDepends(useRequests)
   }
 }

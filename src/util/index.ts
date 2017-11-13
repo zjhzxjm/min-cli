@@ -4,7 +4,7 @@ export {
   beautifyJs
 } from './beautify'
 
-export { config, customConfig, systemConfig } from './config'
+export { config, customConfig, defaultConfig } from './config'
 
 export { xcxCache, xcxNodeCache, xcxNext } from './cache'
 

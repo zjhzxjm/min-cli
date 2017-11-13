@@ -1,7 +1,9 @@
+import { Config } from './declare'
 const scope = '@minui'
 
-const config = {
+const config: Config = {
   title: 'MinUI',
+  cli: 'min',
   filename: 'min.config.json',
   projectType: '', // in customConfig. include min.config.json and minConfig of package.json
   cwd: process.cwd(),

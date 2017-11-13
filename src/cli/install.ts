@@ -1,6 +1,8 @@
+
 import { CLIExample } from '../class'
 import { DevType } from '../declare'
-import util, { config, exec } from '../util'
+import util, { config, exec, log, LogType } from '../util'
+import { NpmDest } from '../qa'
 
 /**
  * 安装命令行选项
@@ -21,24 +23,44 @@ export default {
   options: [],
   on: {
     '--help': () => {
-      new CLIExample('min install')
-        .group('安装')
-        .rule('')
+      new CLIExample('install')
+        .group('安装loading组件')
+        .rule('@minui/wxc-loading')
+
+        .group('支持英文逗号分隔，来同时安装多个组件')
+        .rule('@minui/wxc-loading,@minui/wxc-loading')
     }
   },
   async action (name: string, options: InstallCommand) {
-    let pkgNames: string[] = name.trim().split(' ')
+    let pkgNames: string[] = name ? name.trim().split(',') : []
 
     try {
-      await exec('npm', ['install', ...pkgNames, '--save'], true, {
-        cwd: config.cwd
-      })
-
-      // 编译
+      await NpmDest.setAnswer()
+      await install(pkgNames)
       util.buildNpmWXCs(pkgNames)
-
+      // await viewUse(pkgNames)
     } catch (err) {
-      console.log(err)
+      log.error(err)
     }
   }
 }
+
+async function install (pkgNames: string[]) {
+  // print run log
+  pkgNames.forEach(pkgName => {
+    log.msg(LogType.RUN, `npm install ${pkgName} --save`)
+  })
+  log.newline()
+
+  // run npm install
+  await exec('npm', ['install', ...pkgNames, '--save'], true, {
+    cwd: config.cwd
+  })
+  log.newline()
+}
+
+// function viewUse (pkgNames: string[]) {
+//   pkgNames.forEach(pkgName => {
+//     log.msg(LogType.COMPLETE, `${pkgName} 安装完成，in ${path.join(config.npm.dest, pkgName)}`)
+//   })
+// }

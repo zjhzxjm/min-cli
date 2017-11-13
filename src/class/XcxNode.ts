@@ -75,7 +75,7 @@ export class XcxNode {
    * @param {XcxNode} [root]
    * @memberof XcxNode
    */
-  constructor(request: Request, root?: XcxNode) {
+  constructor (request: Request, root?: XcxNode) {
     if (root) {
       root.children.push(this)
     }
@@ -85,6 +85,38 @@ export class XcxNode {
     this.cached()
     this.recursive()
     this.lack()
+  }
+
+  /**
+   * 创建一个小程序节点树
+   *
+   * @static
+   * @param {XcxNode.Options} options
+   * @returns {(XcxNode | null)}
+   * @memberof XcxNode
+   */
+  static create (options: XcxNode.Options): XcxNode | null {
+    let { isMain, isForce, root } = options
+
+    if (isMain && root) {
+      log.debug(`XcxNode.create 不能同时设定'option.parent' 和 'root'`)
+    }
+
+    let request = new Request(options)
+
+    if (!request.src) {
+      if (isMain) {
+        log.error(`找不到入口：${request.request}`)
+      }
+      return null
+    }
+
+    let xcxNode = xcxNodeCache.get(request.src)
+    if (isForce || !xcxNode) {
+      xcxNode = new XcxNode(request, root)
+    }
+
+    return xcxNode
   }
 
   /**
@@ -113,7 +145,7 @@ export class XcxNode {
    * @private
    * @memberof XcxNode
    */
-  private recursive() {
+  private recursive () {
     let depends = this.wxFile.getDepends()
 
     for (let i = 0; i < depends.length; i++) {
@@ -168,37 +200,4 @@ export class XcxNode {
       xcxNext.removeLack(this.request.srcRelative)
     }
   }
-
-  /**
-   * 创建一个小程序节点树
-   *
-   * @static
-   * @param {XcxNode.Options} options
-   * @returns {(XcxNode | null)}
-   * @memberof XcxNode
-   */
-  static create(options: XcxNode.Options): XcxNode | null {
-    let { isMain, isForce, root } = options
-
-    if (isMain && root) {
-      log.debug(`XcxNode.create 不能同时设定'option.parent' 和 'root'`)
-    }
-
-    let request = new Request(options)
-
-    if (!request.src) {
-      if (isMain) {
-        log.error(`找不到入口：${request.request}`)
-      }
-      return null
-    }
-
-    let xcxNode = xcxNodeCache.get(request.src)
-    if (isForce || !xcxNode) {
-      xcxNode = new XcxNode(request, root)
-    }
-
-    return xcxNode
-  }
 }
-

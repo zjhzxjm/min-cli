@@ -49,9 +49,7 @@ export class Xcx {
    * @param {Xcx.Options} options
    * @memberof Xcx
    */
-  constructor (public options: Xcx.Options) {
-
-  }
+  constructor (public options: Xcx.Options) {}
 
   /**
    * 清空 DEST 目录
@@ -125,6 +123,108 @@ export class Xcx {
    */
   transfrom (xcxNode: XcxNode | XcxNode []) {
     XcxTraverse.traverse(xcxNode, this.options.traverse)
+  }
+
+  /**
+   * 编译
+   *
+   * @memberof Xcx
+   */
+  compile () {
+    this.clear()
+    this.appCompile()
+    this.pagesCompile()
+    this.imagesCompile()
+  }
+
+  /**
+   * 清空 packages 目录下 dest 下的文件
+   *
+   * @memberof Xcx
+   */
+  clearPackages () {
+    let { isClear, packageNames = [] } = this.options
+    if (!isClear) return
+
+    packageNames.forEach(packageName => {
+      fs.emptyDirSync(config.getPath('packages', packageName, config.package.dest))
+    })
+  }
+
+  /**
+   * 编译 packages 下的组件，仅用于 min publish
+   *
+   * @memberof Xcx
+   */
+  compilePackages () {
+    this.clearPackages()
+    let { packageNames = [] } = this.options
+    let glob = ''
+    if (packageNames.length === 0) {
+      glob = '**'
+    } else if (packageNames.length === 1) {
+      glob = packageNames[0]
+    } else {
+      glob = `{${packageNames.join(',')}}`
+    }
+    // ./**/src/index.wxc
+    glob = `./${glob}/${config.package.src}/*${config.ext.wxc}`
+    let xcxEntry: Xcx.Entry = {
+      request: glob,
+      parent: config.getPath('packages'),
+      isMain: true,
+      isGlob: true,
+      isPublish: true
+    }
+
+    this.transfromFromEntry(xcxEntry)
+  }
+
+  /**
+   * 监听文件新增、修改、删除
+   *
+   * @memberof Xcx
+   */
+  watch () {
+    let watcher = chokidar.watch([config.src, config.packages, 'min.config.json'], {
+      cwd: config.cwd,
+      ignored: /node_modules|\.git|\.txt|\.log|\.DS_Store|\.npmignore|package\.json/i,
+      persistent: true,
+      ignoreInitial: true
+    })
+
+    watcher
+      .on('add', this.watchAdd.bind(this))
+      .on('change', this.watchChange.bind(this))
+      .on('unlink', this.watchDelete.bind(this))
+      .on('error', (err) => {
+        log.fatal(err)
+      })
+      .on('ready', () => {
+        if (!this.isWatched) {
+          this.isWatched = true
+          log.msg(LogType.WATCH, '开始监听文件改动。')
+        }
+      })
+  }
+
+  /**
+   * 编译 从Next里获取监听变更文件，或者是之前存在缺失文件
+   *
+   * @memberof Xcx
+   */
+  next () {
+    let requests = xcxNext.get()
+    let xcxEntry: Xcx.Entry[] = requests.map(request => {
+      return {
+        request,
+        parent: config.cwd,
+        isMain: true,
+        isForce: true
+      }
+    })
+    this.transfromFromEntry(xcxEntry)
+    xcxNext.reset()
   }
 
   /**
@@ -212,17 +312,24 @@ export class Xcx {
 
     // Array.prototype.concat.apply([], [[], [], []])
     const images: {origin: string, target: string}[] = Array.prototype.concat.apply([], tabBarList.map(tabBarItem => {
-      return [
-        {
-          origin: config.getPath('src', tabBarItem.iconPath),
-          target: config.getPath('dest', tabBarItem.iconPath)
-        },
-        {
+      let map: {origin: string, target: string}[] = []
+      if (tabBarItem.iconPath) {
+        map.push(
+          {
+            origin: config.getPath('src', tabBarItem.iconPath),
+            target: config.getPath('dest', tabBarItem.iconPath)
+          }
+        )
+      }
+      if (tabBarItem.selectedIconPath) {
+        map.push({
           origin: config.getPath('src', tabBarItem.selectedIconPath),
           target: config.getPath('dest', tabBarItem.selectedIconPath)
-        }
-      ]
+        })
+      }
+      return map
     }))
+
     images.forEach(image => {
       if (!fs.existsSync(image.origin)) {
         log.fatal(`找不到文件：${image.origin}`)
@@ -288,107 +395,5 @@ export class Xcx {
       xcxNext.watchDeleteFile(file)
       this.next()
     }
-  }
-
-  /**
-   * 编译
-   *
-   * @memberof Xcx
-   */
-  compile () {
-    this.clear()
-    this.appCompile()
-    this.pagesCompile()
-    this.imagesCompile()
-  }
-
-  /**
-   * 清空 packages 目录下 dest 下的文件
-   *
-   * @memberof Xcx
-   */
-  clearPackages () {
-    let { isClear, packageNames = [] } = this.options
-    if (!isClear) return
-
-    packageNames.forEach(packageName => {
-      fs.emptyDirSync(config.getPath('packages', packageName, config.package.dest))
-    })
-  }
-
-  /**
-   * 编译 packages 下的组件，仅用于 min publish
-   *
-   * @memberof Xcx
-   */
-  compilePackages () {
-    this.clearPackages()
-    let { packageNames = [] } = this.options
-    let glob = ''
-    if (packageNames.length === 0) {
-      glob = '**'
-    } else if (packageNames.length === 1) {
-      glob = packageNames[0]
-    } else {
-      glob = `{${packageNames.join(',')}}`
-    }
-    // ./**/src/index.wxc
-    glob = `./${glob}/${config.package.src}/*${config.ext.wxc}`
-    let xcxEntry: Xcx.Entry = {
-      request: glob,
-      parent: config.getPath('packages'),
-      isMain: true,
-      isGlob: true,
-      isPublish: true
-    }
-
-    this.transfromFromEntry(xcxEntry)
-  }
-
-  /**
-   * 监听文件新增、修改、删除
-   *
-   * @memberof Xcx
-   */
-  watch () {
-    let watcher = chokidar.watch([config.src, config.packages, 'min.config.json'], {
-      cwd: config.cwd,
-      ignored: /node_modules|\.git|\.txt|\.log|\.DS_Store|\.npmignore|package\.json|README\.md/i,
-      persistent: true,
-      ignoreInitial: true
-    })
-
-    watcher
-      .on('add', this.watchAdd.bind(this))
-      .on('change', this.watchChange.bind(this))
-      .on('unlink', this.watchDelete.bind(this))
-      .on('error', (err) => {
-        log.fatal(err)
-      })
-      .on('ready', () => {
-        if (!this.isWatched) {
-          this.isWatched = true
-          log.msg(LogType.WATCH, '开始监听文件改动。')
-        }
-      })
-  }
-
-  /**
-   * 编译 从Next里获取监听变更文件，或者是之前存在缺失文件
-   *
-   * @memberof Xcx
-   */
-  next () {
-    let requests = xcxNext.get()
-    let xcxEntry: Xcx.Entry[] = requests.map(request => {
-      return {
-        request,
-        parent: config.cwd,
-        isMain: true,
-        isForce: true
-      }
-    })
-    this.transfromFromEntry(xcxEntry)
-    xcxNext.reset()
   }
 }

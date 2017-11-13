@@ -1,3 +1,5 @@
+import { config } from '../util'
+
 /**
  * CLI 示例类
  *
@@ -39,7 +41,7 @@ export class CLIExample {
    * @memberof CLIExample
    */
   rule (rule: string, comment?: string) {
-    console.log(`      $ ${this.command} ${rule}${comment ? `\t# ${comment}` : ''}`)
+    console.log(`      $ ${config.cli} ${this.command} ${rule}${comment ? `\t# ${comment}` : ''}`)
     return this
   }
 }

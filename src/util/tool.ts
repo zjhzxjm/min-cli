@@ -233,7 +233,7 @@ export function pageName2Pages (name: string | string[] = []) {
   if (_.isArray(name)) {
     names = name
   } else if (name && name.trim()) {
-    names = name.trim().split(' ').map(value => value.trim())
+    names = name.trim().split(',').map(value => value.trim())
   }
   let pages: string[] = names.map(name => {
     return `pages/${name}/index`

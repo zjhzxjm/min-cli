@@ -24,15 +24,16 @@ export default {
   name: 'dev [name]',
   alias: '',
   usage: '[name]',
-  description: '开发服务',
+  description: '调试页面',
   options: [],
   on: {
     '--help': () => {
-      new CLIExample('min dev')
-        .group('启动项目开发服务')
+      new CLIExample('dev')
+        .group('调试项目')
         .rule('')
-        .group('启动多页面开发服务')
-        .rule('loading toast')
+
+        .group('支持英文逗号分隔，来同时调试多个页面')
+        .rule('home,loading')
     }
   },
   action (pageName: string, options: DevCommand) {

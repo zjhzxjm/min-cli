@@ -2,6 +2,7 @@
 
 import * as fs from 'fs-extra'
 import * as path from 'path'
+import * as _ from 'lodash'
 import * as program from 'commander'
 import { config } from '../util'
 import commands from '../index'
@@ -10,8 +11,9 @@ const minPkg = require('../../package.json')
 const proPkgPath = path.join(config.cwd, 'package.json')
 const proPkg = fs.existsSync(proPkgPath) ? require(proPkgPath) : null
 
-// set version
-program.version(minPkg.version)
+program
+  .version(minPkg.version)
+  .usage('<command> [options]')
 
 commands.forEach(command => {
   // check
@@ -42,6 +44,13 @@ commands.forEach(command => {
     let options: string[][] = command.options
     options.forEach((option: string[]) => {
       cmd.option(option[0], option[1])
+    })
+  }
+
+  // set on
+  if (_.isObject(command.on)) {
+    _.forIn(command.on, (value, key) => {
+      cmd.on(key, value)
     })
   }
 

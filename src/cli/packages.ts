@@ -29,7 +29,7 @@ export default {
   ],
   on: {
     '--help': () => {
-      new CLIExample('min packages')
+      new CLIExample('packages')
         .group('列表')
         .rule('--list')
         .group('删除')

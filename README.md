@@ -479,7 +479,16 @@ customFileTypes:
 
 ## ○ 更新记录
 
-#### v0.0.1（2017.11.02）
+### v1.0.2（2017.11.10）
+
+- 修复 windows 系统兼容问题（min init 初始化项目安装失败；min dev 生成页面路径错误；其他问题）
+- 增加 min install | update 支持自定义设置安装后的保存路径
+- 修复 tabbar 的 iconPath 路径强制依赖问题
+- 修复 package 组件的 README.md 文件编辑后没有实时编译示例页面的文档
+- 修复 min xxx -h 没有打印 help 信息
+- 优化 min dev 调试多个页面命令行参数使用英文逗号分隔，暂不支持空格分隔，min install 和 min update存在同样的问题
+- 修复 min update 命令行缺少参数报错
+
+### v1.0.1（2017.11.02）
 
 - 初始版本
-

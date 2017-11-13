@@ -26,7 +26,7 @@ export default {
   options: [],
   on: {
     '--help': () => {
-      new CLIExample('min changelog')
+      new CLIExample('changelog')
         .group('更新日志')
         .rule('')
     }

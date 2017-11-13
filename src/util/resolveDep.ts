@@ -140,7 +140,7 @@ function src2destRelative (srcRelative: string, isPublish?: boolean) {
 
   // node_modules => dist/npm/wxcs
   // path/node_modules => path/npm/wxcs
-  destRelative = destRelative.replace(new RegExp(`(^|\/)${config.npm.src}`, 'ig'), (match, $1) => {
+  destRelative = destRelative.replace(new RegExp(`(^|\\${path.sep})${config.npm.src}`, 'ig'), (match, $1) => {
     // let npm = ext === config.ext.wxc ? config.npm.dest.wxcs : config.npm.dest.modules
     let npmDest = config.npm.dest
 
@@ -148,17 +148,17 @@ function src2destRelative (srcRelative: string, isPublish?: boolean) {
       // node_modules => dist/npm/wxcs
       // node_modules => dist/npm/modules
       return npmDest
-    } else if ($1 === '/') {
+    } else if ($1 === path.sep) {
       // path/node_modules => path/npm/wxcs
       // path/node_modules => path/npm/modules
-      return npmDest.split('/').slice(1).join('/')
+      return npmDest.split(path.sep).slice(1).join(path.sep)
     } else {
       return match
     }
   })
 
   // /wxc-hello/src/ => /wxc-hello/dist/
-  destRelative = destRelative.replace(new RegExp(`(/${config.prefix}[a-z-]+/)([a-z]+)`), (match, $1, $2) => {
+  destRelative = destRelative.replace(new RegExp(`(\\${path.sep}${config.prefix}[a-z-]+\\${path.sep})([a-z]+)`), (match, $1, $2) => {
     if ($2 === config.package.src) {
       return `${$1}${config.package.dest}`
     }
@@ -332,13 +332,13 @@ function resolveLookupNpmPaths (parent: string) {
   let relPath = path.relative(config.cwd, parent)
 
   // 相对路径起始不包含 node_modules 或 source/packages，返回默认
-  if (!new RegExp(`^(node_modules|${config.packages})/`).test(relPath)) {
+  if (!new RegExp(`^(node_modules|${config.packages})\\${path.sep}`).test(relPath)) {
     return paths
   }
 
   // ['node_modules', '@scope', 'wxc-hello']
   // ['source', 'packages', 'wxc-hello']
-  let spes = relPath.split('/')
+  let spes = relPath.split(path.sep)
 
   for (let i = 0; i < spes.length; i++) {
     let name = spes[i]
@@ -348,7 +348,7 @@ function resolveLookupNpmPaths (parent: string) {
       continue
     }
 
-    let lookup = spes.slice(0, i + 1).join('/')
+    let lookup = spes.slice(0, i + 1).join(path.sep)
 
     // 'source'
     // 'source/packages'
