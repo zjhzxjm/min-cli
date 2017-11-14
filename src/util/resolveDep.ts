@@ -197,6 +197,11 @@ function getMatchRequest (request: string, requestType?: RequestType): {lookupEx
   let ext = path.extname(request)
   let exts: string[] = []
 
+  // 非白名单内的扩展名，默认通过 requestType 来获取 ext 扩展名
+  if (ext) {
+    ext = _.findKey(config.ext, value => value === ext) ? ext : ''
+  }
+
   if (!ext && !requestType) {
     throw new Error(`Ext 和 RequestType 不能同时为空`)
   }
