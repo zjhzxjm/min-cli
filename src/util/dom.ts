@@ -10,7 +10,9 @@ const htmlparser = require('htmlparser2')
  */
 function make (source: string) {
   let handler = new htmlparser.DomHandler()
-  let parser = new htmlparser.Parser(handler)
+  let parser = new htmlparser.Parser(handler, {
+    lowerCaseAttributeNames: false
+  })
 
   parser.write(source)
   parser.done()
