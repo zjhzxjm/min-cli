@@ -192,7 +192,7 @@ export class Global {
     log.msg(LogType.GENERATE, path.relative(config.cwd, appConfigPath))
 
     // 写入
-    fs.writeFileSync(appConfigPath, appConfigCont, 'utf8');
+    fs.writeFileSync(appConfigPath, appConfigCont, 'utf8')
   }
 
   /**
@@ -202,7 +202,7 @@ export class Global {
    * @memberof Global
    */
   private setConfig () {
-    let file = path.join(config.cwd, 'min.config.json')
+    let file = path.join(config.cwd, config.filename)
     let configData = fs.existsSync(file) ? fs.readJsonSync(file) : {}
     let { style: styleConfig = {} } = configData
     let lessCode = this.generateStyleVariables(styleConfig, 'Less')

@@ -54,14 +54,15 @@ const config: Config = {
     json: '.json',
 
     // 不支持 .css 扩展
-    // css: '.css',
+    css: '.css',
 
     // 预编译
     less: '.less',
-    pcss: '.pcss'
+    pcss: '.pcss',
+    postcss: '.postcss',
 
-    // sass: '.sass',
-    // stylus: '.stylus'
+    sass: '.sass',
+    stylus: '.stylus'
   },
   structure: { // 构造器
     wxc: 'Component',

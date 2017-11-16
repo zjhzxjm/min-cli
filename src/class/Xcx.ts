@@ -1,4 +1,5 @@
 import * as fs from 'fs-extra'
+import * as path from 'path'
 import * as glob from 'glob'
 import * as _ from 'lodash'
 import * as chokidar from 'chokidar'
@@ -186,7 +187,7 @@ export class Xcx {
    * @memberof Xcx
    */
   watch () {
-    let watcher = chokidar.watch([config.src, config.packages, 'min.config.json'], {
+    let watcher = chokidar.watch([config.src, config.packages, config.filename], {
       cwd: config.cwd,
       ignored: /node_modules|\.git|\.txt|\.log|\.DS_Store|\.npmignore|package\.json/i,
       persistent: true,
@@ -362,8 +363,8 @@ export class Xcx {
    * @memberof Xcx
    */
   private watchChange (file: string) {
-    let isApp = file === `${config.src}/app${config.ext.wxa}`
-    let isConfig = file === 'min.config.json'
+    let isApp = file === path.join(config.src, `app${config.ext.wxa}`)
+    let isConfig = file === config.filename
 
     // 控制台换新行
     log.newline()
@@ -384,7 +385,7 @@ export class Xcx {
    * @memberof Xcx
    */
   private watchDelete (file: string) {
-    let isConfig = file === 'min.config.json'
+    let isConfig = file === config.filename
 
     // 控制台换新行
     log.newline()
