@@ -68,6 +68,8 @@ function getCustomConfig (): { [key: string]: CustomConfig } {
   }
 }
 
+let scopeAliasMap = {}
+
 /**
  * 配置转换函数
  * @param defaultConfig 默认配置
@@ -99,8 +101,17 @@ function convertConfig (defaultConfig: Config, customConfig: CustomConfig = {}) 
 
   engine(config)
 
+  _.forIn(scopeAliasMap, (value, key) => {
+    // 将 map 区已映射的 scope 从 alias 区删除
+    delete config.alias[key]
+  })
+
   // 默认将 config.npm.scope 放入到 alias 中，并将 config.packages 作为值
   if (config.npm.scope && !config.alias[config.npm.scope]) {
+    // 将已映射的 scope 放入 map 区
+    scopeAliasMap[config.npm.scope] = true
+
+    // 将 { key: scope, value: packages } 配置映射到 alias 里
     config.alias[config.npm.scope] = config.packages
   }
 

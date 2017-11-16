@@ -119,9 +119,12 @@ function inScope (request: string): boolean {
  * @param {string} request
  * @returns {boolean}
  */
-function isWxcComponent (request: string): boolean {
-  // TODO 现在的逻辑是通过判断 前缀为@scope/wxc-，实际上需要判断package.json 中的minConfig.component
-  return new RegExp(`^@[a-z]+/${config.prefix}`).test(request)
+function isWxcComponent (request: string, requestType: RequestType): boolean {
+  // isWXC && @scope/wxc- => true
+  // isWXC && wxc-loading => true
+  // isWXC && ./index.wxc => false
+  // isWXC && alias/wxc-toast => false
+  return requestType === RequestType.WXC && request.charAt(0) !== '.' && (inScope(request) || !inAlias(request))
 }
 
 function src2destRelative (srcRelative: string, isPublish?: boolean) {
@@ -229,7 +232,7 @@ function getMatchRequest (request: string, requestType?: RequestType): {lookupEx
   }
 }
 
-function findPath (request: string, paths: string[], exts: string[]): any {
+function findPath (request: string, requestType: RequestType, paths: string[], exts: string[]): any {
   if (!paths || paths.length === 0) {
     return false
   }
@@ -256,8 +259,7 @@ function findPath (request: string, paths: string[], exts: string[]): any {
       continue
     }
 
-    // @scope/wxc-
-    if (isWxcComponent(curRequest)) {
+    if (isWxcComponent(curRequest, requestType)) {
       // @scope/wxc-hello => ['@scope', 'wxc-hello]
       let seps = curRequest.split('/')
       if (seps.length === 1) {
@@ -457,7 +459,7 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
   let dest = ''
   let destRelative = ''
 
-  let src = findPath(request, lookupPaths, lookupExts) || ''
+  let src = findPath(request, requestType, lookupPaths, lookupExts) || ''
   if (src) {
     srcRelative = path.relative(config.cwd, src)
     ext = path.extname(src)
