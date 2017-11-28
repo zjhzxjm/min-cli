@@ -6,7 +6,7 @@
 export default {
   config: {
     usingComponents: {
-      '<%= pkgName %>': '<%= scope %>/<%= pkgName %>'
+      '<%= pkgName %>': '<%= npmScopeStr %><%= pkgName %>'
     }
   },
   data: {},

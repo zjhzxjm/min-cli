@@ -5,7 +5,7 @@
 ## Install
 
 ``` bash
-$ min install <%= scope %>/<%= pkgName %>
+$ min install <%= npmScopeStr %><%= pkgName %>
 ```
 <% if (false) { %>
 ## Usage
@@ -18,7 +18,7 @@ $ min install <%= scope %>/<%= pkgName %>
 export default {
   config: {
     components: {
-      '<%= pkgName %>': '<%= scope %>/<%= pkgName %>'
+      '<%= pkgName %>': '<%= npmScopeStr %><%= pkgName %>'
     }
   }
 }

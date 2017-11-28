@@ -1,5 +1,5 @@
 {
-  "name": "<%= proNameToCamelCase %>",
+  "name": "<%= proName %>",
   "description": "<%= description %>",
   "version": "1.0.0",<% if (gitUrl) { %>
   "repository": {
@@ -11,7 +11,8 @@
   "dependencies": {<% if (useExample) { %>
     "@minui/wxc-example": "^1.0.0",
     "@minui/wxc-example-demo": "^1.0.0",
-    "@minui/wxc-example-md": "^1.0.0"<% } %>
+    "@minui/wxc-example-md": "^1.0.0",
+    "@minui/wxc-example-menu": "^1.0.0"<% } %>
   },
   "minConfig": {<% if (projectType) { %>
     "projectType": "<%= projectType %>"<% } %>
