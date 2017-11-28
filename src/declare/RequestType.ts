@@ -16,7 +16,8 @@ export enum RequestType {
   // STYLE
   STYLE = 'STYLE', // 匹配和更新 @import
 
-  // REQUEST_JSON = 'REQUEST_JSON',
+  // STATIC
+  STATIC = 'STATIC', // 匹配和更新 静态资源，比如 json | image
 
   // SFC
   WXA = 'WXA', // 匹配和更新 全局模板

@@ -119,12 +119,30 @@ function inScope (request: string): boolean {
  * @param {string} request
  * @returns {boolean}
  */
-function isWxcComponent (request: string, requestType: RequestType): boolean {
+function isWxcPackage (request: string, requestType: RequestType): boolean {
   // isWXC && @scope/wxc- => true
   // isWXC && wxc-loading => true
   // isWXC && ./index.wxc => false
   // isWXC && alias/wxc-toast => false
-  return requestType === RequestType.WXC && request.charAt(0) !== '.' && (inScope(request) || !inAlias(request))
+  // isWXC && src/... => false
+  // isWXC && packages/... => false
+
+  if (requestType !== RequestType.WXC) {
+    return false
+  }
+  if (request.charAt(0) === '.') {
+    return false
+  }
+  if (request.split('/')[0] === config.src) {
+    return false
+  }
+  if (request.split('/')[0] === config.packages) {
+    return false
+  }
+  if (!inScope(request) && inAlias(request)) {
+    return false
+  }
+  return true
 }
 
 function src2destRelative (srcRelative: string, isPublish?: boolean) {
@@ -161,7 +179,7 @@ function src2destRelative (srcRelative: string, isPublish?: boolean) {
   })
 
   // /wxc-hello/src/ => /wxc-hello/dist/
-  destRelative = destRelative.replace(new RegExp(`(\\${path.sep}${config.prefix}[a-z-]+\\${path.sep})([a-z]+)`), (match, $1, $2) => {
+  destRelative = destRelative.replace(new RegExp(`(\\${path.sep}${config.prefixStr}[a-z-]+\\${path.sep})([a-z]+)`), (match, $1, $2) => {
     if ($2 === config.package.src) {
       return `${$1}${config.package.dest}`
     }
@@ -259,18 +277,34 @@ function findPath (request: string, requestType: RequestType, paths: string[], e
       continue
     }
 
-    if (isWxcComponent(curRequest, requestType)) {
-      // @scope/wxc-hello => ['@scope', 'wxc-hello]
+    if (isWxcPackage(curRequest, requestType)) {
+      // @scope/wxc-hello => ['@scope', 'wxc-hello']
+      // @scope/wxc-hello/index => ['@scope', 'wxc-hello', 'index']
+      // wxc-hello => ['wxc-hello']
+      // wxc-hello/index => ['wxc-hello', 'index']
       let seps = curRequest.split('/')
+      let scope = ''
+      if (seps.length > 0 && seps[0].startsWith('@')) { // ['@scope', 'wxc-hello', ...]
+        if (seps.length === 1) {  // ['@scope']
+          throw new Error(`引用路径错误${curRequest}`)
+        }
+        // ['@scope', 'wxc-hello', ...] => @scope
+        scope = seps[0]
+        // ['@scope', 'wxc-loading', ...] => ['wxc-loading', ...]
+        seps.shift()
+      }
+
+      // ['wxc-hello', ...]
       if (seps.length === 1) {
-        // ['@scope'] => Error
-        throw new Error(`引用路径错误${curRequest}`)
-      } else if (seps.length === 2) {
-        // ['@scope', 'wxc-hello'] => ['@scope', 'wxc-hello', 'src', 'index']
+        // ['wxc-hello'] => ['wxc-hello', 'src', 'index']
         seps = seps.concat([config.package.src, config.package.default])
-      } else if (seps.length > 2 && seps[2] !== 'src') {
-        // ['@scope', 'wxc-hello', 'index'] => ['@scope', 'wxc-hello', 'src', 'index']
-        seps.splice(2, 0, config.package.src)
+      } else if (seps.length > 1 && seps[1] !== 'src') {
+        // ['wxc-hello', 'index'] => ['wxc-hello', 'src', 'index']
+        seps.splice(1, 0, config.package.src)
+      }
+
+      if (scope) {
+        seps.unshift(scope)
       }
       curRequest = seps.join('/')
     }
@@ -412,8 +446,11 @@ function resolveLookupPaths (request: string, parent?: string): string[] {
     }
   }
 
-  // 最后再从 node_modules 里查找
-  return resolveLookupNpmPaths(parent || config.cwd)
+  // 最后再从 packages 和 node_modules 里查找
+  return [
+    config.getPath('packages'),
+    ...resolveLookupNpmPaths(parent || config.cwd)
+  ]
 }
 
 export function resolveDep (requestOptions: Request.Options): Request.Core {
