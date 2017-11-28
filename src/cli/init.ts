@@ -7,120 +7,317 @@ import * as path from 'path'
 import * as glob from 'glob'
 import * as _ from 'lodash'
 import * as changeCase from 'change-case'
-import { prompt, Question, Answers } from 'inquirer'
+import { prompt, Question } from 'inquirer'
 import * as memFs from 'mem-fs'
 import * as editor from 'mem-fs-editor'
 import { CLIExample } from '../class'
-import { DevType, ScaffoldType, ProjectType } from '../declare'
-import util, { defaultConfig, exec, log, LogType } from '../util'
+import { ScaffoldType, ProjectType, NewType } from '../declare'
+import util, { config, defaultConfig, exec, log, LogType, filterPrefix, filterNpmScope } from '../util'
+import { NewCommand } from './create'
 
-/**
- * 初始化命令行选项
- *
- * @export
- * @interface InitCommand
- */
-export interface InitCommand {
+export namespace InitCommand {
+  /**
+   * 选项
+   *
+   * @export
+   * @interface Options
+   */
+  export interface Options {
+    /**
+     * 项目路径
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    proPath: string
+
+    /**
+     * 项目类型
+     *
+     * @type {ProjectType}
+     * @memberof Options
+     */
+    projectType: ProjectType
+
+    projectTypeTitle: '组件库' | '小程序'
+
+    /**
+     * 项目标题
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    title: string
+
+    /**
+     * 项目描述
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    description?: string
+
+    /**
+     * 组件前缀
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    prefix?: string
+
+    prefixStr?: string
+
+    /**
+     * 是否使用全局变量
+     *
+     * @type {boolean}
+     * @memberof Options
+     */
+    useGlobalStyle: boolean
+
+    /**
+     * 是否使用全局模板
+     *
+     * @type {boolean}
+     * @memberof Options
+     */
+    useGlobalLayout?: boolean
+
+    /**
+     * 项目编译后的保存路径
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    dest: string
+
+    /**
+     * NPM模块编译后的保存路径
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    npmDest?: string
+
+    /**
+     * NPM模块的scope名称
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    npmScope?: string
+
+    npmScopeStr?: string
+
+    /**
+     * GIT仓库地址
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    gitUrl?: string
+
+    /**
+     * Author
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    author?: string
+  }
 
   /**
-   * 标题
+   * CLI选项
    *
-   * @type {string}
-   * @memberof InitCommand
+   * @export
+   * @interface CLIOptions
    */
-  title: string
+  export interface CLIOptions {
 
-  /**
-   * 类型
-   *
-   * @type {number}
-   * @memberof InitCommand
-   */
-  type: number
+  }
 }
 
+/**
+ * 初始化类
+ *
+ * @export
+ * @class InitCommand
+ */
+export class InitCommand {
+  constructor (public options: InitCommand.Options) {
+
+  }
+
+  async run () {
+    let { options } = this
+
+    // 拷贝 脚手架模板
+    await this.copyScaffold()
+
+    await this.updateConfig()
+
+    await this.newPackage()
+
+    await this.npmInstall()
+
+    await this.minBuild()
+
+    // 提示使用
+    log.msg(LogType.TIP, `项目创建完成，请在 "微信开发者工具" 中新建一个小程序项目，项目目录指向新建工程里的 ${options.dest}/ 文件夹。如此，组件就能在开发者工具中进行预览了`)
+  }
+
+  private async copyScaffold (): Promise<any> {
+    const { proPath, projectType, projectTypeTitle } = this.options
+
+    // 内存编辑器
+    const store = memFs.create()
+    const fsEditor = editor.create(store)
+
+    // 拷贝 project.common 脚手架模板
+    fsEditor.copyTpl(
+      util.getScaffoldPath(ScaffoldType.Project, 'common'),
+      proPath,
+      this.options
+    )
+
+    // 拷贝 project.type 脚手架模板
+    fsEditor.copyTpl(
+      util.getScaffoldPath(ScaffoldType.Project, projectType),
+      proPath,
+      this.options
+    )
+
+    return new Promise((resolve, reject) => {
+      // 保存
+      fsEditor.commit(() => {
+        log.msg(LogType.CREATE, `项目 "${proPath}"`)
+
+        // 输入拷贝 或 新增 的日志信息
+        let files = glob.sync('**', {
+          cwd: proPath
+        })
+        files.forEach(file => log.msg(LogType.COPY, file))
+
+        log.msg(LogType.COMPLETE, `"${projectTypeTitle}"项目已创建完成`)
+        resolve()
+      })
+    })
+  }
+
+  private async updateConfig () {
+    let { options } = this
+    // 更新CONFIG.CWD
+    config.update({
+      cwd: options.proPath,
+      projectType: options.projectType,
+      prefix: options.prefix,
+      title: options.title,
+      dest: options.dest,
+      npm: {
+        dest: options.npmDest,
+        scope: options.npmScope
+      }
+    })
+  }
+
+  private async newPackage () {
+    let { projectType } = this.options
+    if (projectType !== ProjectType.Component) {
+      return
+    }
+
+    // 执行 min new 创建
+    log.msg(LogType.RUN, '命令：min new')
+    log.msg(LogType.INFO, '准备为您创建一个新的组件')
+    let newCommand = new NewCommand({
+      newType: NewType.Package
+    })
+    await newCommand.run()
+  }
+
+  private async npmInstall () {
+    let { proPath } = this.options
+    // 执行 npm install
+    log.msg(LogType.RUN, '命令：npm install')
+    log.msg(LogType.INFO, '安装中, 请耐心等待...')
+    await exec('npm', ['install'], true, {
+      cwd: proPath
+    })
+  }
+
+  private async minBuild () {
+    let { proPath } = this.options
+    // 执行 min build 构建
+    log.msg(LogType.RUN, '命令：min build')
+    log.msg(LogType.INFO, '编译中, 请耐心等待...')
+    await exec('min', ['build'], true, {
+      cwd: proPath
+    })
+  }
+}
+
+/**
+ * Commander 命令行配置
+ */
 export default {
-  isAvailable (devType?: DevType) {
-    // TODO
-  },
   name: 'init [name]',
   alias: '',
-  usage: '[name]', // [-t | --title <title>]
+  usage: '[name]',
   description: '创建项目',
-  options: [
-    // ['-t, --title <title>', 'Project title']
-    // ['-s, --scope <scope>', 'Npm scope name for component'],
-    // ['-d, --dest <dest>', 'Compiled target path'],
-    // ['--type [type]', 'Project type，default is 0, 0 is component, and 1 is application']
-  ],
+  options: [],
   on: {
     '--help': () => {
       new CLIExample('init')
         .group('create project')
         .rule('')
-        // .group('set project title')
-        // .rule('--title MinUI')
-        // .group('set npm scope name')
-        // .rule('--scope @minui')
-        // .group('set compiled target path')
-        // .rule('--dest dist')
-        // .group('set project type as application')
-        // .rule('--type 1')
     }
   },
-  async action (proName: string, options: InitCommand) {
+  async action (proName: string, cliOptions: InitCommand.CLIOptions) {
     try {
       // 获取 answers
-      let answers = await getAnswers(proName)
+      let options = await getOptions(proName)
 
       // 项目名称为空，从路径里获取文件名
-      proName = proName || path.basename(answers.proPath)
+      proName = proName || path.basename(options.proPath)
+
+      let projectTypeTitle = getProjectTypeTitle(options.projectType)
 
       // 字段做容错处理
       let defaults = {
         proName,
         proNameToCamelCase: changeCase.camelCase(proName),
         title: defaultConfig.title,
-        description: answers.title || defaultConfig.title,
-        prefix: '',
-        useExample: answers.projectType === ProjectType.Component ? true : false,
+        description: `${options.title || defaultConfig.title}-${projectTypeTitle}`,
+        prefix: defaultConfig.prefix,
+        useExample: options.projectType === ProjectType.Component ? true : false,
         useGlobalStyle: true,
-        useGlobalLayout: true,
+        useGlobalLayout: options.projectType === ProjectType.Application ? true : false,
         dest: defaultConfig.dest,
         npmScope: '',
-        npmDest: '',
+        npmDest: defaultConfig.npm.dest,
         gitUrl: '',
         author: ''
       }
 
-      answers = _.merge(defaults, answers)
-
-      // 拷贝 脚手架模板
-      await copyScaffold(answers)
-
-      // 执行 npm install
-      log.msg(LogType.RUN, '命令：npm install')
-      log.msg(LogType.INFO, '安装中, 请耐心等待...')
-      await exec('npm', ['install'], true, {
-        cwd: answers.proPath
+      options = _.merge(defaults, options, {
+        prefixStr: filterPrefix(options.prefix),
+        npmScopeStr: filterNpmScope(options.npmScope),
+        projectTypeTitle,
+        options: {
+          ProjectType
+        }
       })
 
-      // 执行 min build 构建
-      log.msg(LogType.RUN, '命令：min build')
-      log.msg(LogType.INFO, '编译中, 请耐心等待...')
-      await exec('min', ['build'], true, {
-        cwd: answers.proPath
-      })
+      let initCommand = new InitCommand(options)
+      await initCommand.run()
 
-      // 提示使用
-      log.msg(LogType.TIP, `项目创建完成，请在 "微信开发者工具" 中新建一个小程序项目，项目目录指向新建工程里的 ${answers.dest}/ 文件夹。如此，组件就能在开发者工具中进行预览了`)
     } catch (err) {
       console.log(err)
     }
   }
 }
 
-function getAnswers (proName: string): Promise<Answers> {
+function getOptions (proName: string): Promise<InitCommand.Options> {
   const CREATE_QUESTIONS: Question[] = [
     {
       type: 'input',
@@ -129,17 +326,20 @@ function getAnswers (proName: string): Promise<Answers> {
       default (answers: any) {
         return util.getDestProjectPath(proName || '')
       },
-      validate (proPath: string, answers: any) {
-        if (!proPath || !proPath.trim()) {
-          return '项目目录不能为空'
+      filter (input: string) {
+        return input.trim()
+      },
+      validate (input: string, answers: any) {
+        if (input === '') {
+          return '请输入项目目录'
         }
 
-        if (!path.isAbsolute(proPath)) {
-          return `项目目录：'${proPath}' 格式不正确，请更换绝对路径`
+        if (!path.isAbsolute(input)) {
+          return `格式不正确，请更换绝对路径`
         }
 
-        if (fs.existsSync(proPath) && glob.sync('**', { cwd: proPath }).length > 0 ) {
-          return `项目目录：'${proPath}' 不是空目录，请更换`
+        if (fs.existsSync(input) && glob.sync('**', { cwd: input }).length > 0 ) {
+          return `不是空目录，请更换`
         }
         return true
       }
@@ -167,6 +367,15 @@ function getAnswers (proName: string): Promise<Answers> {
       message: '请设置项目标题',
       name: 'title',
       default: defaultConfig.title,
+      filter (input: string) {
+        return input.trim()
+      },
+      validate (input: string, answers: any) {
+        if (input === '') {
+          return '请输入标题'
+        }
+        return true
+      },
       when (answers: any) {
         return !!answers.isContinue
       }
@@ -174,6 +383,10 @@ function getAnswers (proName: string): Promise<Answers> {
       type: 'input',
       message: '请设置项目描述',
       name: 'description',
+      default (answers: any) {
+        let projectTypeTitle = getProjectTypeTitle(answers.projectType)
+        return `${answers.title}-${projectTypeTitle}`
+      },
       when (answers: any) {
         return !!answers.isContinue
       }
@@ -181,7 +394,24 @@ function getAnswers (proName: string): Promise<Answers> {
       type: 'input',
       message: '请设置组件名前缀',
       name: 'prefix',
-      default: defaultConfig.prefix,
+      default (answers: any) {
+        return defaultConfig.prefix.replace(/[-]+$/, '')
+      },
+      filter (input: string) {
+        return input.trim()
+      },
+      validate (input: string, answers: any) {
+        if (input === '') {
+          return '请输入组件名前缀'
+        } else if (/^-/.test(input)) {
+          return '格式不正确，不能以“-”开始'
+        } else if (/-$/.test(input)) {
+          return '格式不正确，不能以“-”结束'
+        } else if (/[^a-z-]+/.test(input)) {
+          return `格式不正确，只能是小写字母，支持“-”分隔`
+        }
+        return true
+      },
       when (answers: any) {
         return !!answers.isContinue && answers.projectType === ProjectType.Component
       }
@@ -207,42 +437,82 @@ function getAnswers (proName: string): Promise<Answers> {
       name: 'useGlobalLayout',
       default: true,
       when (answers: any) {
-        return !!answers.isContinue
+        return !!answers.isContinue && answers.projectType === ProjectType.Application
       }
     }, {
       type: 'input',
-      message: '请设置项目打包保存路径',
+      message: '请设置项目编译后的保存路径',
       name: 'dest',
       default: defaultConfig.dest,
+      filter (input: string) {
+        return input.trim()
+      },
+      validate (input: string, answers: any) {
+        if (input === '') {
+          return '请输入路径'
+        }
+        return true
+      },
       when (answers: any) {
         return !!answers.isContinue
       }
     }, {
       type: 'input',
-      message: '请设置 npm scope 名称',
-      name: 'npmScope',
-      default: defaultConfig.npm.scope,
-      when (answers: any) {
-        return !!answers.isContinue && answers.projectType === ProjectType.Component
-      }
-    }, {
-      type: 'input',
-      message: '请设置 npm 依赖编译后的保存路径',
+      message: '请设置NPM模块编译后的保存路径，相对于 “项目编译” 后的保存路径',
       name: 'npmDest',
-      default: defaultConfig.npm.dest,
+      default (answers: any) {
+        // dist/packages => packages
+        return defaultConfig.npm.dest.replace(`${defaultConfig.dest}/`, '')
+      },
+      filter (input: string) {
+        input = input.trim()
+        if (input !== '') {
+          // 由于 @types/inquirer v0.0.35 版本未提供 filter 函数第二个answers入参，但 inquirer 包已支持，因此在这里通过 arguments 得到入参集合
+          let answers = arguments[1] || {}
+          // dist + packages => dist/packages
+          return `${answers.dest}/${input}`
+        }
+        return input
+      },
+      validate (input: string, answers: any) {
+        if (input === '') {
+          return '请输入路径'
+        }
+        return true
+      },
       when (answers: any) {
         return !!answers.isContinue && answers.projectType === ProjectType.Component
       }
     }, {
       type: 'input',
-      message: '请设置 git repository 地址',
+      message: '请设置NPM模块的scope名称',
+      name: 'npmScope',
+      filter (input: string) {
+        return input.trim()
+      },
+      validate (input: string, answers: any) {
+        if (input !== '') {
+          if (!input.startsWith('@')) {
+            return `格式不正确，请以"@"符号开始，比如${defaultConfig.npm.scope}`
+          } else if (input.endsWith('/')) {
+            return `格式不正确，请勿以"/"结束，比如${defaultConfig.npm.scope}`
+          }
+        }
+        return true
+      },
+      when (answers: any) {
+        return !!answers.isContinue && answers.projectType === ProjectType.Component
+      }
+    }, {
+      type: 'input',
+      message: '请设置GIT仓库地址',
       name: 'gitUrl',
       when (answers: any) {
         return !!answers.isContinue
       }
     }, {
       type: 'input',
-      message: '请设置 author',
+      message: '请设置Author',
       name: 'author',
       default: process.env.USER,
       when (answers: any) {
@@ -251,34 +521,20 @@ function getAnswers (proName: string): Promise<Answers> {
     }
   ]
 
-  return prompt(CREATE_QUESTIONS)
+  return prompt(CREATE_QUESTIONS) as Promise<InitCommand.Options>
 }
 
-function copyScaffold (content: any): Promise<any> {
-  const { proPath } = content
+function getProjectTypeTitle (projectType: ProjectType) {
+  switch (projectType) {
+    case ProjectType.Component:
+      return '组件库'
 
-  // 内存编辑器
-  const store = memFs.create()
-  const fsEditor = editor.create(store)
+    case ProjectType.Application:
+      return '小程序'
 
-  // 拷贝 project 脚手架模板
-  fsEditor.copyTpl(
-    util.getScaffoldPath(ScaffoldType.Project),
-    proPath,
-    content
-  )
-
-  return new Promise((resolve, reject) => {
-    // 保存
-    fsEditor.commit(() => {
-      log.msg(LogType.CREATE, `项目 "${proPath}"`)
-
-      // 输入拷贝 或 新增 的日志信息
-      let files = glob.sync('**', {
-        cwd: proPath
-      })
-      files.forEach(file => log.msg(LogType.COPY, file))
-      resolve()
-    })
-  })
+    default:
+      throw new Error('未知项目类型')
+  }
 }
+
+

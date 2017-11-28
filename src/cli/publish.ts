@@ -1,32 +1,87 @@
 'use strict'
 
 import * as _ from 'lodash'
-import { prompt, Question, Answers } from 'inquirer'
+import { prompt, Question } from 'inquirer'
 import { CLIExample } from '../class'
-import { DevType } from '../declare'
 import util, { config, log } from '../util'
 
-export interface PublishCommand {
+export namespace PublishCommand {
+  /**
+   * 选项
+   *
+   * @export
+   * @interface Options
+   */
+  export interface Options {
+    /**
+     * 包名 或 组件名，如：@minui/wxc-loading 或 wxc-loading
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    pkgName?: string
+  }
+
+  /**
+   * CLI选项
+   *
+   * @export
+   * @interface CLIOptions
+   */
+  export interface CLIOptions {
+  }
 }
 
-export default {
-  isAvailable (devType?: DevType) {
-    if (!devType) {
-      return false
+/**
+ * 发布类
+ *
+ * @export
+ * @class PublishCommand
+ */
+export class PublishCommand {
+  constructor (public options: PublishCommand.Options) {
+  }
+
+  async run () {
+    let { pkgName } = this.options
+    let publishArgs = {
+      exact: true,
+      message: 'Publish by MinDev'
     }
 
-    // 判断 wxc 框架类型
-    return devType.framework === 'wxc'
-  },
+    if (pkgName) {
+      let pkgInfo = getPackages().find((item: any) => item.name === pkgName)
+
+      if (pkgInfo) {
+        _.merge(publishArgs, {
+          scope: pkgInfo.name
+        })
+      } else {
+        log.error(`没有找到组件 ${pkgName}`)
+        return
+      }
+    }
+
+    util.setLernaConfig()
+
+    let { PublishCommand } = require('lerna')
+    let publishCommand = new PublishCommand(['publish'], publishArgs, config.cwd)
+
+    publishCommand
+      .run()
+      .then()
+  }
+}
+
+/**
+ * Commander 命令行配置
+ */
+export default {
   name: 'publish [name]',
   alias: 'pub',
   usage: '[name]',
   description: '发布组件',
-  // usage: '[-p | --plugin] [-d | --delete] [-l | --list] [<name>] [--title <title>]',
-  // description: 'List, create, or delete package',
-  options: [
-    // ['-d, --delete', 'delete package'],
-  ],
+  options: [],
   on: {
     '--help': () => {
       new CLIExample('publish')
@@ -34,7 +89,7 @@ export default {
         .rule('')
     }
   },
-  async action (pkgName: string, options: PublishCommand) {
+  async action (pkgName: string, cliOptions: PublishCommand.CLIOptions) {
     util.overrideNpmLog()
 
     // loading => @minui/wxc-loading
@@ -42,20 +97,21 @@ export default {
     pkgName = pkgName ? util.getRealPkgNameWithScope(pkgName) : ''
 
     // 获取 answers
-    let answers = await getAnswers(pkgName)
+    let options = await getOptions(pkgName)
 
     // 字段做容错处理
     let defaults = {
       pkgName
     }
 
-    answers = _.merge(defaults, answers)
+    options = _.merge(defaults, options)
 
-    publish(answers)
+    let publishCommand = new PublishCommand(options)
+    await publishCommand.run()
   }
 }
 
-function getAnswers (pkgName: string): Promise<Answers> {
+function getOptions (pkgName: string): Promise<PublishCommand.Options> {
   const CREATE_QUESTIONS: Question[] = [
     {
       type: 'list',
@@ -110,35 +166,6 @@ function getPackages () {
   //     private: pkg.isPrivate() ? `(${chalk.red('private')})` : ''
   //   }
   // })
-}
-
-function publish (answers: any) {
-  let publishArgs = {
-    exact: true,
-    message: 'Publish by MinDev'
-  }
-
-  if (answers.pkgName) {
-    let pkgInfo = getPackages().find((item: any) => item.name === answers.pkgName)
-
-    if (pkgInfo) {
-      _.merge(publishArgs, {
-        scope: pkgInfo.name
-      })
-    } else {
-      log.error(`没有找到组件 ${answers.pkgName}`)
-      return
-    }
-  }
-
-  util.setLernaConfig()
-
-  let { PublishCommand } = require('lerna')
-  let publishCommand = new PublishCommand(['publish'], publishArgs, config.cwd)
-
-  publishCommand
-    .run()
-    .then()
 }
 
 // 编译 packages 组件库

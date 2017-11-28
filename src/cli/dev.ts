@@ -1,26 +1,79 @@
 import { CLIExample, Xcx, XcxNode } from '../class'
-import { DevType } from '../declare'
 import util, { Global } from '../util'
 
-/**
- * 开发命令行选项
- *
- * @export
- * @interface DevCommand
- */
-export interface DevCommand {
+export namespace DevCommand {
 
+  /**
+   * 选项
+   *
+   * @export
+   * @interface Options
+   */
+  export interface Options {
+    /**
+     * 页面列表，如['pages/home/index', 'pages/loading/index']
+     *
+     * @type {string[]}
+     * @memberof Options
+     */
+    pages?: string[],
+
+    /**
+     * 是否启用watch
+     *
+     * @type {boolean}
+     * @memberof Options
+     */
+    watch?: boolean
+  }
+
+  /**
+   * CLI选项
+   *
+   * @export
+   * @interface CLIOptions
+   */
+  export interface CLIOptions {
+
+  }
 }
 
-export default {
-  isAvailable (devType?: DevType) {
-    if (!devType) {
-      return false
-    }
+/**
+ * 开发类
+ *
+ * @export
+ * @class DevCommand
+ */
+export class DevCommand {
+  constructor (public options: DevCommand.Options) {
+  }
 
-    // 判断 wxc 框架类型
-    return devType.framework === 'wxc'
-  },
+  async run () {
+    let { pages, watch } = this.options
+    let xcx = new Xcx({
+      isClear: true,
+      app: {
+        isSFC: true
+      },
+      pages,
+      traverse: {
+        enter (xcxNode: XcxNode) {
+          xcxNode.compile()
+        },
+        pages (pages: string[]) {
+          Global.saveAppConfig(pages)
+        }
+      }
+    })
+    xcx.compile()
+    watch && xcx.watch()
+  }
+}
+
+/**
+ * Commander 命令行配置
+ */
+export default {
   name: 'dev [name]',
   alias: '',
   usage: '[name]',
@@ -36,25 +89,14 @@ export default {
         .rule('home,loading')
     }
   },
-  action (pageName: string, options: DevCommand) {
-    Global.isDebug = !!pageName
+  async action (name: string, options: DevCommand.CLIOptions) {
+    Global.isDebug = !!name
 
-    let xcx = new Xcx({
-      isClear: true,
-      app: {
-        isSFC: true
-      },
-      pages: util.pageName2Pages(pageName),
-      traverse: {
-        enter (xcxNode: XcxNode) {
-          xcxNode.compile()
-        },
-        pages (pages: string[]) {
-          Global.saveAppConfig(pages)
-        }
-      }
+    let pages = util.pageName2Pages(name)
+    let devCommand = new DevCommand({
+      pages,
+      watch: true
     })
-    xcx.compile()
-    xcx.watch()
+    await devCommand.run()
   }
 }
