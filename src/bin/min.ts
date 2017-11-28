@@ -3,6 +3,7 @@
 import * as _ from 'lodash'
 import * as program from 'commander'
 import commands from '../index'
+import { log } from '../util'
 
 const minPkg = require('../../package.json')
 
@@ -47,7 +48,13 @@ commands.forEach(command => {
 
   // set action
   if (command.action) {
-    cmd.action(command.action)
+    cmd.action(async (...args) => {
+      try {
+        await command.action.apply(command, args)
+      } catch (err) {
+        log.error(err)
+      }
+    })
   }
 })
 

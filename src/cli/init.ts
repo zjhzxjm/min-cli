@@ -13,7 +13,7 @@ import * as editor from 'mem-fs-editor'
 import { CLIExample } from '../class'
 import { ScaffoldType, ProjectType, NewType } from '../declare'
 import util, { config, defaultConfig, exec, log, LogType, filterPrefix, filterNpmScope } from '../util'
-import { NewCommand } from './create'
+import { NewCommand } from './new'
 
 export namespace InitCommand {
   /**
@@ -23,6 +23,14 @@ export namespace InitCommand {
    * @interface Options
    */
   export interface Options {
+    /**
+     * 项目名称
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    proName: string
+
     /**
      * 项目路径
      *
@@ -163,11 +171,12 @@ export class InitCommand {
     await this.minBuild()
 
     // 提示使用
+    log.newline()
     log.msg(LogType.TIP, `项目创建完成，请在 "微信开发者工具" 中新建一个小程序项目，项目目录指向新建工程里的 ${options.dest}/ 文件夹。如此，组件就能在开发者工具中进行预览了`)
   }
 
   private async copyScaffold (): Promise<any> {
-    const { proPath, projectType, projectTypeTitle } = this.options
+    const { proName, proPath, projectType, projectTypeTitle } = this.options
 
     // 内存编辑器
     const store = memFs.create()
@@ -190,7 +199,8 @@ export class InitCommand {
     return new Promise((resolve, reject) => {
       // 保存
       fsEditor.commit(() => {
-        log.msg(LogType.CREATE, `项目 "${proPath}"`)
+        log.newline()
+        log.msg(LogType.CREATE, `项目 "${proName}" in "${proPath}"`)
 
         // 输入拷贝 或 新增 的日志信息
         let files = glob.sync('**', {
@@ -227,8 +237,9 @@ export class InitCommand {
     }
 
     // 执行 min new 创建
-    log.msg(LogType.RUN, '命令：min new')
+    log.newline()
     log.msg(LogType.INFO, '准备为您创建一个新的组件')
+    log.msg(LogType.RUN, '命令：min new')
     let newCommand = new NewCommand({
       newType: NewType.Package
     })
@@ -238,6 +249,7 @@ export class InitCommand {
   private async npmInstall () {
     let { proPath } = this.options
     // 执行 npm install
+    log.newline()
     log.msg(LogType.RUN, '命令：npm install')
     log.msg(LogType.INFO, '安装中, 请耐心等待...')
     await exec('npm', ['install'], true, {
@@ -248,6 +260,7 @@ export class InitCommand {
   private async minBuild () {
     let { proPath } = this.options
     // 执行 min build 构建
+    log.newline()
     log.msg(LogType.RUN, '命令：min build')
     log.msg(LogType.INFO, '编译中, 请耐心等待...')
     await exec('min', ['build'], true, {
@@ -536,5 +549,3 @@ function getProjectTypeTitle (projectType: ProjectType) {
       throw new Error('未知项目类型')
   }
 }
-
-

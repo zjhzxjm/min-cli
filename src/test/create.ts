@@ -1,5 +1,5 @@
-import create from '../cli/create'
+import $new from '../cli/new'
 
-create.action('test', {
+$new.action('test', {
   title: '测试'
 })

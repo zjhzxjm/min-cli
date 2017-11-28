@@ -25,6 +25,14 @@ export namespace DevCommand {
      * @memberof Options
      */
     watch?: boolean
+
+    /**
+     * 是否清除编译后的目录
+     *
+     * @type {boolean}
+     * @memberof Options
+     */
+    clear?: boolean
   }
 
   /**
@@ -49,9 +57,9 @@ export class DevCommand {
   }
 
   async run () {
-    let { pages, watch } = this.options
+    let { pages, watch, clear } = this.options
     let xcx = new Xcx({
-      isClear: true,
+      isClear: clear,
       app: {
         isSFC: true
       },
@@ -67,6 +75,8 @@ export class DevCommand {
     })
     xcx.compile()
     watch && xcx.watch()
+
+    return Promise.resolve()
   }
 }
 
@@ -95,7 +105,8 @@ export default {
     let pages = util.pageName2Pages(name)
     let devCommand = new DevCommand({
       pages,
-      watch: true
+      watch: true,
+      clear: true
     })
     await devCommand.run()
   }

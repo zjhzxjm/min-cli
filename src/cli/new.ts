@@ -2,6 +2,7 @@
 
 'use strict'
 
+import * as glob from 'glob'
 import * as fs from 'fs-extra'
 import * as memFs from 'mem-fs'
 import * as editor from 'mem-fs-editor'
@@ -146,10 +147,7 @@ export class NewCommand {
               break
 
             default:
-              {
-                log.fatal('Min New 失败：未知项目类型，无法继续创建')
-              }
-              break
+              return Promise.reject('Min New 失败：未知项目类型，无法继续创建')
           }
         }
         break
@@ -162,10 +160,7 @@ export class NewCommand {
         break
 
       default:
-        {
-          log.fatal('Min New 失败：未知项目类型，无法继续创建')
-        }
-        break
+        return Promise.reject('Min New 失败：未知项目类型，无法继续创建')
     }
   }
 
@@ -218,10 +213,27 @@ export class NewCommand {
       newData
     )
 
-    // 提交编辑器信息
-    fsEditor.commit(() => {
-      log.output(LogType.CREATE, `组件 "${pkgName}"`, destPackagePath)
-      log.output(LogType.CREATE, `页面 "${pkgNameSuffix}"`, destPagePath)
+    return new Promise((resolve, reject) => {
+      // 提交编辑器信息
+      fsEditor.commit(() => {
+        log.newline()
+        log.output(LogType.CREATE, `组件 "${pkgName}"`, destPackagePath)
+        // 输入拷贝 或 新增 的日志信息
+        glob.sync('**', {
+          cwd: destPackagePath
+        }).forEach(file => log.msg(LogType.COPY, file))
+        log.msg(LogType.COMPLETE, `组件 "${pkgName}" 创建完成`)
+
+        log.newline()
+        log.output(LogType.CREATE, `示例页面 "${pkgNameSuffix}"`, destPagePath)
+        // 输入拷贝 或 新增 的日志信息
+        glob.sync('**', {
+          cwd: destPagePath
+        }).forEach(file => log.msg(LogType.COPY, file))
+        log.msg(LogType.COMPLETE, `示例页面 "${pkgNameSuffix}" 创建完成`)
+
+        resolve()
+      })
     })
   }
 
@@ -253,9 +265,21 @@ export class NewCommand {
       newData
     )
 
-    // 提交编辑器信息
-    fsEditor.commit(() => {
-      log.output(LogType.CREATE, `页面 "${pageName}"`, destPagePath)
+    return new Promise((resolve, reject) => {
+      // 提交编辑器信息
+      fsEditor.commit(() => {
+        log.newline()
+        log.output(LogType.CREATE, `页面 "${pageName}"`, destPagePath)
+
+        // 输入拷贝 或 新增 的日志信息
+        glob.sync('**', {
+          cwd: destPagePath
+        }).forEach(file => log.msg(LogType.COPY, file))
+
+        log.msg(LogType.COMPLETE, `页面 "${pageName}" 创建完成`)
+
+        resolve()
+      })
     })
   }
 
@@ -297,24 +321,27 @@ export class NewCommand {
   private async buildPage (answers: NewAnswers) {
 
     // 执行 min build 构建
+    log.newline()
     log.msg(LogType.RUN, '命令：min build')
     log.msg(LogType.INFO, '编译中, 请耐心等待...')
 
-    let pages: string[] = []
+    // let pages: string[] = []
 
     switch (answers.newType) {
       case NewType.Package:
-        pages = util.pageName2Pages(`home,${answers.pkgName}`)
+        // let pkgNameSuffix = util.getRealPageName(answers.pkgName || '')
+        // pages = util.pageName2Pages(`home,${pkgNameSuffix}`)
         break
 
       case NewType.Page:
-        pages = util.pageName2Pages(answers.pageName)
+        // pages = util.pageName2Pages(answers.pageName)
         break
     }
 
     let devCommand = new DevCommand({
-      pages,
-      watch: false
+      // pages,
+      // watch: false,
+      // clear: false
     })
     await devCommand.run()
   }
