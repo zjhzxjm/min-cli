@@ -3,6 +3,7 @@ import * as path from 'path'
 import * as _ from 'lodash'
 import { Config, CustomConfig } from '../declare'
 import systemConfig from '../config'
+import { filterPrefix } from '../util'
 
 /**
  * 可访问路径类型
@@ -129,6 +130,9 @@ let {
  * 全部配置，基于默认和自定义配置的集合
  */
 export const config = {
+  get prefixStr () {
+    return filterPrefix(this.prefix)
+  },
   ...convertConfig(defaultConfig, customConfig),
   getPath (name: GetPathType, ...paths: string[]) {
     let names = name.split('.')
@@ -139,7 +143,10 @@ export const config = {
 
     return path.join(this.cwd, value, ...paths)
   },
-  update (customConfigFormNew: any) {
+  update (newConfig: any) {
+    _.merge(this, newConfig)
+  },
+  updateCustom (customConfigFormNew: any) {
     // 将 新的配置 合并到 自定义文件配置里
     _.merge(customConfigFromFile, customConfigFormNew || {})
 

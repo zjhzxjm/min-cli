@@ -37,7 +37,7 @@ export namespace NpmDest {
     let answers = await prompt(questions)
 
     if (answers.npmDest) {
-      config.update({
+      config.updateCustom({
         npm: {
           dest: answers.npmDest
         }
