@@ -1,5 +1,5 @@
 {
-  "name": "<%= scope %>/<%= pkgName %>",
+  "name": "<%= npmScopeStr %><%= pkgName %>",
   "version": "<%= version %>",
   "description": "<%= description %>",
   "main": "dist/index.js",

@@ -1,7 +1,6 @@
 import { Depend, Request, WxFile, WxSFMScript, WxSFMStyle, WxSFMTemplate } from '../class'
 import { dom } from '../util'
 
-
 /**
  * 单文件组合类
  *

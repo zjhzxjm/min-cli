@@ -1,21 +1,80 @@
 
 import { CLIExample } from '../class'
-import { DevType } from '../declare'
 import util, { config, exec, log, LogType } from '../util'
 import { NpmDest } from '../qa'
 
+export namespace InstallCommand {
+  /**
+   * 选项
+   *
+   * @export
+   * @interface Options
+   */
+  export interface Options {
+    /**
+     * 包名列表，如：['@minui/wxc-loading'、'@minui/wxc-tab']
+     *
+     * @type {string []}
+     * @memberof Options
+     */
+    pkgNames: string []
+  }
+
+  /**
+   * 命令行选项
+   *
+   * @export
+   * @interface CLIOptions
+   */
+  export interface CLIOptions {
+
+  }
+}
+
 /**
- * 安装命令行选项
+ * 安装类
  *
  * @export
- * @interface InstallCommand
+ * @class InstallCommand
  */
-export interface InstallCommand {}
+export class InstallCommand {
+  constructor (public options: InstallCommand.Options) {
 
+  }
+
+  async run () {
+    let { pkgNames } = this.options
+    await this.install(pkgNames)
+    util.buildNpmWXCs(pkgNames)
+
+    // await this.viewUse(pkgNames)
+  }
+
+  private async install (pkgNames: string[]) {
+    // print run log
+    pkgNames.forEach(pkgName => {
+      log.msg(LogType.RUN, `npm install ${pkgName} --save`)
+    })
+    log.newline()
+
+    // run npm install
+    await exec('npm', ['install', ...pkgNames, '--save'], true, {
+      cwd: config.cwd
+    })
+    log.newline()
+  }
+
+  // private async viewUse (pkgNames: string[]) {
+  //   pkgNames.forEach(pkgName => {
+  //     log.msg(LogType.COMPLETE, `${pkgName} 安装完成，in ${path.join(config.npm.dest, pkgName)}`)
+  //   })
+  // }
+}
+
+/**
+ * Commander 命令行配置
+ */
 export default {
-  isAvailable (devType?: DevType) {
-    // TODO
-  },
   name: 'install <name>',
   alias: 'i',
   usage: '<name>',
@@ -31,36 +90,19 @@ export default {
         .rule('@minui/wxc-loading,@minui/wxc-loading')
     }
   },
-  async action (name: string, options: InstallCommand) {
+  async action (name: string, cliOptions: InstallCommand.CLIOptions) {
     let pkgNames: string[] = name ? name.trim().split(',') : []
 
     try {
       await NpmDest.setAnswer()
-      await install(pkgNames)
-      util.buildNpmWXCs(pkgNames)
-      // await viewUse(pkgNames)
+
+      let installCommand = new InstallCommand({
+        pkgNames
+      })
+      await installCommand.run()
+
     } catch (err) {
       log.error(err)
     }
   }
 }
-
-async function install (pkgNames: string[]) {
-  // print run log
-  pkgNames.forEach(pkgName => {
-    log.msg(LogType.RUN, `npm install ${pkgName} --save`)
-  })
-  log.newline()
-
-  // run npm install
-  await exec('npm', ['install', ...pkgNames, '--save'], true, {
-    cwd: config.cwd
-  })
-  log.newline()
-}
-
-// function viewUse (pkgNames: string[]) {
-//   pkgNames.forEach(pkgName => {
-//     log.msg(LogType.COMPLETE, `${pkgName} 安装完成，in ${path.join(config.npm.dest, pkgName)}`)
-//   })
-// }

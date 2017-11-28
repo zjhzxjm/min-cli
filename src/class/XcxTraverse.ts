@@ -18,7 +18,7 @@ export namespace XcxTraverse {
      * @param {T} xcxNode
      * @memberof VisitNodeObject
      */
-    enter?(xcxNode: T): void;
+    enter? (xcxNode: T): void
 
     /**
      * 退出
@@ -26,7 +26,7 @@ export namespace XcxTraverse {
      * @param {T} xcxNode
      * @memberof VisitNodeObject
      */
-    exit?(xcxNode: T): void;
+    exit? (xcxNode: T): void
   }
 
   /**

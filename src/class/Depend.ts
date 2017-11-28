@@ -8,9 +8,9 @@ import t = babel.types
 /**
  * 依赖类型集合
  */
-export type Depend = Depend.Script | Depend.Style | Depend.Wxc | Depend.Wxp
+export type Depend = Depend.Script | Depend.Style | Depend.Wxc | Depend.Wxp | Depend.Json
 
-export namespace Depend{
+export namespace Depend {
 
   /**
    * 依赖JS类型的接口
@@ -21,7 +21,19 @@ export namespace Depend{
    */
   export interface Script extends Request.Default {
     requestType: RequestType.SCRIPT
-    $node: t.StringLiteral // for script
+    $node: t.StringLiteral // for babel
+  }
+
+  /**
+   * 依赖json类型的接口
+   *
+   * @export
+   * @interface Json
+   * @extends {Request.Default}
+   */
+  export interface Json extends Request.Default {
+    requestType: RequestType.STATIC,
+    $node: t.StringLiteral // for babel
   }
 
   /**
@@ -33,7 +45,7 @@ export namespace Depend{
    */
   export interface Style extends Request.Default {
     requestType: RequestType.STYLE
-    $atRule: postcss.AtRule // for style
+    $atRule: postcss.AtRule // for postcss
   }
 
   /**

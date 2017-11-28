@@ -1,25 +1,47 @@
 import * as path from 'path'
 import { CLIExample } from '../class'
-import { DevType } from '../declare'
 import { execFileSync } from 'child_process'
 
+export namespace CommitCommand {
+  /**
+   * 选项
+   *
+   * @export
+   * @interface Options
+   */
+  export interface Options {}
+
+  /**
+   * CLI选项
+   *
+   * @export
+   * @interface CLIOptions
+   */
+  export interface CLIOptions {}
+}
+
 /**
- * 提交命令行选项
+ * 提交信息类
  *
  * @export
- * @interface CommitCommand
+ * @class CommitCommand
  */
-export interface CommitCommand {}
+export class CommitCommand {
+  constructor (public options: CommitCommand.Options = {}) {
 
+  }
+
+  async run () {
+    execFileSync(path.join(__dirname, '../../node_modules/.bin/git-cz'), {
+      stdio: ['inherit', 'inherit', 'inherit']
+    })
+  }
+}
+
+/**
+ * Commander 命令行配置
+ */
 export default {
-  isAvailable (devType?: DevType) {
-    if (!devType) {
-      return false
-    }
-
-    // 判断 wxc 框架类型
-    return devType.framework === 'wxc'
-  },
   name: 'commit',
   alias: 'ci',
   usage: '',
@@ -32,9 +54,8 @@ export default {
         .rule('')
     }
   },
-  action (options: CommitCommand) {
-    execFileSync(path.join(__dirname, '../../node_modules/.bin/git-cz'), {
-      stdio: ['inherit', 'inherit', 'inherit']
-    })
+  async action (cliOptions: CommitCommand.CLIOptions) {
+    let commitCommand = new CommitCommand()
+    await commitCommand.run()
   }
 }

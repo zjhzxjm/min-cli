@@ -7,26 +7,26 @@ import { ScaffoldType, RequestType } from '../declare'
 
 export type MPath = string | path.ParsedPath
 
-export function getModifiedTime(mpath: MPath): number {
+export function getModifiedTime (mpath: MPath): number {
   let spath = pathToString(mpath)
-  return isFile(spath) ? +fs.statSync(spath).mtime : 0;
+  return isFile(spath) ? +fs.statSync(spath).mtime : 0
 }
 
-export function pathToString(mpath: MPath): string {
+export function pathToString (mpath: MPath): string {
   if (!_.isString(mpath)) {
     return path.join(mpath.dir, mpath.base)
   }
   return mpath
 }
 
-export function pathToParse(mpath: MPath): path.ParsedPath {
+export function pathToParse (mpath: MPath): path.ParsedPath {
   if (_.isString(mpath)) {
     return path.parse(mpath)
   }
   return mpath
 }
 
-export function isFile(mpath: MPath): boolean {
+export function isFile (mpath: MPath): boolean {
   let spath = pathToString(mpath)
 
   if (!fs.existsSync(spath)) return false
@@ -34,7 +34,7 @@ export function isFile(mpath: MPath): boolean {
   return fs.statSync(spath).isFile()
 }
 
-export function isDir(mpath: MPath): boolean {
+export function isDir (mpath: MPath): boolean {
   let spath = pathToString(mpath)
 
   if (!fs.existsSync(spath)) return false
@@ -42,35 +42,43 @@ export function isDir(mpath: MPath): boolean {
   return fs.statSync(spath).isDirectory()
 }
 
-export function unlink(mpath: MPath) {
+export function unlink (mpath: MPath) {
   let spath = pathToString(mpath)
   try {
     fs.unlinkSync(spath)
     return true
   } catch (e) {
-    return e;
+    return e
   }
 }
 
-export function readFile(mpath: MPath): string {
+export function readFile (mpath: MPath): string {
   let spath = pathToString(mpath)
   let rst = ''
   try {
-    rst = fs.readFileSync(spath, 'utf-8');
+    rst = fs.readFileSync(spath, 'utf-8')
   } catch (e) {
     rst = ''
   }
-  return rst;
+  return rst
 }
 
-export function writeFile(mpath: MPath, data: string) {
+export function writeFile (mpath: MPath, data: string) {
   let ppath = pathToParse(mpath)
   let spath = pathToString(mpath)
 
   if (!this.isDir(ppath.dir)) {
     fs.ensureDirSync(ppath.dir)
   }
-  fs.writeFileSync(spath, data);
+  fs.writeFileSync(spath, data)
+}
+
+export function copyFile (srcFilePath: string, destFilePath: string) {
+  let destDirPath = path.dirname(destFilePath)
+  if (!this.isDir(destDirPath)) {
+    fs.ensureDirSync(destDirPath)
+  }
+  fs.copyFileSync(srcFilePath, destFilePath)
 }
 
 export function overrideNpmLog () {
@@ -108,25 +116,27 @@ export function getLernaPackageConfigs () {
 }
 
 export function getRealPkgName (name: string) {
-  if (!new RegExp(`^${config.prefix}`).test(name)) {
-    name = `${config.prefix}${name}`
+  if (name && !new RegExp(`^${config.prefixStr}`).test(name)) {
+    name = `${config.prefixStr}${name}`
   }
   return name
 }
 
 export function getRealPkgNameWithScope (name: string) {
-  // @minui/wxc-loading => true
-  // wxc-loading => false
-  // loading => false
-  if (!new RegExp(`^${config.npm.scope}`).test(name)) {
+  if (name) {
+    // loading => wxc-loading
     name = getRealPkgName(name)
-    name = `${config.npm.scope}/${name}`
+
+    // wxc-loading => @minui/wxc-loading
+    if (config.npm.scope && !new RegExp(`^${config.npm.scope}`).test(name)) {
+      name = `${config.npm.scope}/${name}`
+    }
   }
   return name
 }
 
 export function getRealPageName (name: string) {
-  return name.replace(new RegExp(`^${config.prefix}`), '')
+  return name.replace(new RegExp(`^${config.prefixStr}`), '')
 }
 
 /**

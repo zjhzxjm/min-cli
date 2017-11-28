@@ -8,11 +8,11 @@
     "darkPromptColor": "#999999",
     "splitLineColor": "#ECECEC",
     "backgroundColour": "#EFEFEF"
-  },<% } %> <% if (dest) { %>
-  "dest": "<%= dest %>",<% } %> <% if (prefix) { %>
-  "prefix": "<%= prefix %>",<% } %>
-  "npm": {<% if (npmScope) { %>
-    "scope": "<%= npmScope %>",<% } %> <% if (npmDest) { %>
-    "dest": "<%= npmDest %>"<% } %>
+  },<% } %>
+  "prefix": "<%= prefix %>",
+  "dest": "<%= dest %>",
+  "npm": {
+    "dest": "<%= npmDest %>"<% if (projectType === options.ProjectType.Component) { %>,
+    "scope": "<%= npmScope %>"<% } %>
   }
 }
