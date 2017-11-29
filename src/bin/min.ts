@@ -1,25 +1,17 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs-extra'
-import * as path from 'path'
 import * as _ from 'lodash'
 import * as program from 'commander'
-import { config } from '../util'
 import commands from '../index'
+import { log } from '../util'
 
 const minPkg = require('../../package.json')
-const proPkgPath = path.join(config.cwd, 'package.json')
-const proPkg = fs.existsSync(proPkgPath) ? require(proPkgPath) : null
 
 program
   .version(minPkg.version)
   .usage('<command> [options]')
 
 commands.forEach(command => {
-  // check
-  if (proPkg && command.isAvailable) {
-    command.isAvailable(proPkg['dev-type'] || {})
-  }
 
   // create command
   let cmd = program.command(command.name)
@@ -56,7 +48,13 @@ commands.forEach(command => {
 
   // set action
   if (command.action) {
-    cmd.action(command.action)
+    cmd.action(async (...args) => {
+      try {
+        await command.action.apply(command, args)
+      } catch (err) {
+        log.error(err)
+      }
+    })
   }
 })
 

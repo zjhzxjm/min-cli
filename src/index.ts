@@ -5,7 +5,7 @@ import build, { BuildCommand } from './cli/build'
 // import commit, { CommitCommand } from './cli/commit'
 import init, { InitCommand } from './cli/init'
 import install, { InstallCommand } from './cli/install'
-import create, { CreateCommand } from './cli/create'
+import $new, { NewCommand } from './cli/new'
 import dev, { DevCommand } from './cli/dev'
 // import packages, { PackagesCommand } from './cli/packages'
 import publish, { PublishCommand } from './cli/publish'
@@ -18,7 +18,7 @@ export {
   // CommitCommand,
   InitCommand,
   InstallCommand,
-  CreateCommand,
+  NewCommand,
   DevCommand,
   // PackagesCommand,
   PublishCommand,
@@ -29,7 +29,7 @@ export {
 
 export default [
   init,
-  create, // new
+  $new,
   dev,
   build,
   publish,

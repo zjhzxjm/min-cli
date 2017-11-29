@@ -170,9 +170,14 @@ export class WxSFMScript extends WxSFM {
         request = path.join(request, path.basename(useRequest.dest, useRequest.ext))
         request = request.charAt(0) !== '.' ? `./${request}` : request
         request = request.split(path.sep).join('/')
+
         switch (depend.requestType) {
           case RequestType.SCRIPT:
             depend.$node.value = request
+            break
+
+          case RequestType.STATIC:
+            depend.$node.value = request + useRequest.ext
             break
 
           case RequestType.WXC:
@@ -193,9 +198,16 @@ export class WxSFMScript extends WxSFM {
    * @memberof WxSFMScript
    */
   generator (): string {
-    let result = babel.transformFromAst(this.node, '', {
+    let { isThreeNpm } = this.request
+
+    // for @mindev/min-compiler-babel
+    let transformOptions = isThreeNpm ? {} : (config.compilers['babel'] || {})
+
+    let result = babel.transformFromAst(this.node, this.source, {
       ast: false,
-      babelrc: false
+      babelrc: false,
+      filename: this.request.destRelative,
+      ...transformOptions
     })
     let { code = '' } = result
     return code
@@ -206,7 +218,7 @@ export class WxSFMScript extends WxSFM {
    *
    * @memberof WxSFMScript
    */
-  save() {
+  save () {
     super.save()
   }
 
@@ -273,6 +285,41 @@ export class WxSFMScript extends WxSFM {
     babel.traverse(this.node, visitor)
   }
 
+  private checkUseModuleExports (path: NodePath<t.ObjectExpression>): boolean | undefined {
+    if (!this.isSFC) {
+      return
+    }
+
+    // the parent is module.exports = {}; exports.default = {}
+    if (!t.isAssignmentExpression(path.parent)) {
+      return
+    }
+
+    let { left, operator } = path.parent
+
+    if (operator !== '=') {
+      return
+    }
+
+    // left => module.exports or exports.default
+    // operator => =
+    // right => { ... }
+    if (!t.isMemberExpression(left)) {
+      return
+    }
+
+    if (!t.isIdentifier(left.object) || !t.isIdentifier(left.property)) {
+      return
+    }
+
+    let expression = `${left.object.name}.${left.property.name}`
+    if (expression !== 'module.exports' && expression !== 'exports.default') {
+      return
+    }
+
+    return true
+  }
+
   /**
    * babel.traverse 转换访问器方法，用于在 export default 增加一个构造函数
    *
@@ -280,7 +327,7 @@ export class WxSFMScript extends WxSFM {
    * @param {NodePath<t.ObjectExpression>} path 节点路径
    * @memberof WxSFMScript
    */
-  private visitStructure (path: NodePath<t.ObjectExpression>) {
+  private checkUseExportDefault (path: NodePath<t.ObjectExpression>): boolean | undefined {
     if (!this.isSFC) {
       return
     }
@@ -290,9 +337,19 @@ export class WxSFMScript extends WxSFM {
       return
     }
 
+    return true
+  }
+
+  private visitStructure (path: NodePath<t.ObjectExpression>) {
     // export default {...} => export default Component({...})
     // export default {...} => export default Page({...})
     // export default {...} => export default App({...})
+
+    // module.exports = {...} => export default App({...})
+
+    if (!this.checkUseExportDefault(path) && !this.checkUseModuleExports(path)) {
+      return
+    }
 
     // .wxc => wxc => Component
     // .wxp => wxc => Page
@@ -344,7 +401,7 @@ export class WxSFMScript extends WxSFM {
 
     let properties: Array<t.ObjectProperty> = []
     // [['src', 'pages'], ['abnor', 'index.wxp']] => ['src', 'pages', 'abnor', 'index.wxp'] => 'src\/pages\/abnor\/index.wxp'
-    let pattern = Array.prototype.concat.apply([], [config.pages.split('/'), ['([a-z]+)', `index${config.ext.wxp}`]]).join(`\\${PATH_SEP}`)
+    let pattern = Array.prototype.concat.apply([], [config.pages.split('/'), ['([a-z-]+)', `index${config.ext.wxp}`]]).join(`\\${PATH_SEP}`)
 
     // src/pages/abnor/index.wxp => ['src/pages/abnor/index.wxp', 'abnor']
     let matchs = this.request.srcRelative.match(new RegExp(`^${pattern}$`))
@@ -353,7 +410,7 @@ export class WxSFMScript extends WxSFM {
     }
 
     // abnor => wxc-abnor
-    let pkgDirName = `${config.prefix}${matchs[1]}`
+    let pkgDirName = `${config.prefixStr}${matchs[1]}`
     // ~/you_project_path/src/packages/wxc-abnor/README.md
     let readmeFile = config.getPath('packages', pkgDirName, 'README.md')
 
@@ -419,26 +476,18 @@ export class WxSFMScript extends WxSFM {
    * @memberof WxSFMScript
    */
   private visitDepend (path: NodePath<t.ImportDeclaration | t.CallExpression>) {
-    if (t.isImportDeclaration(path.node)) {
-      let { source } = path.node
-      this.depends.push({
-        request: source.value,
-        requestType: RequestType.SCRIPT,
-        $node: source
-      })
-    } else if (t.isCallExpression(path.node)) {
+    if (t.isImportDeclaration(path.node)) { // import
+      let { source: $node } = path.node
+      this.addNativeDepends($node)
+    } else if (t.isCallExpression(path.node)) { // require
       let { callee, arguments: args } = path.node
       if (!(t.isIdentifier(callee) && callee.name === 'require' && args.length > 0)) {
         return
       }
 
-      let source = args[0]
-      if (t.isStringLiteral(source)) {
-        this.depends.push({
-          request: source.value,
-          requestType: RequestType.SCRIPT,
-          $node: source
-        })
+      let $node = args[0]
+      if (t.isStringLiteral($node)) {
+        this.addNativeDepends($node)
       }
     }
   }
@@ -508,6 +557,25 @@ export class WxSFMScript extends WxSFM {
           requestType: RequestType.WXC,
           usingKey: key
         })
+      })
+    }
+  }
+
+  private addNativeDepends ($node: t.StringLiteral) {
+    let request = $node.value
+    let isJsonExt = path.extname(request) === config.ext.json
+
+    if (isJsonExt) {
+      this.depends.push({
+        request,
+        requestType: RequestType.STATIC,
+        $node
+      })
+    } else {
+      this.depends.push({
+        request,
+        requestType: RequestType.SCRIPT,
+        $node
       })
     }
   }
@@ -655,7 +723,7 @@ export class WxSFMScript extends WxSFM {
   //     // key   => 'wxc-loading'
   //     // value => '@scope/wxc-loading'
   //     this.config.usingComponents[key] = value
-  //     debugger
+
   //     // 'wxc-loading' => '@scope/wxc-loading'
   //     this.depends.push({
   //       request: value,

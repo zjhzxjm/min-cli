@@ -3,6 +3,7 @@ import * as path from 'path'
 import * as _ from 'lodash'
 import { Config, CustomConfig } from '../declare'
 import systemConfig from '../config'
+import { filterPrefix } from '../util'
 
 /**
  * 可访问路径类型
@@ -14,6 +15,7 @@ type GetPathType = 'file' | 'src' | 'dest' | 'pages' | 'packages' | 'cache.file'
  */
 const CUSTOM_CONFIG_MEMBER: string[] = [
   'style',
+  'compilers', // 编译器
   'src', // 源代码的路径
   'packages', // 组件库的路径
   'dest',// 编译后的路径
@@ -68,6 +70,8 @@ function getCustomConfig (): { [key: string]: CustomConfig } {
   }
 }
 
+let scopeAliasMap = {}
+
 /**
  * 配置转换函数
  * @param defaultConfig 默认配置
@@ -99,8 +103,17 @@ function convertConfig (defaultConfig: Config, customConfig: CustomConfig = {}) 
 
   engine(config)
 
+  _.forIn(scopeAliasMap, (value, key) => {
+    // 将 map 区已映射的 scope 从 alias 区删除
+    delete config.alias[key]
+  })
+
   // 默认将 config.npm.scope 放入到 alias 中，并将 config.packages 作为值
   if (config.npm.scope && !config.alias[config.npm.scope]) {
+    // 将已映射的 scope 放入 map 区
+    scopeAliasMap[config.npm.scope] = true
+
+    // 将 { key: scope, value: packages } 配置映射到 alias 里
     config.alias[config.npm.scope] = config.packages
   }
 
@@ -118,6 +131,9 @@ let {
  * 全部配置，基于默认和自定义配置的集合
  */
 export const config = {
+  get prefixStr () {
+    return filterPrefix(this.prefix)
+  },
   ...convertConfig(defaultConfig, customConfig),
   getPath (name: GetPathType, ...paths: string[]) {
     let names = name.split('.')
@@ -128,7 +144,10 @@ export const config = {
 
     return path.join(this.cwd, value, ...paths)
   },
-  update (customConfigFormNew: any) {
+  update (newConfig: any) {
+    _.merge(this, newConfig)
+  },
+  updateCustom (customConfigFormNew: any) {
     // 将 新的配置 合并到 自定义文件配置里
     _.merge(customConfigFromFile, customConfigFormNew || {})
 

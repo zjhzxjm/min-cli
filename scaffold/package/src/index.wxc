@@ -7,12 +7,12 @@
 <script>
 export default {
   config: {
-    usingComponents: {}
+    usingComponents: { }
   },
-  behaviors: [],
-  properties: {},
-  data: {},
-  methods: {}
+  behaviors: [ ],
+  properties: { },
+  data: { },
+  methods: { }
 }
 
 <% if (isPlugin) { %>

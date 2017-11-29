@@ -1,4 +1,5 @@
 import { Config } from './declare'
+
 const scope = '@minui'
 
 const config: Config = {
@@ -7,7 +8,7 @@ const config: Config = {
   filename: 'min.config.json',
   projectType: '', // in customConfig. include min.config.json and minConfig of package.json
   cwd: process.cwd(),
-  prefix: 'wxc-',
+  prefix: 'wxc',
   src: 'src',
   dest: 'dist',
   pages: '{{src}}/pages',
@@ -69,6 +70,7 @@ const config: Config = {
     wxp: 'Page',
     wxa: 'App'
   },
+  compilers: {},
   style: {
     lang: { // CSS预编译器 【当前版本不支持自定义配置】
       'less': 'less',

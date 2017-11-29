@@ -119,9 +119,30 @@ function inScope (request: string): boolean {
  * @param {string} request
  * @returns {boolean}
  */
-function isWxcComponent (request: string): boolean {
-  // TODO 现在的逻辑是通过判断 前缀为@scope/wxc-，实际上需要判断package.json 中的minConfig.component
-  return new RegExp(`^@[a-z]+/${config.prefix}`).test(request)
+function isWxcPackage (request: string, requestType: RequestType): boolean {
+  // isWXC && @scope/wxc- => true
+  // isWXC && wxc-loading => true
+  // isWXC && ./index.wxc => false
+  // isWXC && alias/wxc-toast => false
+  // isWXC && src/... => false
+  // isWXC && packages/... => false
+
+  if (requestType !== RequestType.WXC) {
+    return false
+  }
+  if (request.charAt(0) === '.') {
+    return false
+  }
+  if (request.split('/')[0] === config.src) {
+    return false
+  }
+  if (request.split('/')[0] === config.packages) {
+    return false
+  }
+  if (!inScope(request) && inAlias(request)) {
+    return false
+  }
+  return true
 }
 
 function src2destRelative (srcRelative: string, isPublish?: boolean) {
@@ -158,7 +179,7 @@ function src2destRelative (srcRelative: string, isPublish?: boolean) {
   })
 
   // /wxc-hello/src/ => /wxc-hello/dist/
-  destRelative = destRelative.replace(new RegExp(`(\\${path.sep}${config.prefix}[a-z-]+\\${path.sep})([a-z]+)`), (match, $1, $2) => {
+  destRelative = destRelative.replace(new RegExp(`(\\${path.sep}${config.prefixStr}[a-z-]+\\${path.sep})([a-z]+)`), (match, $1, $2) => {
     if ($2 === config.package.src) {
       return `${$1}${config.package.dest}`
     }
@@ -229,7 +250,7 @@ function getMatchRequest (request: string, requestType?: RequestType): {lookupEx
   }
 }
 
-function findPath (request: string, paths: string[], exts: string[]): any {
+function findPath (request: string, requestType: RequestType, paths: string[], exts: string[]): any {
   if (!paths || paths.length === 0) {
     return false
   }
@@ -256,19 +277,34 @@ function findPath (request: string, paths: string[], exts: string[]): any {
       continue
     }
 
-    // @scope/wxc-
-    if (isWxcComponent(curRequest)) {
-      // @scope/wxc-hello => ['@scope', 'wxc-hello]
+    if (isWxcPackage(curRequest, requestType)) {
+      // @scope/wxc-hello => ['@scope', 'wxc-hello']
+      // @scope/wxc-hello/index => ['@scope', 'wxc-hello', 'index']
+      // wxc-hello => ['wxc-hello']
+      // wxc-hello/index => ['wxc-hello', 'index']
       let seps = curRequest.split('/')
+      let scope = ''
+      if (seps.length > 0 && seps[0].startsWith('@')) { // ['@scope', 'wxc-hello', ...]
+        if (seps.length === 1) {  // ['@scope']
+          throw new Error(`引用路径错误${curRequest}`)
+        }
+        // ['@scope', 'wxc-hello', ...] => @scope
+        scope = seps[0]
+        // ['@scope', 'wxc-loading', ...] => ['wxc-loading', ...]
+        seps.shift()
+      }
+
+      // ['wxc-hello', ...]
       if (seps.length === 1) {
-        // ['@scope'] => Error
-        throw new Error(`引用路径错误${curRequest}`)
-      } else if (seps.length === 2) {
-        // ['@scope', 'wxc-hello'] => ['@scope', 'wxc-hello', 'src', 'index']
+        // ['wxc-hello'] => ['wxc-hello', 'src', 'index']
         seps = seps.concat([config.package.src, config.package.default])
-      } else if (seps.length > 2 && seps[2] !== 'src') {
-        // ['@scope', 'wxc-hello', 'index'] => ['@scope', 'wxc-hello', 'src', 'index']
-        seps.splice(2, 0, config.package.src)
+      } else if (seps.length > 1 && seps[1] !== 'src') {
+        // ['wxc-hello', 'index'] => ['wxc-hello', 'src', 'index']
+        seps.splice(1, 0, config.package.src)
+      }
+
+      if (scope) {
+        seps.unshift(scope)
       }
       curRequest = seps.join('/')
     }
@@ -410,8 +446,11 @@ function resolveLookupPaths (request: string, parent?: string): string[] {
     }
   }
 
-  // 最后再从 node_modules 里查找
-  return resolveLookupNpmPaths(parent || config.cwd)
+  // 最后再从 packages 和 node_modules 里查找
+  return [
+    config.getPath('packages'),
+    ...resolveLookupNpmPaths(parent || config.cwd)
+  ]
 }
 
 export function resolveDep (requestOptions: Request.Options): Request.Core {
@@ -420,7 +459,8 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
     requestType: type,
     parent,
     isMain,
-    isPublish
+    isPublish,
+    isThreeNpm = false
   } = requestOptions
 
   if (!request && !parent) {
@@ -456,13 +496,23 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
   let ext = ''
   let dest = ''
   let destRelative = ''
+  let $isThreeNpm = false
 
-  let src = findPath(request, lookupPaths, lookupExts) || ''
+  let src = findPath(request, requestType, lookupPaths, lookupExts) || ''
   if (src) {
     srcRelative = path.relative(config.cwd, src)
     ext = path.extname(src)
     destRelative = src2destRelative(srcRelative, isPublish)
     dest = path.join(config.cwd, destRelative)
+
+    // 判定是否来自第三方NPM（NPM包中非WXC的都定位为第三方NPM包，主要是不走编译）
+    if (srcRelative.split('/')[0] === 'node_modules') {
+      if (request.charAt(0) === '.') { // 引用相对路径，继承父级
+        $isThreeNpm = isThreeNpm
+      } else if (ext !== config.ext.wxc) { // 所有的NPM包中，引用路径扩展非.wxc，都定位第三方NPM包
+        $isThreeNpm = true
+      }
+    }
   }
 
   return {
@@ -475,6 +525,8 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
     srcRelative,
     ext,
     dest,
-    destRelative
+    destRelative,
+
+    isThreeNpm: $isThreeNpm
   }
 }

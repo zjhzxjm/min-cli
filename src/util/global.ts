@@ -124,7 +124,7 @@ export class Global {
       pagePath: devPage,
       iconPath,
       selectedIconPath,
-      text: `dev-${devName}`
+      text: `<${devName}/>`
     })
     fs.copySync(path.join(__dirname, '../../scaffold', iconPath), config.getPath('dest', iconPath))
     fs.copySync(path.join(__dirname, '../../scaffold', selectedIconPath), config.getPath('dest', selectedIconPath))

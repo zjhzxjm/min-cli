@@ -1,6 +1,5 @@
-import * as fs from 'fs-extra'
-import { Depend, Request, WxNFC, WxSFC } from '../class'
-import { log } from '../util'
+import { Depend, Request, WxNFC, WxSFC, CompileStatic } from '../class'
+import util, { log } from '../util'
 
 export namespace WxFile {
   /**
@@ -59,15 +58,22 @@ export class WxFile implements WxFile.Core {
    * @memberof WxFile
    */
   constructor (request: Request) {
-    let { ext, src, isSFC, isNFC } = request
-    let source = fs.readFileSync(src, 'utf-8')
-
-    log.msg(log.type.BUILD, request.srcRelative)
+    let { ext, src, isSFC, isNFC, isStatic } = request
 
     if (isSFC) { // 单文件
-      this.core = new WxSFC(source, request)
+
+      log.msg(log.type.BUILD, request.srcRelative)
+      this.core = new WxSFC(util.readFile(src), request)
+
     } else if (isNFC) { // 原生文件
-      this.core = new WxNFC(source, request)
+
+      log.msg(log.type.BUILD, request.srcRelative)
+      this.core = new WxNFC(util.readFile(src), request)
+
+    } else if (isStatic) { // 静态文件
+
+      this.core = new CompileStatic(request)
+
     } else {
       throw new Error(`创建【WxFile】失败，没有找到扩展名为 ${ext} 的编译类型`)
     }

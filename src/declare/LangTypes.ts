@@ -18,13 +18,17 @@ export const LangTypes: {
     compileType: undefined
   },
 
+  // STATIC
+  [ext.json]: {
+    requestType: RequestType.STATIC,
+    compileType: undefined
+  },
+
   // TEMPLATE
   [ext.wxml]: {
     requestType: RequestType.TEMPLATE,
     compileType: undefined
   },
-
-  // [ext.json]: RequestType.JSON,
 
   // STYLE
   [ext.wxss]: {

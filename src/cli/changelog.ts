@@ -1,37 +1,36 @@
 import { CLIExample } from '../class'
-import { DevType } from '../declare'
 import { log } from '../util'
 
+export namespace ChangelogCommand {
+  /**
+   * 选项
+   *
+   * @export
+   * @interface Options
+   */
+  export interface Options {}
+
+  /**
+   * CLI选项
+   *
+   * @export
+   * @interface CLIOptions
+   */
+  export interface CLIOptions {}
+}
+
 /**
- * 更新日志命令行选项
+ * 日志类
  *
  * @export
- * @interface ChangelogCommand
+ * @class ChangelogCommand
  */
-export interface ChangelogCommand {}
+export class ChangelogCommand {
+  constructor (public options: ChangelogCommand.Options = {}) {
 
-export default {
-  isAvailable (devType?: DevType) {
-    if (!devType) {
-      return false
-    }
+  }
 
-    // 判断 wxc 框架类型
-    return devType.framework === 'wxc'
-  },
-  name: 'changelog',
-  alias: 'log',
-  usage: '',
-  description: '更新日志',
-  options: [],
-  on: {
-    '--help': () => {
-      new CLIExample('changelog')
-        .group('更新日志')
-        .rule('')
-    }
-  },
-  action (options: ChangelogCommand) {
+  async run () {
     const standardVersion = require('standard-version')
 
     // 生成 CHANGELOG.md 更新日志文档
@@ -44,5 +43,27 @@ export default {
         log.error(`changelog failed with message: ${err.message}`)
       }
     })
+  }
+}
+
+/**
+ * Commander 命令行配置
+ */
+export default {
+  name: 'changelog',
+  alias: 'log',
+  usage: '',
+  description: '更新日志',
+  options: [],
+  on: {
+    '--help': () => {
+      new CLIExample('changelog')
+        .group('更新日志')
+        .rule('')
+    }
+  },
+  async action (cliOptions: ChangelogCommand.CLIOptions) {
+    let changelogCommand = new ChangelogCommand()
+    await changelogCommand.run()
   }
 }

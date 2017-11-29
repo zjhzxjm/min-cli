@@ -1,5 +1,4 @@
-<template>
-<% if (useGlobalLayout) { %>
+<template><% if (useGlobalLayout) { %>
   <view>
     <layout-head></layout-head>
 
@@ -7,10 +6,7 @@
     <page></page>
 
     <layout-foot></layout-foot>
-  </view>
-<% } else { %>
-
-<% } %>
+  </view><% } %>
 </template>
 
 <script>
@@ -32,15 +28,18 @@
         request: 10000
       }
     },
-    globalData: {},
-    onLaunch: function () {
-    },
-    onShow: function () {
-    },
-    onHide: function () {
-    }
+    globalData: { },
+    onLaunch () { },
+    onShow () { },
+    onHide () { }
   }
 </script>
 
 <style>
+page {
+  background-color: #F8F8F8;
+  height: 100%;
+  font-size: 32rpx;
+  line-height: 1.5;
+}
 </style>

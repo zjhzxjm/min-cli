@@ -27,7 +27,7 @@ function getMdRootWxp (file: string) {
   let extName = path.extname(file)
   let baseName = path.basename(file)
   let dirName = path.dirname(file)
-  let packageRegExp = new RegExp(`^${config.packages}/${config.prefix}([a-z-]+)$`)
+  let packageRegExp = new RegExp(`^${config.packages}/${config.prefixStr}([a-z-]+)$`)
 
   let mdRootWxpPath = ''
   if (

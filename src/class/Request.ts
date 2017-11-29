@@ -51,6 +51,14 @@ export namespace Request {
      * @memberof Options
      */
     isPublish?: boolean
+
+    /**
+     * 是否来自第三方NPM
+     *
+     * @type {boolean}
+     * @memberof Options
+     */
+    isThreeNpm?: boolean
   }
 
   /**
@@ -124,6 +132,14 @@ export namespace Request {
      * @memberof Path
      */
     destRelative: string
+
+    /**
+     * 是否来自第三方NPM
+     *
+     * @type {boolean}
+     * @memberof Core
+     */
+    isThreeNpm: boolean
   }
 
   /**
@@ -256,7 +272,6 @@ export namespace Request {
      */
     isStylus: boolean
 
-
     /**
      * 是否单文件类型，比如.wxa .wxp .wxc，当isWxa isWxp isWxc 三者中值存在真时它就为真
      *
@@ -307,20 +322,27 @@ export namespace Request {
  * @implements {Request.Core}
  */
 export class RequestCore implements Request.Core {
-  request: string;
-  requestType: RequestType;
-  src: string;
-  srcRelative: string;
-  ext: string;
-  dest: string;
-  destRelative: string;
+  request: string
+  requestType: RequestType
+  src: string
+  srcRelative: string
+  ext: string
+  dest: string
+  destRelative: string
+  /**
+   * 是否来自第三方NPM
+   *
+   * @type {boolean}
+   * @memberof RequestCore
+   */
+  isThreeNpm: boolean
 
   /**
    * Creates an instance of RequestCore.
    * @param {Request.Options} options
    * @memberof RequestCore
    */
-  constructor(options: Request.Options) {
+  constructor (options: Request.Options) {
     // 通过resolveDep的请求依赖分析方法，将结果合并到RequestCore实例
     _.merge(this, resolveDep(options))
   }
@@ -402,6 +424,16 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    */
   get isStyle () {
     return this.isCss || this.isWxss || this.isLess || this.isPcss || this.isSass || this.isStylus
+  }
+
+  /**
+   * 是否为静态文件（无依赖、无编译）
+   *
+   * @readonly
+   * @memberof RequestExtend
+   */
+  get isStatic () {
+    return this.isJson
   }
 
   /**

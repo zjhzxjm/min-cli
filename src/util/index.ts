@@ -4,6 +4,8 @@ export {
   beautifyJs
 } from './beautify'
 
+export { filterPrefix, filterNpmScope } from './filter'
+
 export { config, customConfig, defaultConfig } from './config'
 
 export { xcxCache, xcxNodeCache, xcxNext } from './cache'

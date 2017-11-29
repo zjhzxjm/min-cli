@@ -60,6 +60,7 @@ export interface Config extends CustomConfig {
     wxp: string
     wxa: string
   }
+  compilers: any
   style: {
     lang: { // CSS预编译器 【当前版本不支持自定义配置】
       less: string

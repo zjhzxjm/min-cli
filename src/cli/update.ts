@@ -2,22 +2,70 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as _ from 'lodash'
 import { CLIExample } from '../class'
-import { DevType } from '../declare'
 import util, { config, exec, log, LogType } from '../util'
 import { NpmDest } from '../qa'
 
+export namespace UpdateCommand {
+  /**
+   * 选项
+   *
+   * @export
+   * @interface Options
+   */
+  export interface Options {
+    /**
+     * 包名列表，如：['@minui/wxc-loading'、'@minui/wxc-tab']
+     *
+     * @type {string []}
+     * @memberof Options
+     */
+    pkgNames?: string[]
+  }
+
+  /**
+   * CLI选项
+   *
+   * @export
+   * @interface CLIOptions
+   */
+  export interface CLIOptions {}
+}
+
 /**
- * 更新命令行选项
+ * 更新类
  *
  * @export
- * @interface UpdateCommand
+ * @class UpdateCommand
  */
-export interface UpdateCommand {}
+export class UpdateCommand {
+  constructor (public options: UpdateCommand.Options) {
+  }
 
+  async run () {
+    let { pkgNames = [] } = this.options
+    await this.update(pkgNames)
+    util.buildNpmWXCs(pkgNames)
+  }
+
+  private async update (pkgNames: string[]) {
+    // print run log
+    pkgNames.forEach(pkgName => {
+      log.msg(LogType.RUN, `npm update ${pkgName}`)
+    })
+    log.newline()
+
+    // run npm update
+    await exec('npm', ['update', ...pkgNames], true, {
+      cwd: config.cwd
+    })
+    log.newline()
+  }
+}
+
+/**
+ * Commander 命令行配置
+ */
 export default {
-  isAvailable (devType?: DevType) {
-    // TODO
-  },
   name: 'update [name]',
   alias: 'u',
   usage: '[name]',
@@ -36,7 +84,7 @@ export default {
         .rule('@minui/wxc-loading,@minui/wxc-loading')
     }
   },
-  async action (name: string, options: UpdateCommand) {
+  async action (name: string, cliOptions: UpdateCommand.CLIOptions) {
 
     let pkgNames = getPkgNames(name)
 
@@ -47,8 +95,12 @@ export default {
 
     try {
       await NpmDest.setAnswer()
-      await update(pkgNames)
-      util.buildNpmWXCs(pkgNames)
+
+      let updateCommand = new UpdateCommand({
+        pkgNames
+      })
+      await updateCommand.run()
+
     } catch (err) {
       log.error(err)
     }
@@ -69,18 +121,4 @@ function getPkgNames (name: string) {
     }
   }
   return pkgNames
-}
-
-async function update (pkgNames: string[]) {
-  // print run log
-  pkgNames.forEach(pkgName => {
-    log.msg(LogType.RUN, `npm update ${pkgName}`)
-  })
-  log.newline()
-
-  // run npm update
-  await exec('npm', ['update', ...pkgNames], true, {
-    cwd: config.cwd
-  })
-  log.newline()
 }
