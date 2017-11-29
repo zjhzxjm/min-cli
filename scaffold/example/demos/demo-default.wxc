@@ -9,8 +9,8 @@ export default {
       '<%= pkgName %>': '<%= npmScopeStr %><%= pkgName %>'
     }
   },
-  data: {},
-  methods: {}
+  data: { },
+  methods: { }
 }
 </script>
 
