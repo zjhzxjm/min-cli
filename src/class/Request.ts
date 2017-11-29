@@ -51,6 +51,14 @@ export namespace Request {
      * @memberof Options
      */
     isPublish?: boolean
+
+    /**
+     * 是否来自第三方NPM
+     *
+     * @type {boolean}
+     * @memberof Options
+     */
+    isThreeNpm?: boolean
   }
 
   /**
@@ -124,6 +132,14 @@ export namespace Request {
      * @memberof Path
      */
     destRelative: string
+
+    /**
+     * 是否来自第三方NPM
+     *
+     * @type {boolean}
+     * @memberof Core
+     */
+    isThreeNpm: boolean
   }
 
   /**
@@ -313,6 +329,13 @@ export class RequestCore implements Request.Core {
   ext: string
   dest: string
   destRelative: string
+  /**
+   * 是否来自第三方NPM
+   *
+   * @type {boolean}
+   * @memberof RequestCore
+   */
+  isThreeNpm: boolean
 
   /**
    * Creates an instance of RequestCore.

@@ -459,7 +459,8 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
     requestType: type,
     parent,
     isMain,
-    isPublish
+    isPublish,
+    isThreeNpm = false
   } = requestOptions
 
   if (!request && !parent) {
@@ -495,6 +496,7 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
   let ext = ''
   let dest = ''
   let destRelative = ''
+  let $isThreeNpm = false
 
   let src = findPath(request, requestType, lookupPaths, lookupExts) || ''
   if (src) {
@@ -502,6 +504,15 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
     ext = path.extname(src)
     destRelative = src2destRelative(srcRelative, isPublish)
     dest = path.join(config.cwd, destRelative)
+
+    // 判定是否来自第三方NPM（NPM包中非WXC的都定位为第三方NPM包，主要是不走编译）
+    if (srcRelative.split('/')[0] === 'node_modules') {
+      if (request.charAt(0) === '.') { // 引用相对路径，继承父级
+        $isThreeNpm = isThreeNpm
+      } else if (ext !== config.ext.wxc) { // 所有的NPM包中，引用路径扩展非.wxc，都定位第三方NPM包
+        $isThreeNpm = true
+      }
+    }
   }
 
   return {
@@ -514,6 +525,8 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
     srcRelative,
     ext,
     dest,
-    destRelative
+    destRelative,
+
+    isThreeNpm: $isThreeNpm
   }
 }

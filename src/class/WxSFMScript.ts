@@ -198,9 +198,16 @@ export class WxSFMScript extends WxSFM {
    * @memberof WxSFMScript
    */
   generator (): string {
-    let result = babel.transformFromAst(this.node, '', {
+    let { isThreeNpm } = this.request
+
+    // for @mindev/min-compiler-babel
+    let transformOptions = isThreeNpm ? {} : (config.compilers['babel'] || {})
+
+    let result = babel.transformFromAst(this.node, this.source, {
       ast: false,
-      babelrc: false
+      babelrc: false,
+      filename: this.request.destRelative,
+      ...transformOptions
     })
     let { code = '' } = result
     return code
@@ -211,7 +218,7 @@ export class WxSFMScript extends WxSFM {
    *
    * @memberof WxSFMScript
    */
-  save() {
+  save () {
     super.save()
   }
 
