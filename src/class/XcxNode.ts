@@ -157,7 +157,8 @@ export class XcxNode {
         requestType,
         parent: this.request.src,
         isMain: false,
-        root: this
+        root: this,
+        isThreeNpm: this.request.isThreeNpm
       })
 
       if (xcxNode) {
@@ -169,7 +170,8 @@ export class XcxNode {
           srcRelative: xcxNode.request.srcRelative,
           ext: xcxNode.request.ext,
           dest: xcxNode.request.dest,
-          destRelative: xcxNode.request.destRelative
+          destRelative: xcxNode.request.destRelative,
+          isThreeNpm: xcxNode.request.isThreeNpm
         })
       } else {
         // 增加缺失的请求

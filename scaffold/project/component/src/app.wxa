@@ -18,13 +18,10 @@
         request: 10000
       }
     },
-    globalData: {},
-    onLaunch: function () {
-    },
-    onShow: function () {
-    },
-    onHide: function () {
-    }
+    globalData: { },
+    onLaunch () { },
+    onShow () { },
+    onHide () { }
   }
 </script>
 

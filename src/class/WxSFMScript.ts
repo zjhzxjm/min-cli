@@ -198,9 +198,16 @@ export class WxSFMScript extends WxSFM {
    * @memberof WxSFMScript
    */
   generator (): string {
-    let result = babel.transformFromAst(this.node, '', {
+    let { isThreeNpm } = this.request
+
+    // for @mindev/min-compiler-babel
+    let transformOptions = isThreeNpm ? {} : (config.compilers['babel'] || {})
+
+    let result = babel.transformFromAst(this.node, this.source, {
       ast: false,
-      babelrc: false
+      babelrc: false,
+      filename: this.request.destRelative,
+      ...transformOptions
     })
     let { code = '' } = result
     return code
@@ -211,7 +218,7 @@ export class WxSFMScript extends WxSFM {
    *
    * @memberof WxSFMScript
    */
-  save() {
+  save () {
     super.save()
   }
 
@@ -278,6 +285,41 @@ export class WxSFMScript extends WxSFM {
     babel.traverse(this.node, visitor)
   }
 
+  private checkUseModuleExports (path: NodePath<t.ObjectExpression>): boolean | undefined {
+    if (!this.isSFC) {
+      return
+    }
+
+    // the parent is module.exports = {}; exports.default = {}
+    if (!t.isAssignmentExpression(path.parent)) {
+      return
+    }
+
+    let { left, operator } = path.parent
+
+    if (operator !== '=') {
+      return
+    }
+
+    // left => module.exports or exports.default
+    // operator => =
+    // right => { ... }
+    if (!t.isMemberExpression(left)) {
+      return
+    }
+
+    if (!t.isIdentifier(left.object) || !t.isIdentifier(left.property)) {
+      return
+    }
+
+    let expression = `${left.object.name}.${left.property.name}`
+    if (expression !== 'module.exports' && expression !== 'exports.default') {
+      return
+    }
+
+    return true
+  }
+
   /**
    * babel.traverse 转换访问器方法，用于在 export default 增加一个构造函数
    *
@@ -285,7 +327,7 @@ export class WxSFMScript extends WxSFM {
    * @param {NodePath<t.ObjectExpression>} path 节点路径
    * @memberof WxSFMScript
    */
-  private visitStructure (path: NodePath<t.ObjectExpression>) {
+  private checkUseExportDefault (path: NodePath<t.ObjectExpression>): boolean | undefined {
     if (!this.isSFC) {
       return
     }
@@ -295,9 +337,19 @@ export class WxSFMScript extends WxSFM {
       return
     }
 
+    return true
+  }
+
+  private visitStructure (path: NodePath<t.ObjectExpression>) {
     // export default {...} => export default Component({...})
     // export default {...} => export default Page({...})
     // export default {...} => export default App({...})
+
+    // module.exports = {...} => export default App({...})
+
+    if (!this.checkUseExportDefault(path) && !this.checkUseModuleExports(path)) {
+      return
+    }
 
     // .wxc => wxc => Component
     // .wxp => wxc => Page
