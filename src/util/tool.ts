@@ -208,7 +208,7 @@ export function buildNpmWXCs (pkgNames: string[]) {
     }
 
     let entryConfig: string[] = _.get(pkgData, 'minConfig.entry')
-    if (entryConfig && entryConfig.length) {
+    if (_.isArray(entryConfig) && entryConfig.length) {
         entryConfig.forEach(entry => {
           entries.push(pkgName + '/' + entry)
       })
