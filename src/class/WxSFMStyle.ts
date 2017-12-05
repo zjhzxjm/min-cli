@@ -128,6 +128,12 @@ export class WxSFMStyle extends WxSFM {
     this.initDepends()
   }
 
+  async getResultToCss () {
+    if (!this.result) return ''
+
+    return postcss().process(this.result).then(result => result.css)
+  }
+
   /**
    * style 基础编译
    *
@@ -154,9 +160,15 @@ export class WxSFMStyle extends WxSFM {
   async compileLess () {
     if (!this.result) return ''
 
-    let source = Global.config.style.lessCode + '\n' + await this.compileStyle()
+    // 1.0.5 版本以前，less 编译不支持 @import 外部文件
+    // 1.0.5 版本开始，less 编译会将所有 @import 外部文件打包在一个入口文件
+    // 将来的某个版本可能会调整 @import 外部文件分离编译
 
-    return await less.render(source).then(result => result.css)
+    let source = Global.config.style.lessCode + '\n' + await this.getResultToCss()
+    let options = {
+      filename: this.request.src
+    }
+    return await less.render(source, options).then(result => result.css)
   }
 
   /**
@@ -169,7 +181,7 @@ export class WxSFMStyle extends WxSFM {
     if (!this.result) return ''
 
     // TODO 由于使用style样式全局变量，编译后的代码会存在多个 换行问题
-    let source = Global.config.style.pcssCode + '\n' + await this.compileStyle()
+    let source = Global.config.style.pcssCode + '\n' + await this.getResultToCss()
 
     return await processor.process(source).then(result => result.css)
   }
@@ -281,7 +293,6 @@ export class WxSFMStyle extends WxSFM {
     this.result = lazyResult['result']
   }
 }
-
 
 // import wxss 保留引用，不被插件编译
 // class ImportWxssPlugin {

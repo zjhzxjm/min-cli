@@ -4,6 +4,7 @@ import * as _ from 'lodash'
 import { CLIExample, Xcx, XcxNode } from '../class'
 import { ProjectType } from '../declare'
 import util, { Global, config, log } from '../util'
+import { NpmDest, BabelES6 } from '../qa'
 
 export namespace BuildCommand {
   /**
@@ -92,6 +93,9 @@ export class BuildCommand {
       log.error(`Min Build，没有需要编译的组件`)
       return
     }
+
+    await NpmDest.setAnswer()
+    await BabelES6.setAnswer()
 
     util.buildNpmWXCs(pkgNames)
   }
