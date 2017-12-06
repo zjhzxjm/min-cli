@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as _ from 'lodash'
 import { CLIExample } from '../class'
 import util, { config, exec, log, LogType } from '../util'
-import { NpmDest } from '../qa'
+import { NpmDest, BabelES6 } from '../qa'
 
 export namespace UpdateCommand {
   /**
@@ -95,6 +95,7 @@ export default {
 
     try {
       await NpmDest.setAnswer()
+      await BabelES6.setAnswer()
 
       let updateCommand = new UpdateCommand({
         pkgNames
