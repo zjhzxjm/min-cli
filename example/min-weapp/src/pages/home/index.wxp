@@ -2,7 +2,7 @@
   <view>
     <view class="index-hd">
       <image class="index-logo" src="https://s10.mogucdn.com/mlcdn/c45406/171122_5l92i48kb80j1fkha1fh1cd3h43i5_200x200.png"></image>
-      <view class="index-desc">MinUI-小程序</view>
+      <view class="index-desc">帮助新手快速入门的一个示例项目</view>
     </view>
 
     <view class="index-bd">
