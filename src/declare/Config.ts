@@ -96,6 +96,7 @@ export interface Config extends CustomConfig {
 }
 
 export interface CustomConfig {
+  compilers?: any
   style?: {
     [key: string]: string | { [key: string]: string | Function | boolean | number }
   }

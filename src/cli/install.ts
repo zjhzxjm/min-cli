@@ -1,7 +1,7 @@
 
 import { CLIExample } from '../class'
 import util, { config, exec, log, LogType } from '../util'
-import { NpmDest } from '../qa'
+import { NpmDest, BabelES6 } from '../qa'
 
 export namespace InstallCommand {
   /**
@@ -95,6 +95,7 @@ export default {
 
     try {
       await NpmDest.setAnswer()
+      await BabelES6.setAnswer()
 
       let installCommand = new InstallCommand({
         pkgNames
