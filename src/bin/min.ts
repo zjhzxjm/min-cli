@@ -9,6 +9,9 @@ const minPkg = require('../../package.json')
 
 program
   .version(minPkg.version)
+  .option('-v', '--version', () => {
+    console.log(minPkg.version)
+  })
   .usage('<command> [options]')
 
 commands.forEach(command => {

@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-cli",
-  "version": "1.0.5-beta.2",
+  "version": "1.0.5",
   "description": "小程序组件化开发环境，提供 cli 支持",
   "main": "lib/index.js",
   "repository": {
@@ -28,6 +28,7 @@
     "@types/glob": "^5.0.32",
     "@types/highlight.js": "^9.1.10",
     "@types/htmlparser2": "^3.7.29",
+    "@types/inquirer": "0.0.35",
     "@types/js-beautify": "0.0.30",
     "@types/less": "0.0.32",
     "@types/lodash": "^4.14.71",
@@ -39,7 +40,6 @@
     "typescript": "^2.4.2"
   },
   "dependencies": {
-    "@types/inquirer": "0.0.35",
     "babel-core": "^6.25.0",
     "change-case": "^3.0.1",
     "chokidar": "^1.7.0",
