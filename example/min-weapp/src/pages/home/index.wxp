@@ -28,6 +28,7 @@ export default {
 }
 .index-bd {
   padding: 20rpx 30rpx;
+  margin: 20rpx 0;
   background-color:cadetblue;
   color: #fff;
   text-align: center;
