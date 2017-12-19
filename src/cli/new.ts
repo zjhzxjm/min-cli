@@ -197,14 +197,20 @@ export class NewCommand {
     fsEditor.copyTpl(
       util.getScaffoldPath(ScaffoldType.Package),
       destPackagePath,
-      newData
+      newData,
+      null,
+      {
+        globOptions: {
+          dot: true
+        }
+      }
     )
 
     // 创建并写入 package/.npmignore 文件
-    fsEditor.write(
-      util.getDestPackagePath(pkgName, '.npmignore'),
-      'test\n*.log\n'
-    )
+    // fsEditor.write(
+    //   util.getDestPackagePath(pkgName, '.npmignore'),
+    //   'test\n*.log\n'
+    // )
 
     // 将 example 脚手架模板路径下的文件拷贝到 page 目标路径下
     fsEditor.copyTpl(

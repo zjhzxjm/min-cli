@@ -20,6 +20,14 @@ export namespace PublishCommand {
      * @memberof Options
      */
     pkgName?: string
+
+    /**
+     * lerna 自定义配置选项
+     *
+     * @type {Object}
+     * @memberof Options
+     */
+    lernaOptions?: Object
   }
 
   /**
@@ -43,7 +51,7 @@ export class PublishCommand {
   }
 
   async run () {
-    let { pkgName } = this.options
+    let { pkgName, lernaOptions = {} } = this.options
     let publishArgs = {
       exact: true,
       message: 'Publish by MinDev'
@@ -52,7 +60,7 @@ export class PublishCommand {
     if (pkgName) {
       let pkgInfo = getPackages().find((item: any) => item.name === pkgName)
 
-      if (pkgInfo) {
+      if (pkgInfo) { // 组件名
         _.merge(publishArgs, {
           scope: pkgInfo.name
         })
@@ -60,6 +68,11 @@ export class PublishCommand {
         log.error(`没有找到组件 ${pkgName}`)
         return
       }
+    }
+
+    // lerna 自定义配置选项
+    if (_.isObject(lernaOptions)) {
+      _.merge(publishArgs, lernaOptions)
     }
 
     util.setLernaConfig()

@@ -37,6 +37,9 @@ export class BuildCommand {
   }
 
   async run () {
+    // TODO 此处全局污染，待优化
+    Global.isDebug = false
+
     switch (config.projectType as ProjectType) {
       case ProjectType.Application:
       case ProjectType.Component:

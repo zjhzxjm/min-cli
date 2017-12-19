@@ -29,23 +29,23 @@ const CUSTOM_CONFIG_MEMBER: string[] = [
 /**
  * 自定义配置文件路径
  */
-function getCustomConfigFilePath (): string {
-  return path.join(systemConfig.cwd, systemConfig.filename)
+function getCustomConfigFilePath (cwd: string = systemConfig.cwd): string {
+  return path.join(cwd, systemConfig.filename)
 }
 
 /**
  * 项目 package.json 路径
  */
-function getProjectPackagePath (): string {
-  return path.join(systemConfig.cwd, 'package.json')
+function getProjectPackagePath (cwd: string = systemConfig.cwd): string {
+  return path.join(cwd, 'package.json')
 }
 
 /**
  * 获取自定义配置
  */
-function getCustomConfig (): { [key: string]: CustomConfig } {
-  const pkgPath = getProjectPackagePath()
-  const filePath = getCustomConfigFilePath()
+function getCustomConfig (cwd: string = systemConfig.cwd): { [key: string]: CustomConfig } {
+  const pkgPath = getProjectPackagePath(cwd)
+  const filePath = getCustomConfigFilePath(cwd)
 
   let customConfigFromPkg: CustomConfig = {} // for package.json
   let customConfigFromFile: CustomConfig = {} // for min.config.json
@@ -144,12 +144,45 @@ export const config = {
 
     return path.join(this.cwd, value, ...paths)
   },
+
+  /**
+   * 重载配置
+   *
+   * @param {string} [cwd=systemConfig.cwd]
+   */
+  reload (cwd: string = systemConfig.cwd) {
+    let {
+      customConfig: $customConfig,
+      customConfigFromPkg: $customConfigFromPkg,
+      customConfigFromFile: $customConfigFromFile
+    } = getCustomConfig(cwd)
+
+    // 更新 exports
+    exports.customConfig = $customConfig
+    exports.customConfigFromPkg = $customConfigFromPkg
+    exports.customConfigFromFile = $customConfigFromFile
+
+    // 合并到配置中心
+    _.merge(this, convertConfig(defaultConfig, $customConfig))
+  },
+
+  /**
+   * 更新配置
+   *
+   * @param {*} newConfig
+   */
   update (newConfig: any) {
     _.merge(this, newConfig)
   },
-  updateCustom (customConfigFormNew: any) {
+
+  /**
+   * 更新自定义配置文件
+   *
+   * @param {*} newConfig
+   */
+  updateCustomFile (newConfig: any) {
     // 将 新的配置 合并到 自定义文件配置里
-    _.merge(customConfigFromFile, customConfigFormNew || {})
+    _.merge(customConfigFromFile, newConfig || {})
 
     // 将 package.json 和 min.config.json 配置更新到 customConfig
     _.merge(customConfig, customConfigFromPkg, customConfigFromFile)

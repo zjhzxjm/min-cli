@@ -31,7 +31,7 @@ export namespace BabelES6 {
     }
 
     if (!BabelES6) {
-      config.updateCustom({
+      config.updateCustomFile({
         compilers: {
           babel: false
         }
@@ -39,7 +39,7 @@ export namespace BabelES6 {
       return
     }
 
-    config.updateCustom({
+    config.updateCustomFile({
       compilers: {
         babel: {
           sourceMaps: 'inline',

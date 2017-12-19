@@ -47,6 +47,12 @@ export namespace InitCommand {
      */
     projectType: ProjectType
 
+    /**
+     * 项目类型-中文
+     *
+     * @type {('组件库' | '小程序')}
+     * @memberof Options
+     */
     projectTypeTitle: '组件库' | '小程序'
 
     /**
@@ -73,6 +79,12 @@ export namespace InitCommand {
      */
     prefix?: string
 
+    /**
+     * 带上 '-' 完整的组件前缀，例如 wxc-
+     *
+     * @type {string}
+     * @memberof Options
+     */
     prefixStr?: string
 
     /**
@@ -115,6 +127,12 @@ export namespace InitCommand {
      */
     npmScope?: string
 
+    /**
+     * 带上 '@' 完整的 scope 名称，例如 @minui
+     *
+     * @type {string}
+     * @memberof Options
+     */
     npmScopeStr?: string
 
     /**
@@ -132,6 +150,14 @@ export namespace InitCommand {
      * @memberof Options
      */
     author?: string
+
+    /**
+     * 初始化项目后，是否继续创建组件
+     *
+     * @type {boolean}
+     * @memberof Options
+     */
+    initAfterContinueNewPackage?: boolean
   }
 
   /**
@@ -157,14 +183,16 @@ export class InitCommand {
   }
 
   async run () {
-    let { options } = this
+    let { dest, initAfterContinueNewPackage } = this.options
 
     // 拷贝 脚手架模板
     await this.copyScaffold()
 
     await this.updateConfig()
 
-    await this.newPackage()
+    if (initAfterContinueNewPackage) {
+      await this.newPackage()
+    }
 
     await this.npmInstall()
 
@@ -172,7 +200,7 @@ export class InitCommand {
 
     // 提示使用
     log.newline()
-    log.msg(LogType.TIP, `项目创建完成，请在 "微信开发者工具" 中新建一个小程序项目，项目目录指向新建工程里的 ${options.dest}/ 文件夹。如此，组件就能在开发者工具中进行预览了`)
+    log.msg(LogType.TIP, `项目创建完成，请在 "微信开发者工具" 中新建一个小程序项目，项目目录指向新建工程里的 ${dest}/ 文件夹。如此，组件就能在开发者工具中进行预览了`)
   }
 
   private async copyScaffold (): Promise<any> {
@@ -186,7 +214,13 @@ export class InitCommand {
     fsEditor.copyTpl(
       util.getScaffoldPath(ScaffoldType.Project, 'common'),
       proPath,
-      this.options
+      this.options,
+      null,
+      {
+        globOptions: {
+          dot: true
+        }
+      }
     )
 
     // 拷贝 project.type 脚手架模板
@@ -318,7 +352,8 @@ export default {
         projectTypeTitle,
         options: {
           ProjectType
-        }
+        },
+        initAfterContinueNewPackage: true
       })
 
       let initCommand = new InitCommand(options)

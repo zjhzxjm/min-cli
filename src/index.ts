@@ -42,3 +42,7 @@ export default [
   // changelog
   // upgrade
 ]
+
+exports.getUtil = () => {
+  return require('./util')
+}
