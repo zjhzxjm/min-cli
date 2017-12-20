@@ -6,6 +6,8 @@ import * as chokidar from 'chokidar'
 import { XcxNode, XcxTraverse } from '../class'
 import { config, log, LogType, xcxNext, xcxNodeCache, Global } from '../util'
 
+const MINI_PROGRAM_CONFIG_FILE_NAME = 'project.config.json'
+
 export namespace Xcx {
 
   /**
@@ -133,6 +135,7 @@ export class Xcx {
    */
   compile () {
     this.clear()
+    this.copyProjectConfig()
     this.appCompile()
     this.pagesCompile()
     this.imagesCompile()
@@ -186,8 +189,8 @@ export class Xcx {
    *
    * @memberof Xcx
    */
-  watch () {
-    let watcher = chokidar.watch([config.src, config.packages, config.filename], {
+  watch (): chokidar.FSWatcher {
+    let watcher = chokidar.watch([config.src, config.packages, config.filename, MINI_PROGRAM_CONFIG_FILE_NAME], {
       cwd: config.cwd,
       ignored: /node_modules|\.git|\.txt|\.log|\.DS_Store|\.npmignore|package\.json/i,
       persistent: true,
@@ -207,6 +210,8 @@ export class Xcx {
           log.msg(LogType.WATCH, '开始监听文件改动。')
         }
       })
+
+    return watcher
   }
 
   /**
@@ -226,6 +231,38 @@ export class Xcx {
     })
     this.transfromFromEntry(xcxEntry)
     xcxNext.reset()
+  }
+
+  /**
+   * 拷贝小程序项目配置文件
+   *
+   * @private
+   * @memberof Xcx
+   */
+  private copyProjectConfig () {
+    let src = path.join(config.cwd, MINI_PROGRAM_CONFIG_FILE_NAME)
+    let dest = path.join(config.dest, MINI_PROGRAM_CONFIG_FILE_NAME)
+    if (!fs.existsSync(src)) {
+      return
+    }
+    log.msg(LogType.COPY, MINI_PROGRAM_CONFIG_FILE_NAME)
+    fs.copyFileSync(src, dest)
+  }
+
+  /**
+   * 删除小程序项目配置文件
+   *
+   * @private
+   * @memberof Xcx
+   */
+  private deleteProjectConfig () {
+    let dest = path.join(config.dest, MINI_PROGRAM_CONFIG_FILE_NAME)
+
+    if (!fs.existsSync(dest)) {
+      return
+    }
+    log.msg(LogType.DELETE, MINI_PROGRAM_CONFIG_FILE_NAME)
+    fs.unlinkSync(dest)
   }
 
   /**
@@ -348,11 +385,17 @@ export class Xcx {
    * @memberof Xcx
    */
   private watchAdd (file: string) {
+    let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
+
     // 控制台换新行
     log.newline()
 
-    xcxNext.watchNewFile(file)
-    this.next()
+    if (isProjectConfig) { // 拷贝小程序项目配置文件
+      this.copyProjectConfig()
+    } else {
+      xcxNext.watchNewFile(file)
+      this.next()
+    }
   }
 
   /**
@@ -364,12 +407,15 @@ export class Xcx {
    */
   private watchChange (file: string) {
     let isApp = file === path.join(config.src, `app${config.ext.wxa}`)
-    let isConfig = file === config.filename
+    let isMinConfig = file === config.filename
+    let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
 
     // 控制台换新行
     log.newline()
 
-    if (isApp || isConfig) { // 重新编译
+    if (isProjectConfig) { // 拷贝小程序项目配置文件
+      this.copyProjectConfig()
+    } else if (isApp || isMinConfig) { // 重新编译
       this.compile()
     } else {
       xcxNext.watchChangeFile(file)
@@ -385,12 +431,15 @@ export class Xcx {
    * @memberof Xcx
    */
   private watchDelete (file: string) {
-    let isConfig = file === config.filename
+    let isMinConfig = file === config.filename
+    let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
 
     // 控制台换新行
     log.newline()
 
-    if (isConfig) {
+    if (isProjectConfig) { // 删除小程序项目配置文件
+      this.deleteProjectConfig()
+    } else if (isMinConfig) { // 重新编译
       this.compile()
     } else {
       xcxNext.watchDeleteFile(file)

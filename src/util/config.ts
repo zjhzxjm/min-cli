@@ -163,7 +163,9 @@ export const config = {
     exports.customConfigFromFile = $customConfigFromFile
 
     // 合并到配置中心
-    _.merge(this, convertConfig(defaultConfig, $customConfig))
+    _.merge(this, convertConfig(defaultConfig, $customConfig), {
+      cwd
+    })
   },
 
   /**

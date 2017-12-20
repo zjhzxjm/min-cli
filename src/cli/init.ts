@@ -63,6 +63,15 @@ export namespace InitCommand {
      */
     title: string
 
+
+    /**
+     * 小程序AppId
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    appId?: string
+
     /**
      * 项目描述
      *
@@ -334,6 +343,7 @@ export default {
         proName,
         proNameToCamelCase: changeCase.camelCase(proName),
         title: defaultConfig.title,
+        appId: 'touristappid',
         description: `${options.title || defaultConfig.title}-${projectTypeTitle}`,
         prefix: defaultConfig.prefix,
         useExample: options.projectType === ProjectType.Component ? true : false,
@@ -360,7 +370,7 @@ export default {
       await initCommand.run()
 
     } catch (err) {
-      console.log(err)
+      log.error(err)
     }
   }
 }
@@ -423,6 +433,17 @@ function getOptions (proName: string): Promise<InitCommand.Options> {
           return '请输入标题'
         }
         return true
+      },
+      when (answers: any) {
+        return !!answers.isContinue
+      }
+    }, {
+      type: 'input',
+      message: '请设置小程序AppId',
+      name: 'appId',
+      default: 'touristappid',
+      filter (input: string) {
+        return input.trim()
       },
       when (answers: any) {
         return !!answers.isContinue

@@ -1,3 +1,4 @@
+import * as chokidar from 'chokidar'
 import { CLIExample, Xcx, XcxNode } from '../class'
 import util, { Global } from '../util'
 
@@ -53,6 +54,8 @@ export namespace DevCommand {
  * @class DevCommand
  */
 export class DevCommand {
+  private watcher: chokidar.FSWatcher | null
+
   constructor (public options: DevCommand.Options) {
   }
 
@@ -78,9 +81,24 @@ export class DevCommand {
       }
     })
     xcx.compile()
-    watch && xcx.watch()
+    if (watch) {
+      this.watcher = xcx.watch()
+    } else {
+      this.watcher = null
+    }
 
     return Promise.resolve()
+  }
+
+  /**
+   * 关闭监听
+   *
+   * @memberof DevCommand
+   */
+  closeWatch () {
+    if (this.watcher) {
+      this.watcher.close()
+    }
   }
 }
 
