@@ -206,7 +206,7 @@ export class WxSFMScript extends WxSFM {
     let result = babel.transformFromAst(this.node, this.source, {
       ast: false,
       babelrc: false,
-      filename: this.request.destRelative,
+      filename: this.request.src,
       ...transformOptions
     })
     let { code = '' } = result
