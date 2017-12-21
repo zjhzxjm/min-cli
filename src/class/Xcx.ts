@@ -246,7 +246,7 @@ export class Xcx {
       return
     }
     log.msg(LogType.COPY, MINI_PROGRAM_CONFIG_FILE_NAME)
-    fs.copyFileSync(src, dest)
+    fs.copySync(src, dest)
   }
 
   /**

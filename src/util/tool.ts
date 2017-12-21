@@ -78,7 +78,7 @@ export function copyFile (srcFilePath: string, destFilePath: string) {
   if (!this.isDir(destDirPath)) {
     fs.ensureDirSync(destDirPath)
   }
-  fs.copyFileSync(srcFilePath, destFilePath)
+  fs.copySync(srcFilePath, destFilePath)
 }
 
 export function overrideNpmLog () {
