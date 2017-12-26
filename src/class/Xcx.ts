@@ -241,10 +241,12 @@ export class Xcx {
    */
   private copyProjectConfig () {
     let src = path.join(config.cwd, MINI_PROGRAM_CONFIG_FILE_NAME)
-    let dest = path.join(config.dest, MINI_PROGRAM_CONFIG_FILE_NAME)
+    let dest = config.getPath('dest', MINI_PROGRAM_CONFIG_FILE_NAME)
+
     if (!fs.existsSync(src)) {
       return
     }
+
     log.msg(LogType.COPY, MINI_PROGRAM_CONFIG_FILE_NAME)
     fs.copySync(src, dest)
   }
@@ -256,7 +258,7 @@ export class Xcx {
    * @memberof Xcx
    */
   private deleteProjectConfig () {
-    let dest = path.join(config.dest, MINI_PROGRAM_CONFIG_FILE_NAME)
+    let dest = config.getPath('dest', MINI_PROGRAM_CONFIG_FILE_NAME)
 
     if (!fs.existsSync(dest)) {
       return

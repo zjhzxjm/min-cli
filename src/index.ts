@@ -46,3 +46,7 @@ export default [
 exports.getUtil = () => {
   return require('./util')
 }
+
+exports.getDeclare = () => {
+  return require('./declare')
+}
