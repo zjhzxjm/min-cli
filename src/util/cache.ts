@@ -2,8 +2,14 @@ import * as path from 'path'
 import * as fs from 'fs-extra'
 import * as _ from 'lodash'
 import { XcxNode } from '../class'
-import util, { config } from '../util'
+import { config } from '../util'
 
+/**
+ * 转换相对地址
+ *
+ * @param {string} src
+ * @returns
+ */
 function src2relative (src: string) {
   if (!path.isAbsolute(src)) {
     return src
@@ -11,32 +17,57 @@ function src2relative (src: string) {
   return path.relative(config.cwd, src)
 }
 
-function bindFunChnageArg (target: Object, methods: string[]) {
+/**
+ * 转换请求地址
+ *
+ * @param {string} src
+ * @returns
+ */
+function path2request (src: string) {
+  return src.split(path.sep).join('/')
+}
+
+/**
+ * 绑定路径转换器
+ *
+ * @param {Object} target
+ * @param {string[]} methods
+ */
+function bindChnageRequestPath (target: Object, methods: string[]) {
   methods.forEach(method => {
     let fn = target[method]
     if (!_.isFunction(fn)) return
     target[method] = (src: string, ...args: any[]) => {
       src = src2relative(src)
+      src = path2request(src)
       args.unshift(src)
       return fn.apply(target, args)
     }
   })
 }
 
-function getMdRootWxp (file: string) {
-  let extName = path.extname(file)
-  let baseName = path.basename(file)
-  let dirName = path.dirname(file)
-  let packageRegExp = new RegExp(`^${config.packages}/${config.prefixStr}([a-z-]+)$`)
+/**
+ * 找到 MD 文件父级的 wxp 页面路径
+ *
+ * @param {string} file
+ * @returns
+ */
+function getMdRootWxpRequestPath (request: string) {
+  let srcRelative = path.normalize(request)
+  let extName = path.extname(srcRelative)
+  let baseName = path.basename(srcRelative)
+  let dirName = path.dirname(srcRelative)
+  let packageRegExp = new RegExp(`^${config.packages}\\${path.sep}${config.prefixStr}([a-z-]+)$`)
 
   let mdRootWxpPath = ''
   if (
     // demos/*.wxc
-    (extName === config.ext.wxc && /\/demos$/.test(dirName)) ||
+    (extName === config.ext.wxc && new RegExp(`\\${path.sep}demos$`).test(dirName)) ||
     // docs/*.md
-    (extName === '.md' && /\/docs$/.test(dirName))) {
+    (extName === '.md' && new RegExp(`\\${path.sep}docs$`).test(dirName))) {
     // ~/you_project/src/pages/name/index.wxp
-    mdRootWxpPath = path.join(config.cwd, dirName, `../index${config.ext.wxp}`)
+    mdRootWxpPath = path.join(config.cwd, dirName, '..', `index${config.ext.wxp}`)
+    // console.log('demos/docs下的文件更改后，父级路径：', mdRootWxpPath)
   } else if (
     // packages/wxc-name/README.md
     (baseName.toLowerCase() === 'readme.md' && packageRegExp.test(dirName))) {
@@ -44,9 +75,13 @@ function getMdRootWxp (file: string) {
     let pageName = matchs && matchs.length > 1 ? matchs[1] : ''
     // ~/you_project/src/pages/name/index.wxp
     mdRootWxpPath = config.getPath('pages', pageName, `index${config.ext.wxp}`)
+    // console.log('readme更改后，父级路径：', mdRootWxpPath)
   }
 
   if (mdRootWxpPath && fs.existsSync(mdRootWxpPath)) {
+    mdRootWxpPath = src2relative(mdRootWxpPath)
+    mdRootWxpPath = path2request(mdRootWxpPath)
+    // console.log(mdRootWxpPath)
     return mdRootWxpPath
   }
   return ''
@@ -54,36 +89,38 @@ function getMdRootWxp (file: string) {
 
 export const xcxNodeCache = {
   cached: {},
-  set (src: string, xcxNode: XcxNode): void {
-    this.cached[src] = xcxNode
+  set (request: string, xcxNode: XcxNode): void {
+    this.cached[request] = xcxNode
   },
-  get (src: string): XcxNode | null {
-    return this.cached[src] || null
+  get (request: string): XcxNode | null {
+    return this.cached[request] || null
   },
-  getBeDepends (src: string): string[] {
+  getBeDepends (request: string): string[] {
     let beDepends: string[] = []
+    // 将 请求路径转 换成 系统规范格式的相对路径
+    let srcRelative = path.normalize(request)
     _.forIn(this.cached, (xcxNode: XcxNode, cacheKey: string) => {
-      let isExsit = xcxNode.useRequests.some(useRequest => useRequest.srcRelative === src)
+      let isExsit = xcxNode.useRequests.some(useRequest => useRequest.srcRelative === srcRelative)
       if (isExsit) {
         beDepends.push(cacheKey)
       }
     })
     return beDepends
   },
-  remove (src: string): void {
-    if (this.check(src)) {
-      delete this.cached[src]
+  remove (request: string): void {
+    if (this.check(request)) {
+      delete this.cached[request]
     }
   },
-  check (src: string): boolean {
-    return this.get(src) !== null
+  check (request: string): boolean {
+    return this.get(request) !== null
   },
   clear () {
     this.cached = {}
   }
 }
 
-bindFunChnageArg(xcxNodeCache, ['set', 'get', 'getBeDepends', 'remove', 'check'])
+bindChnageRequestPath(xcxNodeCache, ['set', 'get', 'getBeDepends', 'remove', 'check'])
 
 export const xcxNext = {
   /**
@@ -91,43 +128,46 @@ export const xcxNext = {
    */
   lack: {},
   /**
-   * 换冲区，临时放新增、修改、删除的文件，用完记得清空
+   * 缓冲区，临时放新增、修改、删除的文件，用完后要清空
    */
   buffer: {},
-  addLack (src: string) {
-    this.lack[src] = true
+  addLack (request: string) {
+    this.lack[request] = true
   },
-  removeLack (src: string) {
-    if (this.checkLack(src)) {
-      delete this.lack[src]
+  removeLack (request: string) {
+    if (!this.checkLack(request)) {
+      return
+    }
+    delete this.lack[request]
+  },
+  checkLack (request: string) {
+    return !!this.lack[request]
+  },
+  watchNewFile (request: string) {
+    if (path.extname(request) === config.ext.wxp) {
+      this.buffer[request] = true
     }
   },
-  checkLack (src: string) {
-    return !!this.lack[src]
-  },
-  watchNewFile (src: string) {
-    if (path.extname(src) === config.ext.wxp) {
-      this.buffer[src] = true
-    }
-  },
-  watchChangeFile (src: string) {
-    if (xcxNodeCache.check(src)) {
-      this.buffer[src] = true
+  watchChangeFile (request: string) {
+    if (xcxNodeCache.check(request)) {
+      this.buffer[request] = true
     }
 
-    let mdRootWxpPath = getMdRootWxp(src)
+    let mdRootWxpPath = getMdRootWxpRequestPath(request)
     if (mdRootWxpPath) {
       this.buffer[mdRootWxpPath] = true
     }
   },
-  watchDeleteFile (src: string) {
-    if (xcxNodeCache.check(src)) {
-      xcxNodeCache.remove(src)
-      let beDepends = xcxNodeCache.getBeDepends(src)
-      beDepends.forEach(src => this.buffer[src] = true)
+  watchDeleteFile (request: string) {
+    if (xcxNodeCache.check(request)) {
+      xcxNodeCache.remove(request)
+
+      // 上层依赖
+      let beDepends = xcxNodeCache.getBeDepends(request)
+      beDepends.forEach(request => this.buffer[request] = true)
     }
 
-    let mdRootWxpPath = getMdRootWxp(src)
+    let mdRootWxpPath = getMdRootWxpRequestPath(request)
     if (mdRootWxpPath) {
       this.buffer[mdRootWxpPath] = true
     }
@@ -149,7 +189,7 @@ export const xcxNext = {
   }
 }
 
-bindFunChnageArg(xcxNext, ['addLack', 'removeLack', 'checkLack', 'watchNewFile', 'watchChangeFile', 'watchDeleteFile'])
+bindChnageRequestPath(xcxNext, ['addLack', 'removeLack', 'checkLack', 'watchNewFile', 'watchChangeFile', 'watchDeleteFile'])
 
 // let xcxAstCachePath = config.getPath('cache.xcxast')
 // fs.ensureDirSync(xcxAstCachePath)
@@ -218,58 +258,58 @@ bindFunChnageArg(xcxNext, ['addLack', 'removeLack', 'checkLack', 'watchNewFile',
 //   }
 // }
 
-export const xcxCache = {
-  cache: {},
-  changed: false,
-  cachePath: config.getPath('cache.file'),
+// export const xcxCache = {
+//   cache: {},
+//   changed: false,
+//   cachePath: config.getPath('cache.file'),
 
-  get () {
-    if (this.cache) {
-      return this.cache
-    }
+//   get () {
+//     if (this.cache) {
+//       return this.cache
+//     }
 
-    if (util.isFile(this.cachePath)) {
-      this.cache = util.readFile(this.cachePath)
-      try {
-        this.cache = JSON.parse(this.cache)
-      } catch (e) {
-        this.cache = null
-      }
-    }
+//     if (util.isFile(this.cachePath)) {
+//       this.cache = util.readFile(this.cachePath)
+//       try {
+//         this.cache = JSON.parse(this.cache)
+//       } catch (e) {
+//         this.cache = null
+//       }
+//     }
 
-    return this.cache || {}
-  },
+//     return this.cache || {}
+//   },
 
-  set (mpath: util.MPath) {
-    let cache = this.get()
-    let spath = util.pathToString(mpath)
-    cache[spath] = util.getModifiedTime(mpath)
-    this.cache = cache
-    this.changed = true
-  },
+//   set (mpath: util.MPath) {
+//     let cache = this.get()
+//     let spath = util.pathToString(mpath)
+//     cache[spath] = util.getModifiedTime(mpath)
+//     this.cache = cache
+//     this.changed = true
+//   },
 
-  remove (mpath: util.MPath) {
-    let cache = this.get()
-    let spath = util.pathToString(mpath)
-    delete cache[spath]
-    this.cache = cache
-    this.changed = true
-  },
+//   remove (mpath: util.MPath) {
+//     let cache = this.get()
+//     let spath = util.pathToString(mpath)
+//     delete cache[spath]
+//     this.cache = cache
+//     this.changed = true
+//   },
 
-  clear () {
-    util.unlink(this.cachePath)
-  },
+//   clear () {
+//     util.unlink(this.cachePath)
+//   },
 
-  save () {
-    if (this.changed) {
-      util.writeFile(this.cachePath, JSON.stringify(this.cache))
-      this.changed = false
-    }
-  },
+//   save () {
+//     if (this.changed) {
+//       util.writeFile(this.cachePath, JSON.stringify(this.cache))
+//       this.changed = false
+//     }
+//   },
 
-  check (mpath: util.MPath) {
-    let spath = util.pathToString(mpath)
-    let cache = this.get()
-    return cache[spath] && cache[spath] === util.getModifiedTime(spath)
-  }
-}
+//   check (mpath: util.MPath) {
+//     let spath = util.pathToString(mpath)
+//     let cache = this.get()
+//     return cache[spath] && cache[spath] === util.getModifiedTime(spath)
+//   }
+// }

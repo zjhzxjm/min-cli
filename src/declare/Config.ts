@@ -90,8 +90,8 @@ export interface Config extends CustomConfig {
     level: number // 日志级别
   }
   cache: {
-    file: string
-    xcxast: string
+    // file: string
+    // xcxast: string
   }
 }
 

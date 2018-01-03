@@ -8,7 +8,7 @@ export { filterPrefix, filterNpmScope } from './filter'
 
 export { config, customConfig, defaultConfig } from './config'
 
-export { xcxCache, xcxNodeCache, xcxNext } from './cache'
+export { xcxNodeCache, xcxNext } from './cache'
 
 export { getText, getInnerHTML, getOuterHTML} from './dom-serializer'
 export { dom } from './dom'

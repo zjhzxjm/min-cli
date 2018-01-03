@@ -134,6 +134,7 @@ export class Xcx {
    * @memberof Xcx
    */
   compile () {
+    log.newline()
     this.clear()
     this.copyProjectConfig()
     this.appCompile()
@@ -221,6 +222,10 @@ export class Xcx {
    */
   next () {
     let requests = xcxNext.get()
+    if (!requests.length) {
+      return
+    }
+
     let xcxEntry: Xcx.Entry[] = requests.map(request => {
       return {
         request,
@@ -229,6 +234,8 @@ export class Xcx {
         isForce: true
       }
     })
+
+    log.newline()
     this.transfromFromEntry(xcxEntry)
     xcxNext.reset()
   }
@@ -247,6 +254,7 @@ export class Xcx {
       return
     }
 
+    log.newline()
     log.msg(LogType.COPY, MINI_PROGRAM_CONFIG_FILE_NAME)
     fs.copySync(src, dest)
   }
@@ -263,6 +271,8 @@ export class Xcx {
     if (!fs.existsSync(dest)) {
       return
     }
+
+    log.newline()
     log.msg(LogType.DELETE, MINI_PROGRAM_CONFIG_FILE_NAME)
     fs.unlinkSync(dest)
   }
@@ -389,9 +399,6 @@ export class Xcx {
   private watchAdd (file: string) {
     let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
 
-    // 控制台换新行
-    log.newline()
-
     if (isProjectConfig) { // 拷贝小程序项目配置文件
       this.copyProjectConfig()
     } else {
@@ -411,9 +418,6 @@ export class Xcx {
     let isApp = file === path.join(config.src, `app${config.ext.wxa}`)
     let isMinConfig = file === config.filename
     let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
-
-    // 控制台换新行
-    log.newline()
 
     if (isProjectConfig) { // 拷贝小程序项目配置文件
       this.copyProjectConfig()
@@ -435,9 +439,6 @@ export class Xcx {
   private watchDelete (file: string) {
     let isMinConfig = file === config.filename
     let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
-
-    // 控制台换新行
-    log.newline()
 
     if (isProjectConfig) { // 删除小程序项目配置文件
       this.deleteProjectConfig()
