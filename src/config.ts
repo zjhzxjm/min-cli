@@ -99,8 +99,8 @@ const config: Config = {
     level: 0 // 日志级别
   },
   cache: {
-    file: '.xcxcache',
-    xcxast: '.xcxcache'
+    // file: '.xcxcache',
+    // xcxast: '.xcxcache'
   }
 }
 

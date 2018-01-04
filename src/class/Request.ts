@@ -201,6 +201,14 @@ export namespace Request {
     isWxss: boolean
 
     /**
+     * 是否.wxs扩展
+     *
+     * @type {boolean}
+     * @memberof Extend
+     */
+    isWxs: boolean
+
+    /**
      * 是否.js扩展
      *
      * @type {boolean}
@@ -289,7 +297,7 @@ export namespace Request {
     isNFC: boolean
 
     /**
-     * 是否模板文件类型，比如.wxml .html等
+     * 是否模板文件类型，比如.wxml等
      *
      * @type {boolean}
      * @memberof Extend
@@ -311,6 +319,20 @@ export namespace Request {
      * @memberof Extend
      */
     isStyle: boolean
+
+    isPng: boolean
+    isJpeg: boolean
+    isGif: boolean
+    isBmp: boolean
+    isWebp: boolean
+
+    /**
+     * 是否为图片文件类型，比如.png .jpeg .gif .bmp .webp
+     *
+     * @type {boolean}
+     * @memberof Extend
+     */
+    isImage: boolean
   }
 }
 
@@ -369,6 +391,13 @@ export class RequestExtend extends RequestCore implements Request.Extend {
   isCs: boolean
 
   isJson: boolean
+  isWxs: boolean
+
+  isPng: boolean
+  isJpeg: boolean
+  isGif: boolean
+  isBmp: boolean
+  isWebp: boolean
 
   isCss: boolean
   isLess: boolean
@@ -433,7 +462,17 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    * @memberof RequestExtend
    */
   get isStatic () {
-    return this.isJson
+    return this.isJson || this.isImage || this.isWxs
+  }
+
+  /**
+   * 是否为图片文件
+   *
+   * @readonly
+   * @memberof RequestExtend
+   */
+  get isImage () {
+    return this.isPng || this.isJpeg || this.isGif || this.isBmp || this.isWebp
   }
 
   /**
