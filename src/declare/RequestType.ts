@@ -19,6 +19,9 @@ export enum RequestType {
   // STATIC
   STATIC = 'STATIC', // 匹配和更新 静态资源，比如 json | image
 
+  // WXS
+  WXS = 'WXS',
+
   // SFC
   WXA = 'WXA', // 匹配和更新 全局模板
   WXP = 'WXP', // 匹配和更新 using
