@@ -146,6 +146,17 @@ $ min update @minui/wxc-loading @minui/wxc-tast
 
 ## ○ 更新记录
 
+### v1.0.6（2018.01.09）
+
+- 增加 min-ui 和 min-app 快速入门示例
+- 增加 初始化项目增加 appid 设置并生成 project.config.json [#32](https://github.com/meili/min-cli/issues/32)
+- 增加 style 样式引用本地字体图标文件
+- 增加 wxp的template里可以引用本地图片、wxml和wxs文件 [#20](https://github.com/meili/min-cli/issues/20)
+- 修复 windows系统下，编译后找不到文件入口问题
+- 修复 less 预编译未转换 px 和 rem 单位
+- 修复 babel 编译找不到 plugin 插件
+- 修复 组件的 Boolean 类型的 properties 编译后无效的问题 [#38](https://github.com/meili/min-cli/issues/38)
+
 ### v1.0.5（2017.12.12）
 
 - 新增 组件安装支持导出多个入口
