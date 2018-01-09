@@ -12,12 +12,10 @@ const booleanAttributes = {
   allowfullscreen: true,
   async: true,
   autofocus: true,
-  autoplay: true,
   checked: true,
   controls: true,
   default: true,
   defer: true,
-  disabled: true,
   hidden: true,
   ismap: true,
   loop: true,
@@ -30,7 +28,119 @@ const booleanAttributes = {
   scoped: true,
   seamless: true,
   selected: true,
-  typemustmatch: true
+  typemustmatch: true,
+
+  // for wx-native components -- start
+
+  // view
+  'hover-stop-propagation': true,
+
+  // scroll-view
+  'scroll-x': true,
+  'scroll-y': true,
+  'scroll-with-animation': true,
+  'enable-back-to-top': true,
+
+  // swiper
+  'indicator-dots': true,
+  'autoplay': true,
+  'circular': true,
+  'vertical': true,
+  'inertia': true,
+
+  // movable-view
+  'out-of-bounds': true,
+
+  // text
+  'selectable': true,
+  'decode': true,
+
+  // progress
+  'show-info': true,
+  'active': true,
+
+  // button
+  'plain': true,
+  'disabled': true,
+  'loading': true,
+  // 'hover-stop-propagation': true,
+  'show-message-card': true,
+
+  // checkbox
+  // 'disabled': true,
+  // 'checked': true,
+
+  // form
+  'report-submit': true,
+
+  // input
+  'password': true,
+  // 'disabled': true,
+  'auto-focus': true,
+  'focus': true,
+  'confirm-hold': true,
+
+  // picker
+  // 'disabled': true,
+
+  // radio
+  // 'checked': true,
+  // 'disabled': true,
+
+  // slider
+  // 'disabled': true,
+  'show-value': true,
+
+  // switch
+  // 'checked': true,
+
+  // textarea
+  // 'disabled': true,
+  // 'auto-focus': true,
+  // 'focus': true,
+  'auto-height': true,
+  'fixed': true,
+  'show-confirm-bar': true,
+
+  // navigator
+  // 'hover-stop-propagation': true,
+
+  // audio
+  // 'loop': true,
+  // 'controls': true,
+
+  // image
+  'lazy-load': true,
+
+  // video
+  // 'controls': true,
+  'danmu-btn': true,
+  'enable-danmu': true,
+  // 'autoplay': true,
+  // 'loop': true,
+  // 'muted': true,
+  'page-gesture': true,
+
+  // camera
+
+  // live-player
+  // 'autoplay': true,
+  // 'muted': true,
+  'background-mute': true,
+
+  // live-pusher
+  'autopush': true,
+  // 'muted': true,
+  'enable-camera': true,
+  // 'auto-focus': true,
+  // 'background-mute': true,
+
+  // map
+  'show-location': true,
+
+  // canvas
+  'disable-scroll': true
+
 }
 
 const unencodedElements = {
