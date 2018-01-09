@@ -98,6 +98,7 @@ export class DevCommand {
   closeWatch () {
     if (this.watcher) {
       this.watcher.close()
+      this.watcher = null
     }
   }
 }

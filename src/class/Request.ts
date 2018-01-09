@@ -305,7 +305,7 @@ export namespace Request {
     isTemplate: boolean
 
     /**
-     * 是否脚本文件类型，比如.js .ts .cs等
+     * 是否脚本文件类型，比如.js .ts .cs .wxs等
      *
      * @type {boolean}
      * @memberof Extend
@@ -333,6 +333,19 @@ export namespace Request {
      * @memberof Extend
      */
     isImage: boolean
+
+    isEot: boolean
+    isSvg: boolean
+    isTtf: boolean
+    isWoff: boolean
+
+    /**
+     * 是否为图标字体文件，比如.eot .svg .ttf .woff
+     *
+     * @type {boolean}
+     * @memberof Extend
+     */
+    isIconFont: boolean
   }
 }
 
@@ -399,6 +412,11 @@ export class RequestExtend extends RequestCore implements Request.Extend {
   isBmp: boolean
   isWebp: boolean
 
+  isEot: boolean
+  isSvg: boolean
+  isTtf: boolean
+  isWoff: boolean
+
   isCss: boolean
   isLess: boolean
   isPcss: boolean
@@ -442,7 +460,7 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    * @memberof RequestExtend
    */
   get isScript () {
-    return this.isJs || this.isTs || this.isCs
+    return this.isJs || this.isTs || this.isCs || this.isWxs
   }
 
   /**
@@ -462,7 +480,17 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    * @memberof RequestExtend
    */
   get isStatic () {
-    return this.isJson || this.isImage || this.isWxs
+    return this.isJson || this.isImage || this.isIconFont
+  }
+
+  /**
+   * 是否为图标字体文件
+   *
+   * @readonly
+   * @memberof RequestExtend
+   */
+  get isIconFont () {
+    return this.isEot || this.isSvg || this.isTtf || this.isWoff
   }
 
   /**

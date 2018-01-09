@@ -18,7 +18,7 @@ export class WxNFC implements WxFile.Core {
    * @memberof WxNFC
    */
   constructor (public source: string, public request: Request) {
-    let { isScript, isStyle } = request
+    let { isScript, isStyle, isTemplate } = request
     let { compileType = undefined } = LangTypes[request.ext] || {}
 
     if (isScript) {
@@ -29,6 +29,11 @@ export class WxNFC implements WxFile.Core {
     } else if (isStyle) {
       // STYLE
       this.sfm = new WxSFMStyle(this.source, request, {
+        compileType
+      })
+    } else if (isTemplate) {
+      // TEMPLATE
+      this.sfm = new WxSFMTemplate(this.source, request, {
         compileType
       })
     } else {

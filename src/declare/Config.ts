@@ -43,6 +43,19 @@ export interface Config extends CustomConfig {
     js: string
     json: string
 
+    png: string
+    jpg: string
+    jpeg: string
+    gif: string
+    webp: string
+
+    eot: string
+    svg: string
+    ttf: string
+    woff: string
+
+    wxs: string
+
     // 不支持 .css 扩展
     // css: '.css'
 
