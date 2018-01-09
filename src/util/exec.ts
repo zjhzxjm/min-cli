@@ -33,9 +33,9 @@ export function exec (command: string, args: string[], verbose: boolean = false,
     })
 
     child.on('close', (code) => {
-      if (code !== 0) {
-        return reject(new Error(`process exited with code ${code}`))
-      }
+      // if (code !== 0) {
+      //   return reject(new Error(`process exited with code ${code}`))
+      // }
 
       resolve({
         stdout: stdout.trim(),

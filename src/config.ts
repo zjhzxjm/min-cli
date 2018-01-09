@@ -54,6 +54,19 @@ const config: Config = {
     js: '.js',
     json: '.json',
 
+    png: '.png',
+    jpg: '.jpg',
+    jpeg: '.jpeg',
+    gif: '.gif',
+    webp: '.webp',
+
+    eot: '.eot',
+    svg: '.svg',
+    ttf: '.ttf',
+    woff: '.woff',
+
+    wxs: '.wxs',
+
     // 不支持 .css 扩展
     css: '.css',
 
@@ -99,8 +112,8 @@ const config: Config = {
     level: 0 // 日志级别
   },
   cache: {
-    file: '.xcxcache',
-    xcxast: '.xcxcache'
+    // file: '.xcxcache',
+    // xcxast: '.xcxcache'
   }
 }
 

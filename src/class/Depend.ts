@@ -8,9 +8,25 @@ import t = babel.types
 /**
  * 依赖类型集合
  */
-export type Depend = Depend.Script | Depend.Style | Depend.Wxc | Depend.Wxp | Depend.Json
+export type Depend = Depend.Template | Depend.TemplateImage | Depend.Wxs | Depend.Script | Depend.Style | Depend.StyleIconFont | Depend.Wxc | Depend.Wxp | Depend.Json
 
 export namespace Depend {
+
+  export interface Template extends Request.Default {
+    requestType: RequestType.TEMPLATE,
+    $elem: any // for htmlparse2
+  }
+
+  export interface TemplateImage extends Request.Default {
+    requestType: RequestType.IMAGE,
+    $elem: any // for htmlparse2
+  }
+
+  export interface Wxs extends Request.Default {
+    requestType: RequestType.WXS,
+    $elem?: any // for htmlparse2
+    $node?: t.StringLiteral // for babel
+  }
 
   /**
    * 依赖JS类型的接口
@@ -32,7 +48,7 @@ export namespace Depend {
    * @extends {Request.Default}
    */
   export interface Json extends Request.Default {
-    requestType: RequestType.STATIC,
+    requestType: RequestType.JSON,
     $node: t.StringLiteral // for babel
   }
 
@@ -46,6 +62,11 @@ export namespace Depend {
   export interface Style extends Request.Default {
     requestType: RequestType.STYLE
     $atRule: postcss.AtRule // for postcss
+  }
+
+  export interface StyleIconFont extends Request.Default {
+    requestType: RequestType.ICONFONT,
+    $decl: postcss.Declaration // for postcss
   }
 
   /**

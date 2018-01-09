@@ -1,7 +1,9 @@
+import * as path from 'path'
 import * as changeCase from 'change-case'
 import { Depend, Request, WxSFM } from '../class'
 import { CompileType } from '../declare'
-import { config, dom, beautifyHtml, Global, getOuterHTML } from '../util'
+import util, { config, dom, beautifyHtml, Global, getOuterHTML } from '../util'
+import { RequestType } from '../declare/RequestType'
 
 const htmlparser = require('htmlparser2')
 const PID_KEY = '_pid'
@@ -90,6 +92,7 @@ export class WxSFMTemplate extends WxSFM {
       destExt: config.ext.wxml
     })
     this.initDom()
+    this.initDepends()
   }
 
   /**
@@ -151,7 +154,31 @@ export class WxSFMTemplate extends WxSFM {
    * @memberof WxSFMTemplate
    */
   updateDepends (useRequests: Request.Core[]): void {
-    //
+    let depends = this.getDepends()
+
+    if (!depends.length) return
+
+    useRequests.forEach(useRequest => {
+      depends
+      .filter(depend => {
+        return depend.requestType === useRequest.requestType && depend.request === useRequest.request
+      })
+      .forEach(depend => {
+        let request = ''
+        request = path.relative(path.dirname(this.dest), path.dirname(useRequest.dest))
+        request = path.join(request, path.basename(useRequest.dest))
+        request = request.charAt(0) !== '.' ? `./${request}` : request
+        request = request.split(path.sep).join('/')
+
+        switch (depend.requestType) {
+          case RequestType.TEMPLATE:
+          case RequestType.IMAGE:
+          case RequestType.WXS:
+            depend.$elem.attribs['src'] = request
+            break
+        }
+      })
+    })
   }
 
   /**
@@ -184,6 +211,62 @@ export class WxSFMTemplate extends WxSFM {
     this.demoElems = htmlparser.DomUtils.getElementsByTagName((name: string) => {
       return /^demo-/.test(name)
     }, this.exampleElem, true, [])
+  }
+
+  private initDepends () {
+    let importElems = htmlparser.DomUtils.getElementsByTagName('import', this.dom, true, [])
+    let imageElems = htmlparser.DomUtils.getElementsByTagName('image', this.dom, true, [])
+    let wxsElems = htmlparser.DomUtils.getElementsByTagName('wxs', this.dom, true, [])
+
+    // import tag
+    importElems.forEach((elem: any) => {
+      let { src } = elem.attribs
+      if (!src) {
+        return
+      }
+      this.depends.push({
+        request: src,
+        requestType: RequestType.TEMPLATE,
+        $elem: elem
+      })
+    })
+
+    // image tag
+    imageElems.forEach((elem: any) => {
+      let { src } = elem.attribs
+      if (!src) {
+        return
+      }
+
+      // Check local image
+      if (!util.checkLocalImgUrl(src)) {
+        return
+      }
+
+      // Ignore {{}}
+      if (/\{\{/.test(src)) {
+        return
+      }
+
+      this.depends.push({
+        request: src,
+        requestType: RequestType.IMAGE,
+        $elem: elem
+      })
+    })
+
+    // wxs tag
+    wxsElems.forEach((elem: any) => {
+      let { src } = elem.attribs
+      if (!src) {
+        return
+      }
+      this.depends.push({
+        request: src,
+        requestType: RequestType.WXS,
+        $elem: elem
+      })
+    })
   }
 
   /**

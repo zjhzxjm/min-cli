@@ -1,3 +1,4 @@
+import * as chokidar from 'chokidar'
 import { CLIExample, Xcx, XcxNode } from '../class'
 import util, { Global } from '../util'
 
@@ -53,11 +54,17 @@ export namespace DevCommand {
  * @class DevCommand
  */
 export class DevCommand {
+  private watcher: chokidar.FSWatcher | null
+
   constructor (public options: DevCommand.Options) {
   }
 
   async run () {
     let { pages, watch, clear } = this.options
+
+    // TODO 此处全局污染，待优化
+    Global.isDebug = !!pages && pages.length > 0
+
     let xcx = new Xcx({
       isClear: clear,
       app: {
@@ -74,9 +81,25 @@ export class DevCommand {
       }
     })
     xcx.compile()
-    watch && xcx.watch()
+    if (watch) {
+      this.watcher = xcx.watch()
+    } else {
+      this.watcher = null
+    }
 
     return Promise.resolve()
+  }
+
+  /**
+   * 关闭监听
+   *
+   * @memberof DevCommand
+   */
+  closeWatch () {
+    if (this.watcher) {
+      this.watcher.close()
+      this.watcher = null
+    }
   }
 }
 
@@ -100,8 +123,6 @@ export default {
     }
   },
   async action (name: string, options: DevCommand.CLIOptions) {
-    Global.isDebug = !!name
-
     let pages = util.pageName2Pages(name)
     let devCommand = new DevCommand({
       pages,

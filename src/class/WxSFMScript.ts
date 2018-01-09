@@ -104,7 +104,7 @@ export class WxSFMScript extends WxSFM {
    */
   constructor (source: string, request: Request, public options: WxSFMScript.Options) {
     super(source, request, {
-      destExt: config.ext.js
+      destExt: request.ext === config.ext.wxs ? config.ext.wxs : config.ext.js
     })
 
     if (this.isWxp) { // 继承 app 全局的模板组件
@@ -173,11 +173,18 @@ export class WxSFMScript extends WxSFM {
 
         switch (depend.requestType) {
           case RequestType.SCRIPT:
-            depend.$node.value = request
+            depend.$node.value = request + config.ext.js
             break
 
-          case RequestType.STATIC:
-            depend.$node.value = request + useRequest.ext
+          case RequestType.JSON:
+            // *.json => *.json.js
+            depend.$node.value = request + useRequest.ext + config.ext.js
+            break
+
+          case RequestType.WXS:
+            if (depend.$node) {
+              depend.$node.value = request + useRequest.ext
+            }
             break
 
           case RequestType.WXC:
@@ -198,15 +205,22 @@ export class WxSFMScript extends WxSFM {
    * @memberof WxSFMScript
    */
   generator (): string {
-    let { isThreeNpm } = this.request
+    let { isThreeNpm, ext } = this.request
 
     // for @mindev/min-compiler-babel
+    // 第三方NPM包，不使用babel编译
     let transformOptions = isThreeNpm ? {} : (config.compilers['babel'] || {})
+
+    // TODO BUG
+    // wxs文件 或者 build编译情况下，关闭sourceMaps
+    if (ext === config.ext.wxs) {
+      transformOptions = _.omit(transformOptions, 'sourceMaps')
+    }
 
     let result = babel.transformFromAst(this.node, this.source, {
       ast: false,
       babelrc: false,
-      filename: this.request.destRelative,
+      filename: this.request.src,
       ...transformOptions
     })
     let { code = '' } = result
@@ -564,11 +578,18 @@ export class WxSFMScript extends WxSFM {
   private addNativeDepends ($node: t.StringLiteral) {
     let request = $node.value
     let isJsonExt = path.extname(request) === config.ext.json
+    let isWxsExt = path.extname(request) === config.ext.wxs
 
     if (isJsonExt) {
       this.depends.push({
         request,
-        requestType: RequestType.STATIC,
+        requestType: RequestType.JSON,
+        $node
+      })
+    } else if (isWxsExt) {
+      this.depends.push({
+        request,
+        requestType: RequestType.WXS,
         $node
       })
     } else {

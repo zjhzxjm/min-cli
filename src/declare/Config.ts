@@ -43,6 +43,19 @@ export interface Config extends CustomConfig {
     js: string
     json: string
 
+    png: string
+    jpg: string
+    jpeg: string
+    gif: string
+    webp: string
+
+    eot: string
+    svg: string
+    ttf: string
+    woff: string
+
+    wxs: string
+
     // 不支持 .css 扩展
     // css: '.css'
 
@@ -90,8 +103,8 @@ export interface Config extends CustomConfig {
     level: number // 日志级别
   }
   cache: {
-    file: string
-    xcxast: string
+    // file: string
+    // xcxast: string
   }
 }
 

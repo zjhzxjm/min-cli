@@ -42,3 +42,11 @@ export default [
   // changelog
   // upgrade
 ]
+
+exports.getUtil = () => {
+  return require('./util')
+}
+
+exports.getDeclare = () => {
+  return require('./declare')
+}

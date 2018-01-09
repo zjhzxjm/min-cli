@@ -1,3 +1,4 @@
+import * as url from 'url'
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import * as _ from 'lodash'
@@ -250,6 +251,14 @@ function getMatchRequest (request: string, requestType?: RequestType): {lookupEx
   }
 }
 
+// 补充扩展名
+function supExtName (filePath: string, defExtName = config.ext.js) {
+  if (path.extname(filePath) === '') {
+    return `${filePath}${defExtName}`
+  }
+  return filePath
+}
+
 function findPath (request: string, requestType: RequestType, paths: string[], exts: string[]): any {
   if (!paths || paths.length === 0) {
     return false
@@ -320,6 +329,21 @@ function findPath (request: string, requestType: RequestType, paths: string[], e
         // request = 'components/example' => 'source/components/example'
         // request = '@scope/wxc-hello/src/index' => 'source/packages/wxc-hello/src/index'
         curRequest = spes.join('/')
+      }
+    }
+
+    // TODO 简陋版
+    // 支持 package.json 的 browser
+    let curPathPkgPath = path.join(curPath, 'package.json')
+    if (/node_modules\//.test(curPath) && fs.existsSync(curPathPkgPath)) {
+      let { browser = {} } = fs.readJSONSync(curPathPkgPath)
+
+      for (const key in browser) {
+        let aPath = supExtName(path.join(curPath, key))
+        let bPath = supExtName(path.join(curPath, curRequest))
+        if (aPath === bPath) {
+          curRequest = browser[key]
+        }
       }
     }
 
@@ -485,12 +509,14 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
     }
   }
 
+  let rawRequest = url.parse(request).pathname || ''
+
   let {
     requestType,
     lookupExts
-  } = getMatchRequest(request, type)
+  } = getMatchRequest(rawRequest, type)
 
-  let lookupPaths = resolveLookupPaths(request, parent)
+  let lookupPaths = resolveLookupPaths(rawRequest, parent)
 
   let srcRelative = ''
   let ext = ''
@@ -498,7 +524,7 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
   let destRelative = ''
   let $isThreeNpm = false
 
-  let src = findPath(request, requestType, lookupPaths, lookupExts) || ''
+  let src = findPath(rawRequest, requestType, lookupPaths, lookupExts) || ''
   if (src) {
     srcRelative = path.relative(config.cwd, src)
     ext = path.extname(src)
@@ -507,7 +533,7 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
 
     // 判定是否来自第三方NPM（NPM包中非WXC的都定位为第三方NPM包，主要是不走编译）
     if (srcRelative.split('/')[0] === 'node_modules') {
-      if (request.charAt(0) === '.') { // 引用相对路径，继承父级
+      if (rawRequest.charAt(0) === '.') { // 引用相对路径，继承父级
         $isThreeNpm = isThreeNpm
       } else if (ext !== config.ext.wxc) { // 所有的NPM包中，引用路径扩展非.wxc，都定位第三方NPM包
         $isThreeNpm = true

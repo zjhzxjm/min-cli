@@ -181,13 +181,17 @@ export const log = {
       msg = JSON.stringify(msg)
     }
 
-    let color = colors[logType.color]
-    msg = dateTime + color(`[${logType.desc}]`) + ' ' + msg
-
-    if (logType.level >= LogLevel.WARN) {
-      console.error(msg)
+    if (this.cb) {
+      this.cb(msg, logType, dateTime)
     } else {
-      console.log(msg)
+      let color = colors[logType.color]
+      msg = dateTime + color(`[${logType.desc}]`) + ' ' + msg
+
+      if (logType.level >= LogLevel.WARN) {
+        console.error(msg)
+      } else {
+        console.log(msg)
+      }
     }
   },
   output (logType: LogType, msg: string, file: string) {
@@ -195,5 +199,11 @@ export const log = {
   },
   newline () {
     console.log('')
+  },
+  register (cb: Function) {
+    this.cb = cb
+  },
+  unRegister () {
+    this.cb = null
   }
 }

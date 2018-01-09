@@ -78,7 +78,7 @@ export function copyFile (srcFilePath: string, destFilePath: string) {
   if (!this.isDir(destDirPath)) {
     fs.ensureDirSync(destDirPath)
   }
-  fs.copyFileSync(srcFilePath, destFilePath)
+  fs.copySync(srcFilePath, destFilePath)
 }
 
 export function overrideNpmLog () {
@@ -258,6 +258,18 @@ export function pageName2Pages (name: string | string[] = []) {
     return `pages/${name}/index`
   })
   return pages
+}
+
+export function checkLocalImgUrl (url: string) {
+  if (url.indexOf(';base64,') !== -1) {
+    return false
+  }
+
+  if (/^(https?\:|\:\/\/)/.test(url)) {
+    return false
+  }
+
+  return true
 }
 
 // export function getAppConfig (): any {
