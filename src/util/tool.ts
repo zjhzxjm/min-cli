@@ -260,6 +260,18 @@ export function pageName2Pages (name: string | string[] = []) {
   return pages
 }
 
+export function checkLocalImgUrl (url: string) {
+  if (url.indexOf(';base64,') !== -1) {
+    return false
+  }
+
+  if (/^(https?\:|\:\/\/)/.test(url)) {
+    return false
+  }
+
+  return true
+}
+
 // export function getAppConfig (): any {
 //   const jsonPath = config.getPath('src', 'app.json')
 //   let jsonData = {}

@@ -1,9 +1,10 @@
+import * as url from 'url'
 import * as path from 'path'
 import * as less from 'less'
 import * as postcss from 'postcss'
 import { Depend, Request, WxSFM } from '../class'
 import { RequestType, CompileType } from '../declare'
-import { config, Global } from '../util'
+import util, { config, Global, ICONFONT_PATTERN } from '../util'
 import { postcssUnit2rpx } from '../plugin'
 
 /* precss-start */
@@ -271,12 +272,18 @@ export class WxSFMStyle extends WxSFM {
         request = path.join(request, path.basename(useRequest.dest, useRequest.ext))
         request = request.charAt(0) !== '.' ? `./${request}` : request
         request = request.split(path.sep).join('/')
-        request += config.ext.wxss
 
         switch (depend.requestType) {
           case RequestType.STYLE:
             // ② 更新依赖引用路径，将所有的扩展名统一改成 .wxss
-            depend.$atRule.params = `'${request}'`
+            depend.$atRule.params = `'${request}${config.ext.wxss}'`
+            break
+
+          case RequestType.ICONFONT:
+            let requestURL = url.parse(depend.request)
+            // depend.request => ./iconfont.eot?t=1515059114217
+            // depend.$decl.value => url('./iconfont.eot?t=1515059114217')
+            depend.$decl.value = depend.$decl.value.replace(depend.request, `${request}${useRequest.ext}${requestURL.search}`)
             break
         }
       })
@@ -294,6 +301,7 @@ export class WxSFMStyle extends WxSFM {
     if (this.options.compileType === CompileType.LESS) return
 
     let transformer: postcss.Transformer = root => {
+      // @import
       root.walkAtRules((rule, index) => {
         if (rule.name !== 'import') {
           return
@@ -303,6 +311,48 @@ export class WxSFMStyle extends WxSFM {
           request: rule.params.replace(/^('|")(.*)('|")$/g, (match, quotn, filename) => filename),
           requestType: RequestType.STYLE,
           $atRule: rule
+        })
+      })
+
+      // background background-image
+      root.walkDecls((decl, index) => {
+        // WXSS 里不用本地资源
+        // background background-image => IMAGE
+        // decl.prop !== 'background' && decl.prop !== 'background-image'
+
+        // src => ICONFONT
+        if (decl.prop !== 'src') {
+          return
+        }
+
+        // src: url('./iconfont.eot?t=1515059114217');
+        if (decl.value.indexOf('url') === -1) {
+          return
+        }
+
+        // src: url('./iconfont.eot?t') format('embedded-opentype'), /* IE6-IE8 */
+        //      url('./iconfont.ttf?t=1515059114217') format('truetype')
+        let urls = decl.value.split(/format\([\'\"][a-z-]+[\'\"]\),/)
+
+        urls.forEach(url => {
+          let matchs = url.match(ICONFONT_PATTERN)
+          if (!matchs) {
+            return
+          }
+
+          // url('./iconfont.eot?t=1515059114217#iefix')
+          url = matchs[1]
+
+          // Check local image
+          if (!util.checkLocalImgUrl(url)) {
+            return
+          }
+
+          this.depends.push({
+            request: url,
+            requestType: RequestType.ICONFONT,
+            $decl: decl
+          })
         })
       })
     }

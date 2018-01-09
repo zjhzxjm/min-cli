@@ -18,9 +18,55 @@ export const LangTypes: {
     compileType: undefined
   },
 
-  // STATIC
+  // JSON
   [ext.json]: {
-    requestType: RequestType.STATIC,
+    requestType: RequestType.JSON,
+    compileType: undefined
+  },
+
+  // IMAGE
+  [ext.png]: {
+    requestType: RequestType.IMAGE,
+    compileType: undefined
+  },
+  [ext.jpg]: {
+    requestType: RequestType.IMAGE,
+    compileType: undefined
+  },
+  [ext.jpeg]: {
+    requestType: RequestType.IMAGE,
+    compileType: undefined
+  },
+  [ext.gif]: {
+    requestType: RequestType.IMAGE,
+    compileType: undefined
+  },
+  [ext.webp]: {
+    requestType: RequestType.IMAGE,
+    compileType: undefined
+  },
+
+  // ICON
+  [ext.eot]: {
+    requestType: RequestType.ICONFONT,
+    compileType: undefined
+  },
+  [ext.svg]: {
+    requestType: RequestType.ICONFONT,
+    compileType: undefined
+  },
+  [ext.ttf]: {
+    requestType: RequestType.ICONFONT,
+    compileType: undefined
+  },
+  [ext.woff]: {
+    requestType: RequestType.ICONFONT,
+    compileType: undefined
+  },
+
+  // WXS
+  [ext.wxs]: {
+    requestType: RequestType.WXS,
     compileType: undefined
   },
 

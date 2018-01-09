@@ -86,6 +86,7 @@ const singleTag = {
   frame: true,
   hr: true,
   img: true,
+  checkbox: false,
   input: false, // set false
   isindex: true,
   keygen: true,

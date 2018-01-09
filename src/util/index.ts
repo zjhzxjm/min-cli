@@ -23,5 +23,7 @@ export { md } from './md'
 
 export { resolveDep } from './resolveDep'
 
+export const ICONFONT_PATTERN = /url\([\'\"]{0,}?([^\'\"]*)[\'\"]{0,}\)/
+
 import * as tool from './tool'
 export default tool
