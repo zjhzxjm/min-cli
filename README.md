@@ -63,7 +63,7 @@ $ min publish
 
 - **安装组件**
 
-在小程序项目中安装一个组件，这里用 [MinUI](https://github.com/meili/minui) 的 loading 和 toast 组件举例：
+在小程序项目中安装一个组件，这里用 [MinUI](https://github.com/meili/minui) 的 loading 组件举例：
 
 ``` bash
 $ min install @minui/wxc-loading
