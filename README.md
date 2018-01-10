@@ -14,7 +14,7 @@ Min 是一款微信小程序组件化解决方案，通过预编译的手段让�
 
 - 提供丰富的[UI组件库](https://github.com/meili/minui)，组件重用方便二次开发
 - [单文件](https://meili.github.io/min/docs/features/single-file-mode.html)开发模式，类Vue开发风格
-- 支持[自定义组件](https://meili.github.io/min/docs/min-cli/wxc-project/index.html)开发，产出真正意义上的小程序组件
+- 支持[自定义组件](https://meili.github.io/min/docs/min-cli/wxc-project/index.html)开发，产出真正意义上的小程序组件
 - 支持[加载海量NPM包](https://meili.github.io/min/docs/features/npm.html)
 - 支持[ES2015+特性、Promise](https://meili.github.io/min/docs/features/babel.html)，使用async/await能够有效避免回调地狱
 - 支持多种[编译器](https://meili.github.io/min/docs/features/style.html)，Less/PostCss、Babel
