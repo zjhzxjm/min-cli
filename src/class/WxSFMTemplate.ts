@@ -214,6 +214,9 @@ export class WxSFMTemplate extends WxSFM {
   }
 
   private initDepends () {
+    if (!this.dom) {
+      return
+    }
     let importElems = htmlparser.DomUtils.getElementsByTagName('import', this.dom, true, [])
     let imageElems = htmlparser.DomUtils.getElementsByTagName('image', this.dom, true, [])
     let wxsElems = htmlparser.DomUtils.getElementsByTagName('wxs', this.dom, true, [])
