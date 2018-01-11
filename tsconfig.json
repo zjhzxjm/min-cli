@@ -1,15 +1,17 @@
 {
-  "extends": "./config/tsbase.json",
+  "compileOnSave": true,
   "compilerOptions": {
-    "outDir": "lib",
-    "typeRoots": [
-      "./types/*.d.ts"
-    ]
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules/*"
-  ]
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "removeComments": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "sourceMap": false,
+    "inlineSources": false,
+    "suppressImplicitAnyIndexErrors": true
+  }
 }
