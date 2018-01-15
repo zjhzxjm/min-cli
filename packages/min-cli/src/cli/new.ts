@@ -1,5 +1,3 @@
-/// <reference path="../types/index.d.ts" />
-
 'use strict'
 
 import * as glob from 'glob'
