@@ -22,7 +22,7 @@
 
 ``` bash
 # Download code
-git clone https://github.com/meili/min-cli.git
+git clone https://github.com/meili/min.git
 
 cd min-cli
 

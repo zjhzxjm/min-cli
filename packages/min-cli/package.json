@@ -6,7 +6,7 @@
   "typings": "types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/meili/min-cli"
+    "url": "https://github.com/meili/min/tree/master/packages/min-cli"
   },
   "scripts": {
     "clean": "rm -rf ./{lib,types}",

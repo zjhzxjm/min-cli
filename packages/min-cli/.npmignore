@@ -1,6 +1,4 @@
-/config
 /src
-/types
 /example
 node_modules
 tsconfig.json

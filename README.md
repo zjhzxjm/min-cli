@@ -87,9 +87,9 @@ $ min update @minui/wxc-loading
 
 [Changelog](https://meili.github.io/min/docs/changelog/index.html)
 
-[Contributing](https://github.com/meili/min-cli/blob/master/CONTRIBUTING.md)
+[Contributing](https://github.com/meili/min/blob/master/CONTRIBUTING.md)
 
-[License MIT](https://github.com/meili/min-cli/blob/master/LICENSE)
+[License MIT](https://github.com/meili/min/blob/master/LICENSE)
 
 ## 开源协议
 
