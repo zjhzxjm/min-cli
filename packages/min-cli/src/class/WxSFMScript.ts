@@ -301,34 +301,34 @@ export class WxSFMScript extends WxSFM {
 
   private checkUseModuleExports (path: NodePath<t.ObjectExpression>): boolean | undefined {
     if (!this.isSFC) {
-      return
+      return undefined
     }
 
     // the parent is module.exports = {}; exports.default = {}
     if (!t.isAssignmentExpression(path.parent)) {
-      return
+      return undefined
     }
 
     let { left, operator } = path.parent
 
     if (operator !== '=') {
-      return
+      return undefined
     }
 
     // left => module.exports or exports.default
     // operator => =
     // right => { ... }
     if (!t.isMemberExpression(left)) {
-      return
+      return undefined
     }
 
     if (!t.isIdentifier(left.object) || !t.isIdentifier(left.property)) {
-      return
+      return undefined
     }
 
     let expression = `${left.object.name}.${left.property.name}`
     if (expression !== 'module.exports' && expression !== 'exports.default') {
-      return
+      return undefined
     }
 
     return true
@@ -343,12 +343,12 @@ export class WxSFMScript extends WxSFM {
    */
   private checkUseExportDefault (path: NodePath<t.ObjectExpression>): boolean | undefined {
     if (!this.isSFC) {
-      return
+      return undefined
     }
 
     // the parent is export default
     if (!t.isExportDefaultDeclaration(path.parent)) {
-      return
+      return undefined
     }
 
     return true
@@ -634,7 +634,7 @@ export class WxSFMScript extends WxSFM {
    */
   private transfromConfig (node: t.Node): WxSFMScript.Config | undefined {
     if (!t.isObjectProperty(node)) {
-      return
+      return undefined
     }
 
     let { key, value } = node
@@ -647,16 +647,16 @@ export class WxSFMScript extends WxSFM {
     }
 
     if (CONFIG_KEY !== configKey) {
-      return
+      return undefined
     }
 
     if (!value) {
-      return
+      return undefined
     }
 
     if (!t.isObjectExpression(value)) {
       log.warn('config 属性不是一个ObjectExpression')
-      return
+      return undefined
     }
 
     let config: WxSFMScript.Config = {}

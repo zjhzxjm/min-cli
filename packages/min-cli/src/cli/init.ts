@@ -61,7 +61,6 @@ export namespace InitCommand {
      */
     title: string
 
-
     /**
      * 小程序AppId
      *
