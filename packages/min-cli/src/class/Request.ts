@@ -150,7 +150,7 @@ export namespace Request {
    * @extends {Request.Default} 基础
    * @extends {Request.Path} 路径
    */
-  export interface Core extends Request.Default, Request.Path {}
+  export interface Core extends Default, Path {}
 
   /**
    * 扩展

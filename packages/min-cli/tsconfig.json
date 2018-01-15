@@ -1,15 +1,21 @@
+// https://www.tslang.cn/docs/handbook/tsconfig-json.html
 {
-  "extends": "../../config/tsconfig.json",
+  "extends": "../../tsconfig",
   "compilerOptions": {
-    "outDir": "lib",
+    /* List of folders to include type definitions from. */
     "typeRoots": [
-      "./types/*.d.ts"
-    ]
+      "node_modules/@types",
+      "src/types/*.d.ts"
+    ],
+
+    /* Generates corresponding '.d.ts' file. */
+    "declarationDir": "./types",
+    "outDir": "./lib",
+
+    /* Strict Type-Checking Options */
+    "strict": false
   },
   "include": [
     "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules/*"
   ]
 }

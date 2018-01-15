@@ -3,13 +3,16 @@
   "version": "1.0.6",
   "description": "小程序组件化开发环境，提供 cli 支持",
   "main": "lib/index.js",
+  "typings": "types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/meili/min-cli"
   },
   "scripts": {
-    "build": "rm -rf ./lib/* && ./node_modules/.bin/tsc",
+    "clean": "rm -rf ./{lib,types}",
+    "build": "./node_modules/.bin/tsc",
     "watch": "./node_modules/.bin/tsc -w",
+    "lint": "tslint --project tsconfig.json --config ../../tslint.json",
     "prepublish": "npm run build"
   },
   "bin": {
@@ -36,9 +39,9 @@
     "@types/node": "^8.0.15",
     "@types/recursive-readdir": "^1.2.28",
     "lerna": "^2.4.0",
-    "tslint": "^5.7.0",
+    "tslint": "^5.9.1",
     "tslint-config-standard": "^6.0.1",
-    "typescript": "^2.4.2"
+    "typescript": "^2.6.2"
   },
   "dependencies": {
     "babel-core": "^6.25.0",
