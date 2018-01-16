@@ -83,6 +83,14 @@ export namespace Request {
      * @memberof Default
      */
     requestType: RequestType
+
+    /**
+     * 虚拟文件
+     *
+     * @type {Boolean}
+     * @memberof Default
+     */
+    isVirtual?: Boolean
   }
 
   /**

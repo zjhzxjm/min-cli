@@ -593,10 +593,12 @@ export class WxSFMScript extends WxSFM {
         $node
       })
     } else {
+      let isVirtual = !!config.resolveVirtual[request]
       this.depends.push({
         request,
         requestType: RequestType.SCRIPT,
-        $node
+        $node,
+        isVirtual
       })
     }
   }

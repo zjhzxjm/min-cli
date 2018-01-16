@@ -9,6 +9,12 @@ export interface CustomConfig {
   alias?: {
     [key: string]: string
   } // 别名，如components => src/components
+  resolveId?: {
+    [key: string]: string
+  }
+  resolveVirtual?: {
+    [key: string]: string
+  }
   prefix?: string// 前缀，如wxc-
   npm?: {
     scope: string // 作用域名，如@minui

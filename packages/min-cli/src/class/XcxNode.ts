@@ -1,5 +1,6 @@
-import { Request, WxFile } from '../class'
-import { log, xcxNodeCache, xcxNext } from '../util'
+import * as path from 'path'
+import { Request, WxFile, Depend } from '../class'
+import { log, xcxNodeCache, xcxNext, config, src2destRelative } from '../util'
 
 export namespace XcxNode {
   export interface Options extends Request.Options {
@@ -149,7 +150,13 @@ export class XcxNode {
     let depends = this.wxFile.getDepends()
 
     for (let i = 0; i < depends.length; i++) {
-      let { request, requestType } = depends[i]
+      let depend = depends[i]
+      let { request, requestType, isVirtual } = depend
+
+      if (isVirtual) {
+        this.resolveVirtual(depend)
+        return
+      }
 
       // 创建一个节点
       let xcxNode = XcxNode.create({
@@ -181,6 +188,38 @@ export class XcxNode {
         })
       }
     }
+  }
+
+  private resolveVirtual (depend: Depend) {
+    let { request, requestType } = depend
+    let virtualPath = config.resolveVirtual[request]
+    if (!virtualPath) {
+      return
+    }
+    if (!path.isAbsolute(virtualPath)) {
+      virtualPath = path.join(config.cwd, virtualPath)
+    }
+
+    if (!path.extname(virtualPath)) {
+      virtualPath += config.ext.js
+    }
+
+    let src = virtualPath
+    let srcRelative = path.relative(config.cwd, src)
+    let destRelative = src2destRelative(srcRelative)
+    let dest = path.join(config.cwd, destRelative)
+
+    this.useRequests.push({
+      request,
+      requestType,
+      src,
+      srcRelative,
+      ext: config.ext.js,
+      dest,
+      destRelative,
+      isThreeNpm: true,
+      isVirtual: true
+    })
   }
 
   /**
