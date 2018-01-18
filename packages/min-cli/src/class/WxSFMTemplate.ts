@@ -192,8 +192,15 @@ export class WxSFMTemplate extends WxSFM {
 
     let { usingComponents = {} } = this.options
 
-    // 只有.wxp页面才可以使用公共模板
-    let source = !this.isWxp ? this.source : Global.layout.app.template.replace(config.layout.placeholder, this.source)
+    let source = this.source
+
+    if (this.isWxp) { // 只有.wxp页面才可以使用公共模板
+      let { template } = Global.layout.app
+      let { placeholder } = config.layout
+      source = template.indexOf(placeholder) !== -1
+        ? template.replace(placeholder, this.source)
+        : this.source
+    }
 
     this.dom = dom.make(source)
 
