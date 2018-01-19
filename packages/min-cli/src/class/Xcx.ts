@@ -55,19 +55,6 @@ export class Xcx {
   constructor (public options: Xcx.Options) {}
 
   /**
-   * 清空 DEST 目录
-   */
-  clear () {
-    let { isClear } = this.options
-    if (!isClear) return
-
-    Global.clear()
-    xcxNext.clear()
-    xcxNodeCache.clear()
-    fs.emptyDirSync(config.getPath('dest'))
-  }
-
-  /**
    * 解析节点树
    *
    * @param {(Xcx.Entry | Xcx.Entry[])} entry
@@ -133,9 +120,9 @@ export class Xcx {
    *
    * @memberof Xcx
    */
-  compile () {
+  compile (isFromWatch?: Boolean) {
     log.newline()
-    this.clear()
+    this.clear(isFromWatch)
     this.copyProjectConfig()
     this.appCompile()
     this.pagesCompile()
@@ -422,7 +409,7 @@ export class Xcx {
     if (isProjectConfig) { // 拷贝小程序项目配置文件
       this.copyProjectConfig()
     } else if (isApp || isMinConfig) { // 重新编译
-      this.compile()
+      this.compile(true)
     } else {
       xcxNext.watchChangeFile(file)
       this.next()
@@ -443,10 +430,52 @@ export class Xcx {
     if (isProjectConfig) { // 删除小程序项目配置文件
       this.deleteProjectConfig()
     } else if (isMinConfig) { // 重新编译
-      this.compile()
+      this.compile(true)
     } else {
       xcxNext.watchDeleteFile(file)
       this.next()
     }
+  }
+
+  /**
+   * Clear cache and dest dir
+   *
+   * @private
+   * @param {Boolean} [isFromWatch] Is from the watch of chokidar
+   * @memberof Xcx
+   */
+  private clear (isFromWatch?: Boolean) {
+    this.clearCache()
+    if (isFromWatch) {
+      return
+    }
+    this.clearDest()
+  }
+
+  /**
+   * Clear cache
+   *
+   * @private
+   * @memberof Xcx
+   */
+  private clearCache () {
+    let { isClear } = this.options
+    if (!isClear) return
+
+    Global.clear()
+    xcxNext.clear()
+    xcxNodeCache.clear()
+  }
+
+  /**
+   * Clear dest dir
+   *
+   * @private
+   * @memberof Xcx
+   */
+  private clearDest () {
+    let { isClear } = this.options
+    if (!isClear) return
+    fs.emptyDirSync(config.getPath('dest'))
   }
 }
