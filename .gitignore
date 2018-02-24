@@ -2,6 +2,8 @@ lib
 node_modules
 example/**/dist
 package-lock.json
+packages/min-example-mixins
+packages/min-example-async
 .idea
 .vscode/
 *.log

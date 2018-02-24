@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/meili/min/issues"
   },
-  "homepage": "https://meili.github.io/min/index.html"
+  "homepage": "https://meili.github.io/min/index.html",
+  "devDependencies": {
+    "lerna": "^2.8.0"
+  }
 }
