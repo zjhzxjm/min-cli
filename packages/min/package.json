@@ -1,0 +1,38 @@
+{
+  "name": "@mindev/min",
+  "version": "1.0.0",
+  "description": "min",
+  "main": "lib/index.js",
+  "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meili/min/tree/master/packages/min"
+  },
+  "scripts": {
+    "clean": "rm -rf ./{lib,types}",
+    "build": "./node_modules/.bin/tsc",
+    "watch": "./node_modules/.bin/tsc -w",
+    "lint": "tslint --project tsconfig.json --config ../../tslint.json",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "mixins",
+    "createPage"
+  ],
+  "author": "Min Team",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean": "^0.4.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-typescript": "^4.0.0-alpha.1",
+    "gulp-uglify": "^3.0.0",
+    "merge2": "^1.2.1",
+    "tslint": "^5.9.1",
+    "tslint-config-standard": "^6.0.1",
+    "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "tslib": "^1.9.0"
+  }
+}

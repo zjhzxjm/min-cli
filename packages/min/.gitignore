@@ -1,0 +1,9 @@
+dist
+lib
+types
+node_modules
+example/**/dist
+package-lock.json
+.idea
+.vscode/
+*.log
