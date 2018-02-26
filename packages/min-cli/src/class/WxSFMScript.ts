@@ -317,7 +317,7 @@ export class WxSFMScript extends WxSFM {
   private traverse () {
     let visitor: babel.Visitor = {
       Program: (path) => {
-        this.visitBody(path)
+        this.createMixinsDeclaration(path)
       },
       // import hello from './hello
       ImportDeclaration: (path) => {
@@ -325,7 +325,7 @@ export class WxSFMScript extends WxSFM {
       },
       CallExpression: (path) => {
         this.visitDepend(path)
-        this.visitMixins(path)
+        this.createMixinsProperties(path)
       },
       ExportDefaultDeclaration: (path) => {
         // this.hasExportDefault = true
@@ -609,57 +609,95 @@ export class WxSFMScript extends WxSFM {
     }
   }
 
-  private visitMixins (path: NodePath<t.CallExpression>) {
+  /**
+   * Create or attach the mixins properties.
+   * For WXP
+   *
+   * @private
+   * @param {NodePath<t.CallExpression>} path
+   * @memberof WxSFMScript
+   */
+  private createMixinsProperties (path: NodePath<t.CallExpression>) {
     if (!this.isWxp) return
 
     let { node: { callee, arguments: args } } = path
     if (!t.isMemberExpression(callee)) return
     if (!args || args.length === 0) return
 
+    // For Example：
+    // object.name is min
+    // property.name is Page
     let { object, property } = callee
     if (!t.isIdentifier(object) || !t.isIdentifier(property)) return
 
     let caller = `${object.name}.${property.name}`
+    // The mixins function is valid only in min.Page.
     if (caller !== 'min.Page') return
 
     let arg = args[0]
+    // The first argument must be the ObjectExpression.
     if (!t.isObjectExpression(arg)) return
 
     let { properties } = arg
 
+    // Get the mixins properties.
     let prop = properties.find(prop => {
       if (!t.isObjectProperty(prop)) return false
 
-      let keyField = getKeyFieldByExpression(prop.key)
+      let keyField = getKeyOrValueFieldByExpression(prop.key)
 
       if (keyField === MIXINS_KEY) return true
     })
 
     let { mixins } = Global.layout.app.globalMin
+
+    // Create an arrayExpression.
+    // For example：[mixin1, mixin2]
     let arrExp = t.arrayExpression(mixins.map(mixin => {
       return t.identifier(mixin)
     }))
 
+    // The mixins property already exists.
     if (prop && t.isObjectProperty(prop)) {
       let { value } = prop
       if (!t.isArrayExpression(value)) return
 
+      // Extend the new value from the existing mixins attribute.
+      // For example：[newMixin1, newMixin2, oldMixin1, oldMixin2]
       value.elements = [
         ...arrExp.elements,
         ...value.elements
       ]
     } else {
+      // Create a mixins attribute.
+      // For example：{mixins: [mixin1, mixin2]}
       prop = t.objectProperty(t.identifier(MIXINS_KEY), arrExp)
       properties.push(prop)
     }
   }
 
-  private visitBody (path: NodePath<t.Program>) {
+  /**
+   * Create or attach the mixins declaration.
+   * For WXP
+   *
+   * @private
+   * @param {NodePath<t.Program>} path
+   * @memberof WxSFMScript
+   */
+  private createMixinsDeclaration (path: NodePath<t.Program>) {
     if (!this.isWxp) return
 
     // For import Declaration
+    // Example:
+    // 1. import mixin from 'mixins/xxx'
+    // 2. import { mixin1, mixin2 } from 'mixins/xxx'
     let importDecl = (mixin: string, decl: t.ImportDeclaration) => {
+
+      // specifiers => [mixin, mixin1, mixin2]
+      // source => mixins/xxx
       let { specifiers, source } = decl
+
+      // Find a name that is the same as specifiers.
       let spe = specifiers.find(spe => {
         let { local: { name } } = spe
         return name === mixin
@@ -667,38 +705,52 @@ export class WxSFMScript extends WxSFM {
 
       if (!spe) return
 
+      // Insert the top of the body.
       body.unshift(t.importDeclaration([spe], source))
     }
 
     // For require Declaration
+    // Example:
+    // 1. const mixn = require('mixins/xxx')
+    // 2. const { mixin1, mixin2 } = require('mixins/xxx')
+    // 3. const { mixin2: mixin22 } = require('mixins/xxx')
     let requireDecl = (mixin: string, decl: t.VariableDeclarator) => {
       let { id, init } = decl
       let declarations = []
 
-      // Example const { aa } = require('mixns/xxx')
+      // For example
+      // id => { mixin1 }
+      // id => { mixin2: mixin22 }
       if (t.isObjectPattern(id)) {
         let { properties } = id
 
+        // Find a name that is the same a properties.
         let prop = properties.find(prop => {
           if (!t.isObjectProperty(prop)) return false
 
-          let keyField = getKeyFieldByExpression(prop.key)
-          return keyField === mixin
+          // Get mixin22 from { mixin2: mixin22 }
+          let valueField = getKeyOrValueFieldByExpression(prop.value)
+          return valueField === mixin
         })
 
         if (!prop) return
 
-        let pattern = t.objectPattern([prop])
-        declarations = [t.variableDeclarator(id, init)]
+        // Create an objectPattern
+        let newId = t.objectPattern([prop])
+        declarations = [t.variableDeclarator(newId, init)]
       }
 
-      // Example const aa = require('mixns/xxx')
+      // For example
+      // id => mixin
       if (t.isIdentifier(id) && id.name === mixin) {
-        declarations = [t.variableDeclarator(id, init)]
+        // Use the original id
+        let newId = id
+        declarations = [t.variableDeclarator(newId, init)]
       }
 
       if (declarations.length === 0) return
 
+      // Insert the top of the body.
       body.unshift(t.variableDeclaration('const', declarations))
     }
 
@@ -803,7 +855,7 @@ export class WxSFMScript extends WxSFM {
     }
 
     let { key, value } = node
-    let keyField = getKeyFieldByExpression(key)
+    let keyField = getKeyOrValueFieldByExpression(key)
 
     if (GLOBAL_MIN_KEY !== keyField) {
       return undefined
@@ -821,7 +873,7 @@ export class WxSFMScript extends WxSFM {
       if (!t.isObjectProperty(prop)) return
 
       // Get the key field name from globalMix.
-      let keyField = getKeyFieldByExpression(prop.key)
+      let keyField = getKeyOrValueFieldByExpression(prop.key)
 
       switch (keyField) {
         case CONFIG_KEY:
@@ -943,20 +995,20 @@ export class WxSFMScript extends WxSFM {
 }
 
 /**
- * Get key field name By t.Expression
+ * Get key or value field name By t.Expression
  *
- * @param {t.Expression} key
+ * @param {t.Expression} keyOrValue
  * @returns {(string | undefined)}
  */
-function getKeyFieldByExpression (key: t.Expression): string | undefined {
+function getKeyOrValueFieldByExpression (keyOrValue: t.Expression): string | undefined {
   // Example {config: {key, value}}
-  if (t.isIdentifier(key)) {
-    return key.name
+  if (t.isIdentifier(keyOrValue)) {
+    return keyOrValue.name
   }
 
   // Example {'config': {key, value}}
-  if (t.isStringLiteral(key)) {
-    return key.value
+  if (t.isStringLiteral(keyOrValue)) {
+    return keyOrValue.value
   }
 
   return ''
@@ -975,7 +1027,7 @@ function getConfigObjectByNode (prop: t.ObjectProperty): WxSFMScript.Config | un
   // }
 
   let { key, value } = prop
-  let keyField = getKeyFieldByExpression(key)
+  let keyField = getKeyOrValueFieldByExpression(key)
 
   if (CONFIG_KEY !== keyField) {
     return undefined
