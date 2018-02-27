@@ -329,6 +329,7 @@ export namespace Request {
     isStyle: boolean
 
     isPng: boolean
+    isJpg: boolean
     isJpeg: boolean
     isGif: boolean
     isBmp: boolean
@@ -415,6 +416,7 @@ export class RequestExtend extends RequestCore implements Request.Extend {
   isWxs: boolean
 
   isPng: boolean
+  isJpg: boolean
   isJpeg: boolean
   isGif: boolean
   isBmp: boolean
@@ -508,7 +510,7 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    * @memberof RequestExtend
    */
   get isImage () {
-    return this.isPng || this.isJpeg || this.isGif || this.isBmp || this.isWebp
+    return this.isPng || this.isJpg || this.isJpeg || this.isGif || this.isBmp || this.isWebp
   }
 
   /**

@@ -17,6 +17,8 @@ const MIXINS_KEY = 'mixins'
 const DATA_KEY = 'data'
 const PATH_SEP = path.sep
 
+let $path = path
+
 export namespace WxSFMScript {
 
   /**
@@ -705,8 +707,12 @@ export class WxSFMScript extends WxSFM {
 
       if (!spe) return
 
+      let newSpecifiers = [spe]
+      let newSource = resolvePath(source.value)
+      let newImportDeclaration = t.importDeclaration(newSpecifiers, newSource)
+
       // Insert the top of the body.
-      body.unshift(t.importDeclaration([spe], source))
+      body.unshift(newImportDeclaration)
     }
 
     // For require Declaration
@@ -716,9 +722,26 @@ export class WxSFMScript extends WxSFM {
     // 3. const { mixin2: mixin22 } = require('mixins/xxx')
     let requireDecl = (mixin: string, decl: t.VariableDeclarator) => {
       let { id, init } = decl
-      let declarations = []
 
-      // For example
+      if (!t.isCallExpression(init)) return
+      if (!init.arguments.length) return
+
+      // Get first argument，Ignore other arguments
+      // For example: 'mixins/xxx'
+      let fistArgument = init.arguments[0]
+
+      if (!t.isStringLiteral(fistArgument)) return
+
+      let newDeclarations = []
+
+      // Get the resolved require path.
+      // For example: ['~/mixins/xxx']
+      let newArguments = [resolvePath(fistArgument.value)]
+      // For example: require('~/mixns/xxx')
+      let newInit = t.callExpression(init.callee, newArguments)
+
+      // ①
+      // For example:
       // id => { mixin1 }
       // id => { mixin2: mixin22 }
       if (t.isObjectPattern(id)) {
@@ -737,26 +760,49 @@ export class WxSFMScript extends WxSFM {
 
         // Create an objectPattern
         let newId = t.objectPattern([prop])
-        declarations = [t.variableDeclarator(newId, init)]
+        newDeclarations = [t.variableDeclarator(newId, newInit)]
       }
 
-      // For example
+      // ②
+      // For example:
       // id => mixin
       if (t.isIdentifier(id) && id.name === mixin) {
         // Use the original id
         let newId = id
-        declarations = [t.variableDeclarator(newId, init)]
+        newDeclarations = [t.variableDeclarator(newId, newInit)]
       }
 
-      if (declarations.length === 0) return
+      if (newDeclarations.length === 0) return
+
+      let newVariableDeclaration = t.variableDeclaration('const', newDeclarations)
 
       // Insert the top of the body.
-      body.unshift(t.variableDeclaration('const', declarations))
+      body.unshift(newVariableDeclaration)
+    }
+
+    // The require path of the mixins is resolved.
+    let resolvePath = (requirePath: string): t.StringLiteral => {
+      if (requirePath.charAt(0) === '.') {
+        let { request: appRequest } = Global.layout.app
+        let { src: appFilePath } = appRequest
+        let { src: curFilePath } = this.request
+
+        // The relative path from the current file to the app file.
+        // For example:
+        // from ~/src/pages/home/index.wxp
+        // to   ~/src/app.wxa
+        let relativePath = $path.relative($path.dirname(curFilePath), $path.dirname(appFilePath))
+
+        // For example: ../../
+        requirePath = $path.join(relativePath, requirePath)
+      }
+      return t.stringLiteral(requirePath)
     }
 
     let { node: { body } } = path
 
-    let { mixins, requestDeclaration } = Global.layout.app.globalMin
+    let { globalMin } = Global.layout.app
+    let { mixins, requestDeclaration } = globalMin
 
     mixins.forEach(mixin => {
       requestDeclaration.forEach(decl => {

@@ -24,6 +24,7 @@ export namespace Global {
 
   export interface Layout {
     app: {
+      request: Request,
       template: string,
       globalMin: WxSFMScript.GlobalMin
     }
@@ -292,6 +293,7 @@ export class Global {
     // 全局布局
     this.layout = {
       app: {
+        request,
         template,
         globalMin
       }
