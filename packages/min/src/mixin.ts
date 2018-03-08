@@ -1,6 +1,11 @@
 /**
  * Provide mixins for the WXP page.
  */
+import polyfills from './polyfills'
+import { PAGE_EVENT } from './const'
+import { isArray, isFunction, noop } from './util'
+
+polyfills()
 
 interface Data {
   [key: string]: object
@@ -41,10 +46,6 @@ class OnLoad {
   }
 }
 
-const isArray = (v: any) => Array.isArray(v)
-const isFunction = (v: any) => typeof v === 'function'
-const noop = function () {}
-
 // reference redux https://github.com/reactjs/redux
 function compose (...funcs: Function[]) {
   if (funcs.length === 0) {
@@ -59,9 +60,6 @@ function compose (...funcs: Function[]) {
   const rest = funcs.slice(0, -1)
   return (...args: any[]) => rest.reduceRight((composed, f) => f(composed), last(...args))
 }
-
-const PAGE_EVENT = ['onLoad', 'onReady', 'onShow', 'onHide', 'onUnload', 'onPullDownRefresh', 'onReachBottom', 'onShareAppMessage']
-const APP_EVENT = ['onLaunch', 'onShow', 'onHide', 'onError']
 
 const onLoad = new OnLoad().onLoad
 
@@ -150,7 +148,7 @@ const mixData = (mixinData: Data, nativeData: Data): Data => {
   return nativeData
 }
 
-const mixMethods = (mixinMethods: Methods, pageConf: PageConfig): PageConfig => {
+const mixMethods = (mixinMethods: Methods, pageConfig: PageConfig): PageConfig => {
   Object.keys(mixinMethods).forEach((key: string) => {
     let method = mixinMethods[key]
 
@@ -160,12 +158,12 @@ const mixMethods = (mixinMethods: Methods, pageConf: PageConfig): PageConfig => 
 
       if (!Array.isArray(methodsList)) return
 
-      if (isFunction(pageConf[key])) {
-        methodsList.push(pageConf[key])
+      if (isFunction(pageConfig[key])) {
+        methodsList.push(pageConfig[key])
       }
 
       // lifecycle不会合并。先顺序执行mixins中的lifecycle，再执行组件自身的lifecycle
-      pageConf[key] = (function (methodsList) {
+      pageConfig[key] = (function (methodsList) {
         return function (...args) {
           compose(...methodsList.reverse().map(f => f.bind(this)))(...args)
         }
@@ -174,13 +172,13 @@ const mixMethods = (mixinMethods: Methods, pageConf: PageConfig): PageConfig => 
 
     // Common methods
     else {
-      if (pageConf[key] == null) {
-        pageConf[key] = method
+      if (pageConfig[key] == null) {
+        pageConfig[key] = method
       }
     }
   })
 
-  return pageConf
+  return pageConfig
 }
 
 export {
@@ -191,21 +189,21 @@ export {
   PageConfig
 }
 
-export default (pageConf: PageConfig) => {
+export default (pageConfig: PageConfig) => {
 
   let {
     mixins = [],
     onBeforeLoad = noop,
     onAfterLoad = noop
-  } = pageConf
+  } = pageConfig
 
-  let onNativeLoad = pageConf.onLoad || noop
-  let nativeData = pageConf.data || {}
+  let onNativeLoad = pageConfig.onLoad || noop
+  let nativeData = pageConfig.data || {}
 
   let mixinData = getMixinData(mixins)
   let mixinMethods = getMixinMethods(mixins)
 
-  Object.assign(pageConf, {
+  Object.assign(pageConfig, {
     data: mixData(mixinData, nativeData),
     onLoad,
     onBeforeLoad,
@@ -213,7 +211,7 @@ export default (pageConf: PageConfig) => {
     onNativeLoad
   })
 
-  pageConf = mixMethods(mixinMethods, pageConf)
+  pageConfig = mixMethods(mixinMethods, pageConfig)
 
-  return pageConf
+  return pageConfig
 }
