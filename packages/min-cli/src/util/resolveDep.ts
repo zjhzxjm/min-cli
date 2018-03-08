@@ -485,7 +485,7 @@ export function src2destRelative (srcRelative: string, isPublish?: boolean) {
     } else if ($1 === path.sep) {
       // path/node_modules => path/npm/wxcs
       // path/node_modules => path/npm/modules
-      return npmDest.split(path.sep).slice(1).join(path.sep)
+      return path.join(path.sep, npmDest.split(path.sep).slice(1).join(path.sep))
     } else {
       return match
     }
