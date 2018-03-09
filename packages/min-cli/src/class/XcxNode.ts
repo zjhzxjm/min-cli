@@ -31,6 +31,14 @@ export namespace XcxNode {
 export class XcxNode {
 
   /**
+   * 是否可用
+   *
+   * @type {boolean}
+   * @memberof XcxNode
+   */
+  isAvailable: boolean
+
+  /**
    * 请求地址
    *
    * @type {Request}
@@ -81,7 +89,25 @@ export class XcxNode {
       root.children.push(this)
     }
     this.request = request
-    this.wxFile = new WxFile(this.request)
+
+    try {
+      this.wxFile = new WxFile(this.request)
+      this.isAvailable = true
+    } catch (err) {
+      log.error(err)
+
+      // TODO
+      // Add log to app.js
+    }
+
+    if (this.isAvailable) {
+      // 从下一次的编译里移除
+      xcxNext.removeLack(this.request.srcRelative)
+    } else {
+      // 将当前的请求地址记录到Next，用于下一次编译
+      xcxNext.addLack(this.request.srcRelative)
+      return
+    }
 
     this.cached()
     this.recursive()
@@ -126,6 +152,8 @@ export class XcxNode {
    * @memberof XcxNode
    */
   compile () {
+    if (!this.isAvailable) return
+
     this.wxFile.updateDepends(this.useRequests)
     this.wxFile.save()
   }
@@ -147,6 +175,8 @@ export class XcxNode {
    * @memberof XcxNode
    */
   private recursive () {
+    if (!this.isAvailable) return
+
     let depends = this.wxFile.getDepends()
 
     for (let i = 0; i < depends.length; i++) {
@@ -168,7 +198,13 @@ export class XcxNode {
         isThreeNpm: this.request.isThreeNpm
       })
 
-      if (xcxNode) {
+      if (!xcxNode) {
+        // 增加缺失的请求
+        this.lackRequests.push({
+          request,
+          requestType
+        })
+      } else if (xcxNode.isAvailable) {
         // 添加可用的请求
         this.useRequests.push({
           request,
@@ -179,12 +215,6 @@ export class XcxNode {
           dest: xcxNode.request.dest,
           destRelative: xcxNode.request.destRelative,
           isThreeNpm: xcxNode.request.isThreeNpm
-        })
-      } else {
-        // 增加缺失的请求
-        this.lackRequests.push({
-          request,
-          requestType
         })
       }
     }
