@@ -1,4 +1,9 @@
-const global = typeof window !== 'undefined' && window.Math === Math
-  ? window : typeof self !== 'undefined' && self.Math === Math ? self : this
+import { isUndefined } from './util'
+
+const global = !isUndefined(window) && window.Math === Math
+  ? window
+  : !isUndefined(self) && self.Math === Math
+    ? self
+    : this
 
 export default global

@@ -1,6 +1,7 @@
 import { createPage } from './page'
 import { createApp } from './app'
 import { initApi } from './api'
+import { isArray, isUndefined } from './util'
 import global from './global'
 
 export namespace Min {
@@ -8,6 +9,7 @@ export namespace Min {
     global?: boolean
     promisify?: boolean
     requestfix?: boolean,
+    interceptors?: Function[]
     noPromiseAPI?: string[] | {
       [key: string]: boolean
     }
@@ -42,8 +44,14 @@ export class Min {
   }
 
   init (options: Min.Options = {}) {
-    if (typeof options.global !== 'undefined') {
+    if (!isUndefined(options.global)) {
       this.isGlobal = !!options.global
+    }
+
+    if (isArray(options.interceptors)) {
+      options.interceptors.forEach(interceptor => {
+        interceptor(this)
+      })
     }
 
     this.options = options

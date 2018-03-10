@@ -1,7 +1,7 @@
-/src
-/example
+src
+test
+example
 node_modules
 tsconfig.json
 tslint.json
-.editorconfig
 *.log

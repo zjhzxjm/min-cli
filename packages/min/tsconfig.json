@@ -6,14 +6,6 @@
     /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */
     "target": "es5",
 
-    /* Specify module code generation: 'none', commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
-    "module": "commonjs",
-
-    /* List of folders to include type definitions from. */
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-
     /* Generates corresponding '.d.ts' file. */
     "declarationDir": "./types",
     "outDir": "./lib",
