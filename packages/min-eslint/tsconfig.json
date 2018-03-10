@@ -1,0 +1,11 @@
+// https://www.tslang.cn/docs/handbook/tsconfig-json.html
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "declarationDir": "./types",
+    "outDir": "./lib"
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
