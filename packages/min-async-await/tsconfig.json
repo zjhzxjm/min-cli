@@ -13,6 +13,9 @@
     "declarationDir": "./types",
     "outDir": "./lib",
 
+    /* Do not emit comments to output. */
+    "removeComments": true,
+
     "noImplicitUseStrict": true,
 
     /* Strict Type-Checking Options */

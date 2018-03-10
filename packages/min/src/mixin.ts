@@ -28,23 +28,23 @@ interface Mixin {
 
 interface PageConfig {
   mixins: Mixin[],
-  data: Data,
-  onLoad: LifeCycle,
-  onBeforeLoad: LifeCycle,
-  onAfterLoad: LifeCycle,
-  onNativeLoad: LifeCycle,
+  data: Data
+  // onLoad: LifeCycle,
+  // onBeforeLoad: LifeCycle,
+  // onAfterLoad: LifeCycle,
+  // onNativeLoad: LifeCycle,
 }
 
-class OnLoad {
-  onBeforeLoad: LifeCycle
-  onNativeLoad: LifeCycle
-  onAfterLoad: LifeCycle
-  onLoad (opts: object) {
-    this.onBeforeLoad(opts)
-    this.onNativeLoad(opts)
-    this.onAfterLoad(opts)
-  }
-}
+// class OnLoad {
+//   onBeforeLoad: LifeCycle
+//   onNativeLoad: LifeCycle
+//   onAfterLoad: LifeCycle
+//   onLoad (opts: object) {
+//     this.onBeforeLoad(opts)
+//     this.onNativeLoad(opts)
+//     this.onAfterLoad(opts)
+//   }
+// }
 
 // reference redux https://github.com/reactjs/redux
 function compose (...funcs: Function[]) {
@@ -61,7 +61,7 @@ function compose (...funcs: Function[]) {
   return (...args: any[]) => rest.reduceRight((composed, f) => f(composed), last(...args))
 }
 
-const onLoad = new OnLoad().onLoad
+// const onLoad = new OnLoad().onLoad
 
 /**
  * Combine data from multiple mixins.
@@ -99,7 +99,7 @@ const getMixinMethods = (mixins: Mixin[]): Methods => {
       if (!isFunction(method)) return
 
       // Ignore lifeCycle onLoad
-      if (key === 'onLoad') return
+      // if (key === 'onLoad') return
 
       ret[key] = method
     })
@@ -112,7 +112,7 @@ const getMixinMethods = (mixins: Mixin[]): Methods => {
       if (typeof method !== 'function') return
 
       // Ignore lifeCycle onLoad
-      if (key === 'onLoad') return
+      // if (key === 'onLoad') return
 
       let value = ret[key]
 
@@ -192,23 +192,23 @@ export {
 export default (pageConfig: PageConfig) => {
 
   let {
-    mixins = [],
-    onBeforeLoad = noop,
-    onAfterLoad = noop
+    mixins = []
+    // onBeforeLoad = noop,
+    // onAfterLoad = noop
   } = pageConfig
 
-  let onNativeLoad = pageConfig.onLoad || noop
+  // let onNativeLoad = pageConfig.onLoad || noop
   let nativeData = pageConfig.data || {}
 
   let mixinData = getMixinData(mixins)
   let mixinMethods = getMixinMethods(mixins)
 
   Object.assign(pageConfig, {
-    data: mixData(mixinData, nativeData),
-    onLoad,
-    onBeforeLoad,
-    onAfterLoad,
-    onNativeLoad
+    data: mixData(mixinData, nativeData)
+    // onLoad,
+    // onBeforeLoad,
+    // onAfterLoad,
+    // onNativeLoad
   })
 
   pageConfig = mixMethods(mixinMethods, pageConfig)
