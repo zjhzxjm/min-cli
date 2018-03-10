@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "./scripts/build.sh",
+    "watch": "./scripts/watch.sh",
+    "link": "./scripts/link.sh",
+    "postinstall": "./scripts/install.sh"
   },
   "repository": {
     "type": "git",
@@ -17,6 +20,12 @@
   },
   "homepage": "https://meili.github.io/min/index.html",
   "devDependencies": {
-    "lerna": "^2.8.0"
+    "@types/node": "^9.4.7",
+    "@types/glob": "^5.0.32",
+    "@types/lodash": "^4.14.71",
+    "lerna": "^2.8.0",
+    "tslint": "^5.9.1",
+    "tslint-config-standard": "^6.0.1",
+    "typescript": "^2.6.2"
   }
 }

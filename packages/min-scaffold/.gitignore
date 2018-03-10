@@ -3,5 +3,5 @@ lib
 /types
 node_modules
 .idea
-.vscode
+.vscode/
 *.log

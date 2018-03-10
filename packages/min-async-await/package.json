@@ -1,0 +1,29 @@
+{
+  "name": "@mindev/min-async-await",
+  "version": "1.0.0",
+  "description": "min async function support",
+  "main": "lib/index.js",
+  "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meili/min/tree/master/packages/min-async-await"
+  },
+  "scripts": {
+    "clean": "rm -rf ./{dist,lib,types}",
+    "build": "../../node_modules/.bin/tsc",
+    "watch": "../../node_modules/.bin/tsc -w",
+    "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
+    "prepublish": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "async",
+    "await",
+    "promise"
+  ],
+  "author": "Min Team",
+  "license": "MIT",
+  "dependencies": {
+    "promise-polyfill": "^6.0.2",
+    "regenerator-runtime": "^0.10.3"
+  }
+}
