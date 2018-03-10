@@ -1,0 +1,38 @@
+<template>
+  <view class="error" style="min-height: {{screenHeight}}px">
+    {{message}}
+  </view>
+</template>
+
+<script>
+export default {
+  properties: {
+    message: {
+      type: String,
+      value: ''
+    }
+  },
+  data: {
+    screenHeight: 0
+  },
+  async ready () {
+    let systemInfo = await min.getSystemInfo()
+    let { screenHeight } = systemInfo
+    this.setData({
+      screenHeight
+    })
+
+    this.setData({
+      message: ''
+    })
+  }
+}
+</script>
+
+<style>
+.error {
+  width: 100%;
+  height: 100%;
+  background: red;
+}
+</style>

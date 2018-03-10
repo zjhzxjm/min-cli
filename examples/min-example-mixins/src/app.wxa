@@ -1,0 +1,72 @@
+<template>
+  <view>
+    <layout-head></layout-head>
+
+    <!-- wxp template -->
+    <page></page>
+
+    <layout-foot></layout-foot>
+
+    <wxc-loading id="loading"></wxc-loading>
+    <wxc-toast id="toast"></wxc-toast>
+  </view>
+</template>
+
+<script>
+  import '@mindev/min-async-await'
+  import min from '@mindev/min'
+  import interceptors from './interceptors'
+  import loading from 'mixins/loading'
+  import toast from './mixins/toast'
+  import sayHello, {sayGood, sayBye} from "mixins/sayHello";
+
+  const sayTodo = require("./say-todo/index")
+
+  // Initialize the configuration for min.
+  min.init({
+    global: true,
+    promisify: true,
+    requestfix: true,
+    interceptors
+  })
+
+  export default {
+    config: {
+      pages: [],
+      window: {
+        backgroundTextStyle: 'dark',
+        backgroundColor: '#efefef',
+        navigationBarBackgroundColor: '#ffffff',
+        navigationBarTitleText: 'MinExampleMixins',
+        navigationBarTextStyle: 'black'
+      },
+      networkTimeout: {
+        request: 10000
+      }
+    },
+    globalMin: {
+      config: {
+        usingComponents: {
+          'layout-head': 'layout/head',
+          'layout-foot': 'layout/foot',
+          'wxc-loading': '@minui/wxc-loading',
+          'wxc-toast': '@minui/wxc-toast'
+        }
+      },
+      mixins: [loading, toast, sayHello, sayGood, sayBye, sayTodo]
+    },
+    globalData: { },
+    onLaunch () { },
+    onShow () { },
+    onHide () { }
+  }
+</script>
+
+<style>
+page {
+  background-color: #F8F8F8;
+  height: 100%;
+  font-size: 32rpx;
+  line-height: 1.5;
+}
+</style>

@@ -1,0 +1,16 @@
+{
+	"miniprogramRoot": "dist",
+	"description": "项目配置文件。",
+	"compileType": "miniprogram",
+	"libVersion": "1.7.1",
+	"appid": "wxbbb37d1f6d4712f2",
+	"projectname": "MinExampleAsyncAwait",
+	"setting": {
+		"urlCheck": false,
+		"es6": false,
+		"postcss": true,
+		"minified": true,
+		"newFeature": true
+	},
+	"condition": {}
+}

@@ -1,0 +1,69 @@
+<template>
+  <view>
+    ABOUT
+  </view>
+</template>
+
+<script>
+import min from '@mindev/min'
+
+export default min.Page({
+  onBeforeLoad () {
+    console.log('onBeforeLoad in about')
+  },
+  onLoad () {
+    console.log('onLoad in about')
+  },
+  onAfterLoad () {
+    console.log('onAfterLoad in about')
+  },
+  onShow () {
+    console.log('onShow in about')
+  },
+  onShowLoading () {
+    this.showLoading()
+    setTimeout(() => {
+      // this.hideLoading()
+      this.$loading.hide()
+    }, 2000)
+  },
+  onSayHello () {
+    this.sayHello('lingxiao')
+  }
+})
+</script>
+
+<style>
+.index-hd {
+  padding: 70rpx;
+  text-align: center;
+}
+.index-bd {
+  margin-top: 10rpx;
+  padding: 20rpx 30rpx;
+  background-color:cadetblue;
+  color: #fff;
+  text-align: center;
+}
+.index-ft {
+  padding-bottom: 20rpx;
+  text-align: center;
+}
+.index-logo {
+  width: 100rpx;
+  height: 100rpx;
+}
+.index-desc {
+  margin-top: 20rpx;
+  color: #888888;
+  font-size: 28rpx;
+}
+
+.provider {
+  position: fixed;
+  width: 100%;
+  bottom: 120rpx;
+  color: #a9a9a9;
+  text-align: center;
+}
+</style>
