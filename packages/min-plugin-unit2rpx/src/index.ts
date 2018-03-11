@@ -1,14 +1,17 @@
 import * as postcss from 'postcss'
 import unit2Rpx from './unit2rpx'
-import { Plugin } from './plugin'
 import { DEFAULTS } from './const'
 
-export default class MinPluginUnit2Rpx implements Plugin {
-  constructor (public options: MinPluginUnit2Rpx.Options) {
+import Plugin = PluginHelper.Plugin
+import PluginOptions = PluginHelper.Options
+import Options = PluginUnit2Rpx.Options
+
+export default class PluginUnit2Rpx implements Plugin {
+  constructor (public options: Options) {
     this.options = Object.assign({}, DEFAULTS, this.options)
   }
 
-  async apply (pluginOptions: Plugin.Options): Promise<string> {
+  async apply (pluginOptions: PluginOptions): Promise<string> {
     let { filter, config } = this.options
     let { src, code, output } = pluginOptions
 

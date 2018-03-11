@@ -10,11 +10,15 @@ $ npm install @mindev/min-plugin-unit2rpx --save-dev
 
 
 ``` js
-import unit2rpx from '@mindev/min-plugin-unit2rpx'
-
 {
-  "plugins": [
-    new unit2rpx()
-  ]
+  plugins: {
+    unit2rpx: {
+      filter: new RegExp('\.(wxss)$'),
+      config: {
+        px: 1,
+        rem: 100
+      }
+    }
+  }
 }
 ```

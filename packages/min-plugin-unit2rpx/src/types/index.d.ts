@@ -1,4 +1,6 @@
-declare namespace MinPluginUnit2Rpx {
+/// <reference path="../../../../types/index.d.ts" />
+
+declare namespace PluginUnit2Rpx {
   export interface Config {
     px: number,
     rem: number
