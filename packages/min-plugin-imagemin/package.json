@@ -1,0 +1,30 @@
+{
+  "name": "@mindev/min-plugin-imagemin",
+  "version": "1.0.0",
+  "description": "min plugin-imagemin",
+  "main": "lib/index.js",
+  "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meili/min/tree/master/packages/min-plugin-imagemin"
+  },
+  "scripts": {
+    "clean": "rm -rf ./{dist,lib,types}",
+    "build": "../../node_modules/.bin/tsc",
+    "watch": "../../node_modules/.bin/tsc -w",
+    "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
+    "prepublish": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "min",
+    "imagemin"
+  ],
+  "dependencies": {
+    "imagemin": "^5.3.1",
+    "imagemin-mozjpeg": "^7.0.0",
+    "imagemin-pngquant": "^5.0.1"
+  },
+  "devDependencies": {},
+  "author": "Min Team",
+  "license": "MIT"
+}

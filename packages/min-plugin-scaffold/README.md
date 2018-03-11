@@ -12,8 +12,8 @@ $ npm install @mindev/min-plugin-scaffold --save-dev
 {
   plugins: {
     scaffold: {
-        filter: /\.wxss$/,
-        config: {}
+      filter: /\.wxss$/,
+      config: {}
     }
   }
 }

@@ -12,10 +12,10 @@ $ npm install @mindev/min-plugin-autoprefixer --save-dev
 {
   plugins: {
     autoprefixer: {
-        filter: /\.wxss$/,
-        config: {
-          browsers: ['Android >= 2.3', 'Chrome > 20', 'iOS >= 6']
-        }
+      filter: /\.wxss$/,
+      config: {
+        browsers: ['Android >= 2.3', 'Chrome > 20', 'iOS >= 6']
+      }
     }
   }
 }

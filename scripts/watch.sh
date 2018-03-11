@@ -10,6 +10,7 @@ packages=(
   '@mindev/min-eslint'
   '@mindev/min-plugin-autoprefixer'
   '@mindev/min-plugin-filemin'
+  '@mindev/min-plugin-imagemin'
   '@mindev/min-plugin-unit2rpx'
 )
 examples=(
