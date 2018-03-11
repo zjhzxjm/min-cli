@@ -11,6 +11,7 @@ packages=(
   '@mindev/min-plugin-autoprefixer'
   '@mindev/min-plugin-filemin'
   '@mindev/min-plugin-imagemin'
+  '@mindev/min-plugin-uglifyjs'
   '@mindev/min-plugin-unit2rpx'
 )
 examples=(

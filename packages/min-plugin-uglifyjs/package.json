@@ -1,0 +1,30 @@
+{
+  "name": "@mindev/min-plugin-uglifyjs",
+  "version": "1.0.0",
+  "description": "min plugin-uglifyjs",
+  "main": "lib/index.js",
+  "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meili/min/tree/master/packages/min-plugin-uglifyjs"
+  },
+  "scripts": {
+    "clean": "rm -rf ./{dist,lib,types}",
+    "build": "../../node_modules/.bin/tsc",
+    "watch": "../../node_modules/.bin/tsc -w",
+    "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
+    "prepublish": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "min",
+    "uglifyjs"
+  ],
+  "dependencies": {
+    "uglify-js": "^3.3.14"
+  },
+  "devDependencies": {
+    "@types/uglify-js": "^2.6.30"
+  },
+  "author": "Min Team",
+  "license": "MIT"
+}
