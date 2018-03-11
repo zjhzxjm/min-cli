@@ -14,15 +14,15 @@ export default class PluginImagemin implements Plugin {
 
   async apply (pluginOptions: PluginOptions): Promise<Buffer | null> {
     let { filter, config } = this.options
-    let { src, code, output } = pluginOptions
+    let { filename, output } = pluginOptions
 
-    if (!filter.test(src)) {
+    if (!filter.test(filename)) {
       return Promise.resolve(null)
     }
     else {
-      output('压缩', src)
+      output('压缩', filename)
 
-      let files = await imagemin([src], null, {
+      let files = await imagemin([filename], null, {
         plugins: [
           imageminMozjpeg(config.jpg),
           imageminPngquant(config.png)

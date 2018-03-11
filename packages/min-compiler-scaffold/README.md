@@ -1,9 +1,9 @@
-# min less 编译器
+# min scaffold 编译器
 
 ## 安装
 
 ```
-npm install @mindev/min-compiler-less --save-dev
+npm install @mindev/min-compiler-scaffold --save-dev
 ```
 
 
@@ -12,7 +12,7 @@ npm install @mindev/min-compiler-less --save-dev
 ``` js
 {
   compilers: {
-    less: {
+    scaffold: {
       compress: true
     }
   }
@@ -20,5 +20,3 @@ npm install @mindev/min-compiler-less --save-dev
 ```
 
 ## 参数说明
-
-[Less](https://github.com/less/less.js)

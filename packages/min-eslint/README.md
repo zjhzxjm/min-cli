@@ -6,10 +6,10 @@
 $ npm install @mindev/min-eslint --save-dev
 ```
 
-## 配置`min.config.json`
+## 配置`min.config.js`
 
-``` json
+``` js
 {
-  "eslint": true
+  eslint: true
 }
 ```

@@ -13,25 +13,25 @@ export default class PluginFilemin implements Plugin {
 
   async apply (pluginOptions: PluginOptions): Promise<string> {
     let { filter, config } = this.options
-    let { src, code, output } = pluginOptions
+    let { filename, content, output } = pluginOptions
 
-    if (!filter.test(src)) {
-      return Promise.resolve(code)
+    if (!filter.test(filename)) {
+      return Promise.resolve(content)
     }
     else {
-      output('压缩', src)
+      output('压缩', filename)
 
-      if (/\.(wxml|xml)$/.test(src)) {
-        code = pd.xmlmin(code)
+      if (/\.(wxml|xml)$/.test(filename)) {
+        content = pd.xmlmin(content)
       }
-      else if (/\.wxss$/.test(src)) {
-        code = pd.cssmin(code)
+      else if (/\.wxss$/.test(filename)) {
+        content = pd.cssmin(content)
       }
-      else if (/\.json$/.test(src)) {
-        code = pd.jsonmin(code)
+      else if (/\.json$/.test(filename)) {
+        content = pd.jsonmin(content)
       }
 
-      return Promise.resolve(code)
+      return Promise.resolve(content)
     }
   }
 }

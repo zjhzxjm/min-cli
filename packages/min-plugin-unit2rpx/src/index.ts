@@ -13,14 +13,14 @@ export default class PluginUnit2Rpx implements Plugin {
 
   async apply (pluginOptions: PluginOptions): Promise<string> {
     let { filter, config } = this.options
-    let { src, code, output } = pluginOptions
+    let { filename, content, output } = pluginOptions
 
-    if (!filter.test(src)) {
-      return Promise.resolve(code)
+    if (!filter.test(filename)) {
+      return Promise.resolve(content)
     }
     else {
-      output('变更', src)
-      return await unit2Rpx(code, config)
+      output('变更', filename)
+      return await unit2Rpx(content, config)
     }
   }
 }

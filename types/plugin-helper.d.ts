@@ -5,8 +5,8 @@ declare namespace PluginHelper {
   }
 
   export interface Options {
-    src: string,
-    code: string,
+    filename: string
+    content: string
     output (action: string, msg: string): void
     done (options: Options): void
   }

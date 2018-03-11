@@ -12,15 +12,15 @@ export default class PluginUglifyjs implements Plugin {
 
   async apply (pluginOptions: PluginOptions): Promise<string> {
     let { filter, config } = this.options
-    let { src, code, output } = pluginOptions
+    let { filename, content, output } = pluginOptions
 
-    if (!filter.test(src)) {
-      return Promise.resolve(code)
+    if (!filter.test(filename)) {
+      return Promise.resolve(content)
     }
     else {
-      output('压缩', src)
+      output('压缩', filename)
 
-      let result = uglify.minify(code, config)
+      let result = uglify.minify(content, config)
 
       return Promise.resolve(result.code)
     }

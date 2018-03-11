@@ -11,15 +11,15 @@ export default class PluginScaffold implements Plugin {
 
   async apply (pluginOptions: PluginOptions): Promise<string> {
     let { filter, config } = this.options
-    let { src, code, output } = pluginOptions
+    let { filename, content, output } = pluginOptions
 
-    if (!filter.test(src)) {
-      return Promise.resolve(code)
+    if (!filter.test(filename)) {
+      return Promise.resolve(content)
     }
     else {
-      output('变更', src)
+      output('变更', filename)
 
-      return Promise.resolve(code)
+      return Promise.resolve(content)
     }
   }
 }
