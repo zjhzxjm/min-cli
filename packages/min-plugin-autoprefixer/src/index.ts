@@ -1,14 +1,17 @@
 import postcss from 'postcss'
 import autoprefixer from 'autoprefixer'
-import { Plugin } from './plugin'
 import { DEFAULTS } from './const'
 
-export default class MinPluginAutoprefixer implements Plugin {
-  constructor (public options: MinPluginAutoprefixer.Options) {
+import Plugin = PluginHelper.Plugin
+import PluginOptions = PluginHelper.Options
+import Options = PluginAutoprefixer.Options
+
+export default class PluginAutoprefixer implements Plugin {
+  constructor (public options: Options) {
     this.options = Object.assign({}, DEFAULTS, this.options)
   }
 
-  async apply (pluginOptions: Plugin.Options): Promise<string> {
+  async apply (pluginOptions: PluginOptions): Promise<string> {
     let { filter, config } = this.options
     let { src, code, output } = pluginOptions
 

@@ -24,8 +24,7 @@
     "autoprefixer": "^7.1.2",
     "postcss": "^6.0.9"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "author": "Min Team",
   "license": "MIT"
 }
