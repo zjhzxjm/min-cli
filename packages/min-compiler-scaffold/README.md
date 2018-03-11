@@ -10,12 +10,8 @@ npm install @mindev/min-compiler-scaffold --save-dev
 ## 配置`min.config.js`
 
 ``` js
-{
-  compilers: {
-    scaffold: {
-      compress: true
-    }
-  }
+module.exports = {
+  compilers: {}
 }
 ```
 

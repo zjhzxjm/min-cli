@@ -6,6 +6,7 @@ packages=(
   '@mindev/min'
   '@mindev/min-async-await'
   '@mindev/min-cli'
+  '@mindev/min-compiler-babel'
   '@mindev/min-compiler-less'
   '@mindev/min-eslint'
   '@mindev/min-plugin-autoprefixer'

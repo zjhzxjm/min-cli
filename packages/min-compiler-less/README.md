@@ -10,7 +10,7 @@ npm install @mindev/min-compiler-less --save-dev
 ## 配置`min.config.js`
 
 ``` js
-{
+module.exports = {
   compilers: {
     less: {
       compress: true

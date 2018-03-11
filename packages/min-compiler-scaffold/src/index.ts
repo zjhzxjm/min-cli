@@ -1,5 +1,10 @@
-export default async function (compilerOptions: CompilerOptions): Promise<any> {
+export default function (compilerOptions: CompilerOptions): Promise<any> {
   let { filename, content, config } = compilerOptions
 
-  return await Promise.resolve()
+  try {
+    return Promise.resolve()
+  }
+  catch (err) {
+    return Promise.reject(err)
+  }
 }

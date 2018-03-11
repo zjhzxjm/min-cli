@@ -1,7 +1,7 @@
 import less from 'less'
 import path from 'path'
 
-export default async function (compilerOptions: CompilerOptions): Promise<Less.RenderOutput> {
+export default async function (compilerOptions: CompilerOptions): Promise<string> {
   let { filename, content, config } = compilerOptions
   let opath = path.parse(filename)
 
@@ -10,5 +10,11 @@ export default async function (compilerOptions: CompilerOptions): Promise<Less.R
     paths: [opath.dir]
   })
 
-  return await less.render(content, options)
+  try {
+    let css = await less.render(content, options).then(result => result.css)
+    return Promise.resolve(css)
+  }
+  catch (err) {
+    return Promise.reject(err)
+  }
 }
