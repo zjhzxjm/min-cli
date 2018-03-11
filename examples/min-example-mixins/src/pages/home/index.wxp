@@ -37,14 +37,8 @@ import sayHello from 'mixins/sayHello'
 
 export default min.Page({
   mixins: [sayHello],
-  onBeforeLoad () {
-    console.log('onBeforeLoad in home')
-  },
   onLoad () {
     console.log('onLoad in home')
-  },
-  onAfterLoad () {
-    console.log('onAfterLoad in home')
   },
   onShow () {
     console.log('onShow in home')

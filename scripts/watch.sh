@@ -7,6 +7,10 @@ packages=(
   '@mindev/min-async-await'
   '@mindev/min-cli'
   '@mindev/min-compiler-less'
+  '@mindev/min-eslint'
+  '@mindev/min-plugin-autoprefixer'
+  '@mindev/min-plugin-filemin'
+  '@mindev/min-plugin-unit2rpx'
 )
 examples=(
   'min-example-async-await'

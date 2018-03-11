@@ -2,17 +2,8 @@
 {
   "extends": "../../tsconfig",
   "compilerOptions": {
-    /* List of folders to include type definitions from. */
-    "typeRoots": [
-      "node_modules/@types",
-      "src/types/*.d.ts"
-    ],
-
-    /* Generates corresponding '.d.ts' file. */
     "declarationDir": "./types",
     "outDir": "./lib",
-
-    /* Strict Type-Checking Options */
     "strict": false
   },
   "include": [

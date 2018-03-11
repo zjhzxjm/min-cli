@@ -3,7 +3,7 @@
 ## 安装
 
 ```
-npm install min-compiler-less --save-dev
+npm install @mindev/min-compiler-less --save-dev
 ```
 
 
