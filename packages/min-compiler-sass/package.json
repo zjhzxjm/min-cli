@@ -1,0 +1,30 @@
+{
+  "name": "@mindev/min-compiler-sass",
+  "version": "1.0.0",
+  "description": "min compile sass",
+  "main": "lib/index.js",
+  "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meili/min/tree/master/packages/min-compiler-sass"
+  },
+  "scripts": {
+    "clean": "rm -rf ./{dist,lib,types}",
+    "build": "../../node_modules/.bin/tsc",
+    "watch": "../../node_modules/.bin/tsc -w",
+    "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
+    "prepublish": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "min",
+    "sass"
+  ],
+  "devDependencies": {
+    "@types/node-sass": "^3.10.32"
+  },
+  "dependencies": {
+    "node-sass": "^4.7.2"
+  },
+  "author": "Min Team",
+  "license": "MIT"
+}
