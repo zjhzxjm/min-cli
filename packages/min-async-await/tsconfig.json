@@ -3,22 +3,10 @@
   "extends": "../../tsconfig",
   "compilerOptions": {
     "target": "es5",
-
-    /* List of folders to include type definitions from. */
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-
-    /* Generates corresponding '.d.ts' file. */
     "declarationDir": "./types",
     "outDir": "./lib",
-
-    /* Do not emit comments to output. */
     "removeComments": true,
-
     "noImplicitUseStrict": true,
-
-    /* Strict Type-Checking Options */
     "strict": false
   },
   "include": [

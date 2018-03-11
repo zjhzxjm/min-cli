@@ -2,20 +2,11 @@
 {
   "extends": "../../tsconfig",
   "compilerOptions": {
-
-    /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', or 'ESNEXT'. */
     "target": "es5",
-
-    /* Generates corresponding '.d.ts' file. */
     "declarationDir": "./types",
     "outDir": "./lib",
-
-    /* Do not emit comments to output. */
     "removeComments": true,
-
     "noImplicitUseStrict": true,
-
-    /* Strict Type-Checking Options */
     "strict": false
   },
   "include": [
