@@ -6,10 +6,10 @@
 $ npm install @mindev/min-plugin-scaffold --save-dev
 ```
 
-## 配置`min.config.js`
+## 配置 `min.config.js`
 
 ``` js
-{
+module.exports = {
   plugins: {
     scaffold: {
       filter: /\.wxss$/,
@@ -18,3 +18,5 @@ $ npm install @mindev/min-plugin-scaffold --save-dev
   }
 }
 ```
+
+## 参数说明

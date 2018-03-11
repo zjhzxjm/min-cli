@@ -6,7 +6,7 @@
 $ npm install @mindev/min-eslint --save-dev
 ```
 
-## 配置`min.config.js`
+## 配置 `min.config.js`
 
 ``` js
 {

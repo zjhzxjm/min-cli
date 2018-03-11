@@ -2,6 +2,7 @@ import { transformFromAst } from 'babel-core'
 
 export default function (compilerOptions: CompilerOptions): Promise<string> {
   let { filename, ast, content, config } = compilerOptions
+  let p
 
   try {
     let result = transformFromAst(ast, content, {
@@ -10,9 +11,11 @@ export default function (compilerOptions: CompilerOptions): Promise<string> {
       filename,
       ...config
     })
-    return Promise.resolve(result.code || '')
+    p = Promise.resolve(result.code || '')
   }
   catch (err) {
-    return Promise.reject(err)
+    p = Promise.reject(err)
   }
+
+  return p
 }

@@ -6,10 +6,10 @@
 $ npm install @mindev/min-plugin-autoprefixer --save-dev
 ```
 
-## 配置`min.config.js`
+## 配置 `min.config.js`
 
 ``` js
-{
+module.exports = {
   plugins: {
     autoprefixer: {
       filter: /\.wxss$/,
@@ -20,3 +20,7 @@ $ npm install @mindev/min-plugin-autoprefixer --save-dev
   }
 }
 ```
+
+## 参数说明
+
+[autoprefixer](https://github.com/postcss/autoprefixer#options)

@@ -1,9 +1,9 @@
-# min less 编译器
+# min stylus 编译器
 
 ## 安装
 
 ``` bash
-$ npm install @mindev/min-compiler-less --save-dev
+$ npm install @mindev/min-compiler-stylus --save-dev
 ```
 
 
@@ -12,7 +12,7 @@ $ npm install @mindev/min-compiler-less --save-dev
 ``` js
 module.exports = {
   compilers: {
-    less: {
+    stylus: {
       compress: true
     }
   }
@@ -21,4 +21,4 @@ module.exports = {
 
 ## 参数说明
 
-[Less](https://github.com/less/less.js)
+[Stylus](http://www.zhangxinxu.com/jq/stylus/js.php)

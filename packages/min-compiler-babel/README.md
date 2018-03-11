@@ -2,12 +2,11 @@
 
 ## 安装
 
-```
-npm install @mindev/min-compiler-babel --save-dev
+``` bash
+$ npm install @mindev/min-compiler-babel --save-dev
 ```
 
-
-## 配置`min.config.js`
+## 配置 `min.config.js`
 
 ``` js
 module.exports = {
@@ -29,3 +28,5 @@ module.exports = {
 ```
 
 ## 参数说明
+
+[Babel](https://github.com/babel/babel)

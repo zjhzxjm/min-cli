@@ -2,12 +2,12 @@
 
 ## 安装
 
-```
-npm install @mindev/min-compiler-scaffold --save-dev
+``` bash
+$ npm install @mindev/min-compiler-scaffold --save-dev
 ```
 
 
-## 配置`min.config.js`
+## 配置 `min.config.js`
 
 ``` js
 module.exports = {

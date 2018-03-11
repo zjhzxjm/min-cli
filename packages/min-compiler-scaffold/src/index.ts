@@ -1,10 +1,13 @@
 export default function (compilerOptions: CompilerOptions): Promise<any> {
   let { filename, content, config } = compilerOptions
+  let p
 
   try {
-    return Promise.resolve()
+    p = Promise.resolve()
   }
   catch (err) {
-    return Promise.reject(err)
+    p = Promise.reject(err)
   }
+
+  return p
 }

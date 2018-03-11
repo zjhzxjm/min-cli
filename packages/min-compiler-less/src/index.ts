@@ -9,12 +9,15 @@ export default async function (compilerOptions: CompilerOptions): Promise<string
     filename,
     paths: [opath.dir]
   })
+  let p
 
   try {
     let css = await less.render(content, options).then(result => result.css)
-    return Promise.resolve(css)
+    p = Promise.resolve(css)
   }
   catch (err) {
-    return Promise.reject(err)
+    p = Promise.reject(err)
   }
+
+  return p
 }
