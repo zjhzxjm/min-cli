@@ -3,12 +3,14 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
+import PluginUseWay = PluginHelper.UseWay
 import Options = PluginFilemin.Options
 
 export default class PluginFilemin implements Plugin {
+  useway = PluginUseWay.alone
 
   constructor (public options: Options) {
-    this.options = Object.assign({}, DEFAULTS, this.options)
+    this.options = { ...DEFAULTS, ...this.options }
   }
 
   async apply (pluginOptions: PluginOptions): Promise<string> {

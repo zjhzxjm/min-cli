@@ -1,7 +1,9 @@
 import * as postcss from 'postcss'
 import { DEFAULTS } from './const'
 
-let unit2rpx = postcss.plugin('min-plugin-unit2rpx', (config: PluginUnit2Rpx.Config = DEFAULTS.config) => {
+import Config = PluginUnit2Rpx.Config
+
+let unit2rpx = postcss.plugin('min-plugin-unit2rpx', (config: Config = DEFAULTS.config) => {
   return root => {
     root.walkRules((rule, index) => {
       root.walkDecls(decl => {
@@ -22,7 +24,7 @@ let unit2rpx = postcss.plugin('min-plugin-unit2rpx', (config: PluginUnit2Rpx.Con
   }
 })
 
-export default async (code: string, config: PluginUnit2Rpx.Config): Promise<string> => {
+export default async (code: string, config: Config): Promise<string> => {
   let processor = await postcss([
     unit2rpx(config)
   ])

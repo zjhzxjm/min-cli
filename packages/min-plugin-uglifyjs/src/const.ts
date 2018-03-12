@@ -1,4 +1,6 @@
-export const DEFAULTS = {
+import Options = PluginUglifyjs.Options
+
+export const DEFAULTS: Options = {
   filter: new RegExp('\.(js)$'),
   config: {
     compress: {

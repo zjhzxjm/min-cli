@@ -1,12 +1,12 @@
 {
-  "name": "@mindev/min-plugin-copy",
+  "name": "@mindev/min-plugin-filesync",
   "version": "1.0.0",
-  "description": "min plugin-copy",
+  "description": "min plugin-filesync",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/meili/min/tree/master/packages/min-plugin-copy"
+    "url": "https://github.com/meili/min/tree/master/packages/min-plugin-filesync"
   },
   "scripts": {
     "clean": "rm -rf ./{dist,lib,types}",
@@ -17,10 +17,17 @@
   },
   "keywords": [
     "min",
-    "copy"
+    "filesync"
   ],
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "fs-extra": "^5.0.0",
+    "lodash": "^4.17.4",
+    "minimatch": "^3.0.4"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.1",
+    "@types/minimatch": "^3.0.3"
+  },
   "author": "Min Team",
   "license": "MIT"
 }

@@ -1,4 +1,6 @@
-export const DEFAULTS = {
+import Options = PluginImagemin.Options
+
+export const DEFAULTS: Options = {
   filter: new RegExp('\.(jpg|png|jpeg)$'),
   config: {
     jpg: {},
