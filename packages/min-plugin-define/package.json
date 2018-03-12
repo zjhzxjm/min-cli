@@ -19,7 +19,9 @@
     "min",
     "define"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "babel-core": "^6.26.0"
+  },
   "devDependencies": {},
   "author": "Min Team",
   "license": "MIT"

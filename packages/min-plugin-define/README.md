@@ -12,8 +12,10 @@ $ npm install @mindev/min-plugin-define --save-dev
 module.exports = {
   plugins: {
     define: {
-      filter: /\.wxss$/,
-      config: {}
+      PRODUCTION: JSON.stringify(true),
+      VERSION: JSON.stringify("5fa3b9"),
+      BROWSER_SUPPORTS_HTML5: true,
+      TWO: {}
     }
   }
 }
