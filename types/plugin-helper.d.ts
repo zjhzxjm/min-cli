@@ -1,12 +1,12 @@
 
 
 declare namespace PluginHelper {
-  export enum UseWay {
+  export enum Useway {
     'any', 'alone'
   }
 
   export interface Plugin {
-    useway: UseWay
+    useway: Useway
     apply (pluginOptions: PluginHelper.Options): Promise<string | Buffer | null> | void
   }
 

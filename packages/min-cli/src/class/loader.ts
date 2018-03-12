@@ -3,14 +3,15 @@ import Options = PluginHelper.Options
 
 export class PluginHelper {
   static loadedPlugins: Plugin[] = []
-  constructor (plugins: Plugin[], options: Options) {
+
+  constructor (public plugins: Plugin[], public options: Options, public useway: PluginHelper.Useway) {
     this.applyPlugin(0, options)
   }
   async applyPlugin (index: number, options: Options) {
     let plugin = PluginHelper.loadedPlugins[index]
     let { done } = options
 
-    if (!plugin) {
+    if (!plugin || plugin.useway !== this.useway) {
       done(options)
     } else {
       let code = await plugin.apply(options)
