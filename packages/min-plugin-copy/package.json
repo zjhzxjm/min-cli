@@ -1,0 +1,26 @@
+{
+  "name": "@mindev/min-plugin-copy",
+  "version": "1.0.0",
+  "description": "min plugin-copy",
+  "main": "lib/index.js",
+  "typings": "types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meili/min/tree/master/packages/min-plugin-copy"
+  },
+  "scripts": {
+    "clean": "rm -rf ./{dist,lib,types}",
+    "build": "../../node_modules/.bin/tsc",
+    "watch": "../../node_modules/.bin/tsc -w",
+    "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
+    "prepublish": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "min",
+    "copy"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "author": "Min Team",
+  "license": "MIT"
+}
