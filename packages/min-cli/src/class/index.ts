@@ -1,4 +1,5 @@
 export { Depend } from './Depend'
+export { PluginHelper } from './Loader'
 export { CLIExample } from './CLIExample'
 export { Request } from './Request'
 export { WxFile } from './WxFile'

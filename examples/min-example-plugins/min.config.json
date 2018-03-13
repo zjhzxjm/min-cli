@@ -1,0 +1,11 @@
+{
+  "plugins": {
+    "autoprefixer": {},
+    "define": {},
+    "filemin": {},
+    "filesync": {},
+    "imagemin": {},
+    "uglifyjs": {},
+    "unit2rpx": {}
+  }
+}

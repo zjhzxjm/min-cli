@@ -1,4 +1,4 @@
-{
+module.exports = {
   "style": {
     "brandColor": "#FF0077",
     "controlColor": "#FF5777",
