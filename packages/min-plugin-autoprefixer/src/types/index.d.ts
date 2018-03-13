@@ -1,6 +1,6 @@
 /// <reference path="../../../../types/index.d.ts" />
 
-declare namespace PluginAutoprefixer {
+declare namespace AutoprefixerPlugin {
   export interface Config {
     browsers: string[]
   }

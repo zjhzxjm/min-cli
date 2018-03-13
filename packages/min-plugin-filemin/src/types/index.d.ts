@@ -1,6 +1,6 @@
 /// <reference path="../../../../types/index.d.ts" />
 
-declare namespace PluginFilemin {
+declare namespace FileminPlugin {
   export interface Config {}
 
   export interface Options {

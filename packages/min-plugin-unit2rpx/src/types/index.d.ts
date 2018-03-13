@@ -1,6 +1,6 @@
 /// <reference path="../../../../types/index.d.ts" />
 
-declare namespace PluginUnit2Rpx {
+declare namespace Unit2RpxPlugin {
   export interface Config {
     px: number,
     rem: number

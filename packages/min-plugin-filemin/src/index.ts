@@ -3,9 +3,9 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import Options = PluginFilemin.Options
+import Options = FileminPlugin.Options
 
-export default class PluginFilemin implements Plugin {
+export default class FileminPlugin implements Plugin {
   useway = 'any'
 
   constructor (public options: Options) {

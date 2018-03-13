@@ -2,9 +2,9 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import Options = PluginScaffold.Options
+import Options = ScaffoldPlugin.Options
 
-export default class PluginScaffold implements Plugin {
+export default class ScaffoldPlugin implements Plugin {
   useway = 'any'
 
   constructor (public options: Options) {

@@ -3,9 +3,9 @@ import t from 'babel-types'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import Options = PluginDefine.Options
+import Options = DefinePlugin.Options
 
-export default class PluginDefine implements Plugin {
+export default class DefinePlugin implements Plugin {
   useway = 'alone'
 
   constructor (public options: Options) {

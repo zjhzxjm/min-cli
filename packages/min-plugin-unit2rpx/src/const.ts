@@ -1,4 +1,4 @@
-import Options = PluginUnit2Rpx.Options
+import Options = Unit2RpxPlugin.Options
 
 export const DEFAULTS: Options = {
   filter: new RegExp('\.(wxss)$'),

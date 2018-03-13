@@ -2,9 +2,9 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import Options = PluginSdk.Options
+import Options = SdkPlugin.Options
 
-export default class PluginSdk implements Plugin {
+export default class SdkPlugin implements Plugin {
   useway = 'alone'
 
   constructor (public options: Options) {

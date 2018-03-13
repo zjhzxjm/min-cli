@@ -4,9 +4,9 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import Options = PluginUnit2Rpx.Options
+import Options = Unit2RpxPlugin.Options
 
-export default class PluginUnit2Rpx implements Plugin {
+export default class Unit2RpxPlugin implements Plugin {
   useway = 'any'
 
   constructor (public options: Options) {

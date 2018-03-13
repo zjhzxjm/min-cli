@@ -1,4 +1,4 @@
-import Options = PluginUglifyjs.Options
+import Options = UglifyjsPlugin.Options
 
 export const DEFAULTS: Options = {
   filter: new RegExp('\.(js)$'),

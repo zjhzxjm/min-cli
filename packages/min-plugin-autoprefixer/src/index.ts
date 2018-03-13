@@ -4,9 +4,9 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import Options = PluginAutoprefixer.Options
+import Options = AutoprefixerPlugin.Options
 
-export default class PluginAutoprefixer implements Plugin {
+export default class AutoprefixerPlugin implements Plugin {
   useway = 'any'
 
   constructor (public options: Options) {

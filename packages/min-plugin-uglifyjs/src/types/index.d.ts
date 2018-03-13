@@ -1,6 +1,6 @@
 /// <reference path="../../../../types/index.d.ts" />
 
-declare namespace PluginUglifyjs {
+declare namespace UglifyjsPlugin {
   export interface Config {
     compress: {
       warnings: boolean

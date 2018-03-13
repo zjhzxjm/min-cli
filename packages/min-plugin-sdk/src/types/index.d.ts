@@ -1,6 +1,6 @@
 /// <reference path="../../../../types/index.d.ts" />
 
-declare namespace PluginSdk {
+declare namespace SdkPlugin {
   export interface Config {}
 
   export interface Options {

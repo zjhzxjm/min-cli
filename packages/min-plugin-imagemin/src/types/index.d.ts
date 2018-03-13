@@ -1,6 +1,6 @@
 /// <reference path="../../../../types/index.d.ts" />
 
-declare namespace PluginImagemin {
+declare namespace ImageminPlugin {
   export interface Config {
     jpg: any,
     png: any

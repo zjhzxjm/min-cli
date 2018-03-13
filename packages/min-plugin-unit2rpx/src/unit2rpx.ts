@@ -1,7 +1,7 @@
 import * as postcss from 'postcss'
 import { DEFAULTS } from './const'
 
-import Config = PluginUnit2Rpx.Config
+import Config = Unit2RpxPlugin.Config
 
 let unit2rpx = postcss.plugin('min-plugin-unit2rpx', (config: Config = DEFAULTS.config) => {
   return root => {

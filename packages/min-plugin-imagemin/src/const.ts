@@ -1,4 +1,4 @@
-import Options = PluginImagemin.Options
+import Options = ImageminPlugin.Options
 
 export const DEFAULTS: Options = {
   filter: new RegExp('\.(jpg|png|jpeg)$'),

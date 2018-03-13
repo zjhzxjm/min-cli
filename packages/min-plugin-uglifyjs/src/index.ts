@@ -3,9 +3,9 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import Options = PluginUglifyjs.Options
+import Options = UglifyjsPlugin.Options
 
-export default class PluginUglifyjs implements Plugin {
+export default class UglifyjsPlugin implements Plugin {
   useway = 'any'
 
   constructor (public options: Options) {

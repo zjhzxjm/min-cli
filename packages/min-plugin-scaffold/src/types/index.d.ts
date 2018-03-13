@@ -1,6 +1,6 @@
 /// <reference path="../../../../types/index.d.ts" />
 
-declare namespace PluginScaffold {
+declare namespace ScaffoldPlugin {
   export interface Config {}
 
   export interface Options {

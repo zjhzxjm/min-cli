@@ -1,4 +1,4 @@
-import Options = PluginAutoprefixer.Options
+import Options = AutoprefixerPlugin.Options
 
 export const DEFAULTS: Options = {
   filter: new RegExp('\.(wxss)$'),
