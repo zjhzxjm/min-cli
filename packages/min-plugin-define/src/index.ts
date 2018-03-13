@@ -40,8 +40,9 @@ export default class PluginDefine implements Plugin {
       // value
       const code = options[key]
       if (code && typeof code === 'object' && !(code instanceof RegExp)) {
-        this.getDefinition(code)
-        this.stringifyObj(code)
+        // PRODUCTION: {env: 'dev'}
+        // this.getDefinition(code)
+        definition[key] = this.stringifyObj(code)
         return
       }
       definition[key] = this.toCode(code)
