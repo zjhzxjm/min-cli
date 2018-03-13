@@ -86,6 +86,7 @@ const config: Config = {
     wxa: 'App'
   },
   compilers: {},
+  plugins: {},
   style: {
     lang: { // CSS预编译器 【当前版本不支持自定义配置】
       'less': 'less',

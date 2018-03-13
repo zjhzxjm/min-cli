@@ -4,11 +4,10 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import PluginUseway = PluginHelper.Useway
 import Options = PluginUnit2Rpx.Options
 
 export default class PluginUnit2Rpx implements Plugin {
-  useway = PluginUseway.any
+  useway = 'any'
 
   constructor (public options: Options) {
     this.options = { ...DEFAULTS, ...this.options }

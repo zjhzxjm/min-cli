@@ -15,7 +15,14 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-export-extensions": "^6.22.0",
-    "babel-preset-env": "^1.6.1"
+    "babel-preset-env": "^1.6.1",
+    "@mindev/min-plugin-autoprefixer": "^1.0.0",
+    "@mindev/min-plugin-define": "^1.0.0",
+    "@mindev/min-plugin-filemin": "^1.0.0",
+    "@mindev/min-plugin-filesync": "^1.0.0",
+    "@mindev/min-plugin-imagemin": "^1.0.0",
+    "@mindev/min-plugin-uglifyjs": "^1.0.0",
+    "@mindev/min-plugin-unit2rpx": "^1.0.0"
   },
   "minConfig": {
     "projectType": "application"

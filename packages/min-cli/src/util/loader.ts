@@ -1,7 +1,7 @@
-import Module from 'module'
-import path from 'path'
+import * as path from 'path'
 import * as _ from 'lodash'
 import { log } from '../util'
+const Module = require('module')
 
 let relativeModules = {}
 let requiredModules = {}
@@ -11,7 +11,7 @@ import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
 
 export class PluginHelper {
-  constructor (public options: PluginOptions, public useway: PluginHelper.Useway) {
+  constructor (public options: PluginOptions, public useway: string) {
     this.applyPlugin(0, options)
   }
   async applyPlugin (index: number, options: PluginOptions) {
@@ -30,8 +30,9 @@ export class PluginHelper {
   }
 }
 
-export default {
-  missingNPM: [],
+export const loader = {
+  lackList: [],
+
   noCompileLangs: ['wxml', 'xml', 'css', 'js'],
 
   getCompilerName (lang) {
@@ -50,23 +51,6 @@ export default {
     return `${prefix}-${pluginName}`
   },
 
-  loadCompiler (lang) {
-    if (this.noCompileLangs.indexOf(lang) > -1) {
-      return (options: CompilerOptions) => {
-        return Promise.resolve(options)
-      }
-    }
-
-    let pkgName = this.getCompilerName(lang)
-    let compiler = this.load(pkgName)
-
-    if (!compiler) {
-      this.addLack(pkgName)
-      log.warn(`Missing compiler: ${pkgName}.`)
-    }
-    return compiler
-  },
-
   getNodeModulePath (moduleName, relative = process.cwd()) {
     if (typeof Module === 'object') {
       return null
@@ -77,11 +61,13 @@ export default {
 
     if (!relativeMod) {
       let filename = path.join(relative, './')
-      debugger
-      relativeMod = Module.Module
+
+      relativeMod = new Module(filename)
       relativeMod.id = filename
       relativeMod.filename = filename
-      relativeMod.paths = [].concat(this.resolve.modulePaths)
+      // TODO
+      // relativeMod.paths = [].concat(this.resolve.modulePaths)
+      relativeMod.paths = []
 
       paths = Module['_nodeModulePaths'](relative)
       relativeModules[relative] = relativeMod
@@ -106,19 +92,56 @@ export default {
     }
 
     let modulePath = this.getNodeModulePath(moduleName, relative)
-    let m = null
+    let $module = null
     try {
-      m = require(modulePath)
-    } catch (e) {
-      if (e.message !== 'missing path') {
-        console.log(e)
+      $module = require(modulePath)
+    } catch (err) {
+      if (err.message !== 'missing path') {
+        console.log(err)
       }
     }
-    if (m) {
-      m = m.default ? m.default : m
-      requiredModules[moduleName] = m
+
+    if ($module) {
+      $module = $module.default ? $module.default : $module
+      requiredModules[moduleName] = $module
     }
-    return m
+    return $module
+  },
+
+  loadCompilers (compilers) {
+    if (_.isArray(compilers)) {
+      for (const lang of compilers) {
+        if (_.isString(lang)) { // plugin key
+          this.loadCompiler(lang)
+        } else if (_.isObject(lang)) {
+          log.warn(`Unknown compiler: ${compilers}`)
+        }
+      }
+    } else if (_.isObject(compilers)) {
+      for (let lang in compilers) {
+        this.loadCompiler(lang)
+      }
+    } else {
+      log.warn(`Unknown compiler: ${compilers}`)
+    }
+    debugger
+  },
+
+  loadCompiler (lang) {
+    if (this.noCompileLangs.indexOf(lang) > -1) {
+      return (options: CompilerOptions) => {
+        return Promise.resolve(options)
+      }
+    }
+
+    let pkgName = this.getCompilerName(lang)
+    let compiler = this.load(pkgName)
+
+    if (!compiler) {
+      this.addLack(pkgName)
+      log.warn(`Missing compiler: ${pkgName}.`)
+    }
+    return compiler
   },
 
   loadPlugins (plugins) {
@@ -138,7 +161,6 @@ export default {
     } else {
       log.warn(`Unknown plug-in name: ${plugins}`)
     }
-    return true
   },
 
   loadPlugin (pluginName: string, pluginConfig: any = {}) {
@@ -166,6 +188,10 @@ export default {
 
   addLack (moduleName) {
     this.lackList.push(moduleName)
+  },
+
+  getLacks (): string[] {
+    return this.lackList
   },
 
   PluginHelper

@@ -4,7 +4,7 @@ import * as glob from 'glob'
 import * as _ from 'lodash'
 import * as chokidar from 'chokidar'
 import { XcxNode, XcxTraverse } from '../class'
-import { config, log, LogType, xcxNext, xcxNodeCache, Global } from '../util'
+import { config, exec, log, loader ,LogType, xcxNext, xcxNodeCache, Global } from '../util'
 
 const MINI_PROGRAM_CONFIG_FILE_NAME = 'project.config.json'
 
@@ -115,12 +115,39 @@ export class Xcx {
     XcxTraverse.traverse(xcxNode, this.options.traverse)
   }
 
+  initCompiler (compilers: object = {}) {
+    loader.loadCompilers(compilers)
+  }
+
+  initPlugin (plugins: object = {}) {
+    loader.loadPlugins(plugins)
+  }
+
+  async checkLoader () {
+    this.initCompiler(config.compilers)
+    this.initPlugin(config.plugins)
+    debugger
+    let lackList = loader.getLacks()
+    if (lackList.length) {
+      for (const pkgName of lackList) {
+        await exec('npm', ['install', pkgName, '-D'], true, {})
+      }
+      return false
+    }
+    return true
+  }
+
   /**
    * 编译
    *
    * @memberof Xcx
    */
-  compile (isFromWatch?: Boolean) {
+  async compile (isFromWatch?: Boolean) {
+    let result = await this.checkLoader()
+    if (!result) {
+      return false
+    }
+
     log.newline()
     this.clear(isFromWatch)
     // this.copyProjectConfig()
@@ -226,43 +253,6 @@ export class Xcx {
     this.transfromFromEntry(xcxEntry)
     xcxNext.reset()
   }
-
-  /**
-   * 拷贝小程序项目配置文件
-   *
-   * @private
-   * @memberof Xcx
-   */
-  // private copyProjectConfig () {
-  //   let src = path.join(config.cwd, MINI_PROGRAM_CONFIG_FILE_NAME)
-  //   let dest = config.getPath('dest', MINI_PROGRAM_CONFIG_FILE_NAME)
-
-  //   if (!fs.existsSync(src)) {
-  //     return
-  //   }
-
-  //   log.newline()
-  //   log.msg(LogType.COPY, MINI_PROGRAM_CONFIG_FILE_NAME)
-  //   fs.copySync(src, dest)
-  // }
-
-  /**
-   * 删除小程序项目配置文件
-   *
-   * @private
-   * @memberof Xcx
-   */
-  // private deleteProjectConfig () {
-  //   let dest = config.getPath('dest', MINI_PROGRAM_CONFIG_FILE_NAME)
-
-  //   if (!fs.existsSync(dest)) {
-  //     return
-  //   }
-
-  //   log.newline()
-  //   log.msg(LogType.DELETE, MINI_PROGRAM_CONFIG_FILE_NAME)
-  //   fs.unlinkSync(dest)
-  // }
 
   /**
    * 编译 APP 应用层
@@ -408,10 +398,6 @@ export class Xcx {
     let isMinConfig = file === config.filename
     let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
 
-    // if (isProjectConfig) { // 拷贝小程序项目配置文件
-    //   this.copyProjectConfig()
-    // } else
-
     if (isApp || isMinConfig) { // 重新编译
       this.compile(true)
     } else {
@@ -430,10 +416,6 @@ export class Xcx {
   private watchDelete (file: string) {
     let isMinConfig = file === config.filename
     let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
-
-    // if (isProjectConfig) { // 删除小程序项目配置文件
-    //   this.deleteProjectConfig()
-    // } else
 
     if (isMinConfig) { // 重新编译
       this.compile(true)

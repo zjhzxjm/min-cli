@@ -3,12 +3,11 @@ import filesync from './filesync'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import PluginUseway = PluginHelper.Useway
 import Options = FilesyncPlugin.Options
 import Config = FilesyncPlugin.Config
 
 export default class FilesyncPlugin implements Plugin {
-  useway = PluginUseway.alone
+  useway = 'alone'
 
   constructor (public options: Options) {
     // this.options = Object.assign({}, this.options)

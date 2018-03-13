@@ -1,5 +1,6 @@
 export interface CustomConfig {
   compilers?: any
+  plugins?: any
   style?: {
     [key: string]: string | { [key: string]: string | Function | boolean | number }
   }
@@ -99,6 +100,7 @@ export interface Config extends CustomConfig {
     wxa: string
   }
   compilers: any
+  plugins: any
   style: {
     lang: { // CSS预编译器 【当前版本不支持自定义配置】
       less: string

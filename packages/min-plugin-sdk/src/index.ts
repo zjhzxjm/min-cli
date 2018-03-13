@@ -2,11 +2,10 @@ import { DEFAULTS } from './const'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import PluginUseway = PluginHelper.Useway
 import Options = PluginSdk.Options
 
 export default class PluginSdk implements Plugin {
-  useway = PluginUseway.alone
+  useway = 'alone'
 
   constructor (public options: Options) {
     this.options = { ...DEFAULTS, ...this.options }
