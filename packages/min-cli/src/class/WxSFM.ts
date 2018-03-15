@@ -2,6 +2,7 @@ import * as path from 'path'
 import * as _ from 'lodash'
 import { Depend, Request } from '../class'
 import util, { log, LogType, config } from '../util'
+import { PluginHelper } from '@mindev/min-core'
 
 export namespace WxSFM {
 
@@ -183,7 +184,19 @@ export class WxSFM {
    * @param {string} code
    * @memberof WxSFM
    */
-  private write (code: string) {
+  private async write (code: string) {
+    let options: PluginHelper.Options = {
+      cwd: config.cwd,
+      filename: this.destRelative,
+      extend: {
+        content: code
+      }
+    }
+
+    let helper = new PluginHelper(PluginHelper.Type.Text)
+    options = await helper.apply(options)
+    code = options.extend.content || ''
+
     log.msg(LogType.WRITE, this.destRelative)
     util.writeFile(this.dest, code)
   }

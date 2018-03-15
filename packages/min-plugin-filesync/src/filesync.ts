@@ -1,20 +1,21 @@
-import path from 'path'
-import fs from 'fs-extra'
-import minimatch from 'minimatch'
+import * as path from 'path'
+import * as fs from 'fs-extra'
+import * as minimatch from 'minimatch'
 import * as _ from 'lodash'
+import { PluginHelper } from '@mindev/min-core'
 import Config = FilesyncPlugin.Config
 
-export default function filesync (cwd: string, filename: string, config: Config[]) {
-  config.forEach(syncTo.bind(null, cwd, filename))
-}
-
-function syncTo (cwd: string, filename: string, config: Config) {
+export default async function filesync (cwd: string, dest: string, filename: string, status: string, config: Config) {
   // /a/b/c/index.js
   let filepath = path.join(cwd, filename)
   // /a/b
-  let fromdirname = path.join(cwd, config.cwd)
+  let fromdirname = path.join(cwd, config.cwd || '.')
   // /a/b/d
-  let todirname = path.join(fromdirname, config.to)
+  let todirname = path.join(dest, config.to || '')
+
+  if (_.isUndefined(config.from)) {
+    return
+  }
 
   // Directory mismatch
   if (filepath.indexOf(fromdirname) === -1) {
@@ -34,7 +35,10 @@ function syncTo (cwd: string, filename: string, config: Config) {
     return
   }
 
-  let ignores = _.isArray(config.ignore) ? config.ignore : [config.ignore]
+  let ignores: string[] = []
+  if (!_.isUndefined(config.ignore)) {
+    ignores = _.isArray(config.ignore) ? config.ignore : [config.ignore]
+  }
   let froms = _.isArray(config.from) ? config.from : [config.from]
 
   for (const ignore of ignores) {
@@ -43,19 +47,46 @@ function syncTo (cwd: string, filename: string, config: Config) {
     }
   }
 
-  froms.forEach(from => {
+  for (let from of froms) {
     if (_.isString(from) && !minimatch(filepart, from)) {
-      return
+      continue
     }
     let src = filepath
     let dest = path.join(todirname, filepart)
 
-    syncCopy(src, dest)
-  })
+    if (status === 'unlink') {
+      await fs.unlink(dest)
+    }
+    else {
+      await copy(cwd, filename, src, dest)
+      console.log('同步', filename, '=>', path.relative(cwd, dest))
+    }
+
+    return
+  }
 }
 
-function syncCopy (src: string, dest: string) {
-  let dirname = path.dirname(src)
-  fs.ensureDirSync(dirname)
-  fs.copyFileSync(src, dest)
+async function copy (cwd: string, filename: string, src: string, dest: string) {
+  let destdirname = path.dirname(dest)
+  await fs.ensureDir(destdirname)
+
+  let helper = new PluginHelper(PluginHelper.Type.Image, 'imagemin')
+
+  if (helper.isUse) {
+    let result = await helper.apply({
+      cwd,
+      filename
+    })
+    let { extend = {} } = result
+    let { buffer } = extend
+
+    if (buffer) {
+      // Create image file from Buffer
+      await fs.writeFile(dest, buffer)
+      return
+    }
+  }
+
+  // copy any file
+  await fs.copy(src, dest)
 }

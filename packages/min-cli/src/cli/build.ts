@@ -83,6 +83,8 @@ export class BuildCommand {
       }
     })
     xcx.compile()
+
+    xcx.filesyncPlugin()
   }
 
   /**

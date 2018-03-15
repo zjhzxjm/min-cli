@@ -20,9 +20,13 @@
     "define"
   ],
   "dependencies": {
-    "babel-core": "^6.26.0"
+    "@mindev/min-core": "^1.0.0",
+    "babel-core": "^6.26.0",
+    "lodash": "^4.17.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/babel-core": "^6.25.3"
+  },
   "author": "Min Team",
   "license": "MIT"
 }

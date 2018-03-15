@@ -17,6 +17,13 @@
 </template>
 
 <script>
+if (PRODUCTION) {
+  console.log('PRODUCTION')
+}
+
+if (__dev__) {
+  console.log('__dev__')
+}
 export default {
 }
 </script>

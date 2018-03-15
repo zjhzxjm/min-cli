@@ -1,28 +1,71 @@
+import * as _ from 'lodash'
 import * as postcss from 'postcss'
 import unit2Rpx from './unit2rpx'
-import { DEFAULTS } from './const'
+import { PluginHelper } from '@mindev/min-core'
 
-import Plugin = PluginHelper.Plugin
-import PluginOptions = PluginHelper.Options
-import Options = Unit2RpxPlugin.Options
+const DEFAULTS: Unit2RpxPlugin.Options = {
+  config: {
+    px: 1,
+    rem: 100
+  },
+  test: new RegExp('\.(wxss)$'),
+  filter (options: PluginHelper.Options) {
+    return true
+  }
+}
 
-export default class Unit2RpxPlugin implements Plugin {
-  useway = 'any'
-
-  constructor (public options: Options) {
-    this.options = { ...DEFAULTS, ...this.options }
+export namespace Unit2RpxPlugin {
+  export interface Config {
+    px: number,
+    rem: number
   }
 
-  async apply (pluginOptions: PluginOptions): Promise<string> {
-    let { filter, config } = this.options
-    let { filename, content, output } = pluginOptions
+  export interface Options {
+    config: Config
+    test: RegExp
+    filter (options: PluginHelper.Options): boolean
+  }
+}
 
-    if (!filter.test(filename)) {
-      return Promise.resolve(content)
+export default class Unit2RpxPlugin extends PluginHelper.TextPlugin {
+
+  constructor (public options: Unit2RpxPlugin.Options) {
+    super()
+
+    this.options = {
+      ...DEFAULTS,
+      ...this.options
     }
-    else {
-      output('变更', filename)
-      return await unit2Rpx(content, config)
+  }
+
+  async apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
+    let { test, filter, config } = this.options
+    let { filename, extend = {} } = options
+    let { content = '' } = extend
+    let p = Promise.resolve(options)
+
+    if (_.isRegExp(test) && !test.test(filename)) {
+      return p
     }
+
+    if (_.isFunction(filter) && !filter(options)) {
+      return p
+    }
+
+    if (!content) {
+      return p
+    }
+
+    // output('变更', filename)
+
+    try {
+      content = await unit2Rpx(content, config)
+
+      _.merge(options, { extend: { content } })
+    }
+    catch (err) {
+      p = Promise.reject(err)
+    }
+    return p
   }
 }

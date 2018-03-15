@@ -1,32 +1,73 @@
-import postcss from 'postcss'
-import autoprefixer from 'autoprefixer'
-import { DEFAULTS } from './const'
+import * as _ from 'lodash'
+import * as postcss from 'postcss'
+import * as autoprefixer from 'autoprefixer'
+import { PluginHelper } from '@mindev/min-core'
 
-import Plugin = PluginHelper.Plugin
-import PluginOptions = PluginHelper.Options
-import Options = AutoprefixerPlugin.Options
+const DEFAULTS: AutoprefixerPlugin.Options = {
+  config: {
+    browsers: ['Android >= 2.3', 'Chrome > 20', 'iOS >= 6']
+  },
+  test: new RegExp('\.(wxss)$'),
+  filter (options: PluginHelper.Options) {
+    return true
+  }
+}
 
-export default class AutoprefixerPlugin implements Plugin {
-  useway = 'any'
-
-  constructor (public options: Options) {
-    this.options = { ...DEFAULTS, ...this.options }
+export namespace AutoprefixerPlugin {
+  export interface Config {
+    browsers: string[]
   }
 
-  async apply (pluginOptions: PluginOptions): Promise<string> {
-    let { filter, config } = this.options
-    let { filename, content, output } = pluginOptions
+  export interface Options {
+    config: Config
+    test: RegExp
+    filter (options: PluginHelper.Options): boolean
+  }
+}
 
-    if (!filter.test(filename)) {
-      return Promise.resolve(content)
+export default class AutoprefixerPlugin extends PluginHelper.TextPlugin {
+
+  constructor (public options: AutoprefixerPlugin.Options) {
+    super()
+
+    this.options = {
+      ...DEFAULTS,
+      ...this.options
     }
-    else {
-      output('变更', filename)
+  }
 
+  async apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
+    let { test, filter, config } = this.options
+    let { filename, extend = {} } = options
+    let { content = '' } = extend
+    let p = Promise.resolve(options)
+
+    if (_.isRegExp(test) && !test.test(filename)) {
+      return p
+    }
+
+    if (_.isFunction(filter) && !filter(options)) {
+      return p
+    }
+
+    if (!content) {
+      return p
+    }
+
+    // output('变更', filename)
+
+    try {
       let processor = postcss([
         autoprefixer(config)
       ])
-      return processor.process(content).then(result => result.css)
+      content = await processor.process(content).then(result => result.css)
+
+      _.merge(options, { extend: { content } })
     }
+    catch (err) {
+      p = Promise.reject(err)
+    }
+
+    return p
   }
 }

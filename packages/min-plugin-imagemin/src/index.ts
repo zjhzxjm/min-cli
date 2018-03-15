@@ -1,37 +1,90 @@
-import imagemin from 'imagemin'
-import imageminMozjpeg from 'imagemin-mozjpeg'
-import imageminPngquant from 'imagemin-pngquant'
-import { DEFAULTS } from './const'
+import * as path from 'path'
+import * as _ from 'lodash'
+import * as imagemin from 'imagemin'
+import * as imageminMozjpeg from 'imagemin-mozjpeg'
+import * as imageminPngquant from 'imagemin-pngquant'
+// import * as imageminWebp from 'imagemin-webp'
+// import * as imageminGifsicle from 'imagemin-gifsicle'
+import { PluginHelper } from '@mindev/min-core'
 
-import Plugin = PluginHelper.Plugin
-import PluginOptions = PluginHelper.Options
-import Options = ImageminPlugin.Options
+const DEFAULTS: ImageminPlugin.Options = {
+  config: {
+    jpg: {},
+    png: {
+      quality: '65-80'
+    },
+    webp: {
+      quality: 50
+    },
+    gif: {}
+  },
+  test: new RegExp('\.(jpg|png|jpeg)$'),
+  filter (options: PluginHelper.Options) {
+    return true
+  }
+}
 
-export default class ImageminPlugin implements Plugin {
-  useway = 'any'
-
-  constructor (public options: Options) {
-    this.options = { ...DEFAULTS, ...this.options }
+export namespace ImageminPlugin {
+  export interface Config {
+    jpg: any,
+    png: any,
+    webp: any,
+    gif: any
   }
 
-  async apply (pluginOptions: PluginOptions): Promise<Buffer | null> {
-    let { filter, config } = this.options
-    let { filename, output } = pluginOptions
+  export interface Options {
+    config: Config
+    test: RegExp
+    filter (options: PluginHelper.Options): boolean
+  }
+}
 
-    if (!filter.test(filename)) {
-      return Promise.resolve(null)
+export default class ImageminPlugin extends PluginHelper.ImagePlugin {
+
+  constructor (public options: ImageminPlugin.Options) {
+    super()
+
+    this.options = {
+      ...DEFAULTS,
+      ...this.options
     }
-    else {
-      output('压缩', filename)
+  }
 
-      let files = await imagemin([filename], null, {
+  async apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
+    let { test, filter, config } = this.options
+    let { cwd, filename, extend } = options
+    let p = Promise.resolve(options)
+
+    if (_.isRegExp(test) && !test.test(filename)) {
+      return p
+    }
+
+    if (_.isFunction(filter) && !filter(options)) {
+      return p
+    }
+
+    // output('压缩', filename)
+
+    try {
+      let filepath = path.join(cwd, filename)
+
+      let files = await imagemin([filepath], '', {
         plugins: [
           imageminMozjpeg(config.jpg),
           imageminPngquant(config.png)
+          // imageminWebp(config.webp),
+          // imageminGifsicle(config.gif)
         ]
       })
 
-      return Promise.resolve(files[0].data)
+      if (files && files.length) {
+        _.merge(options, { extend: { buffer: files[0].data } })
+      }
     }
+    catch (err) {
+      p = Promise.reject(err)
+    }
+
+    return p
   }
 }

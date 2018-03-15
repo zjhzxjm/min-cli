@@ -4,9 +4,8 @@ import * as glob from 'glob'
 import * as _ from 'lodash'
 import * as chokidar from 'chokidar'
 import { XcxNode, XcxTraverse } from '../class'
-import { config, exec, log, loader ,LogType, xcxNext, xcxNodeCache, Global } from '../util'
-
-const MINI_PROGRAM_CONFIG_FILE_NAME = 'project.config.json'
+import { config, exec, log ,LogType, xcxNext, xcxNodeCache, Global } from '../util'
+import { loader, PluginHelper } from '@mindev/min-core'
 
 export namespace Xcx {
 
@@ -115,26 +114,45 @@ export class Xcx {
     XcxTraverse.traverse(xcxNode, this.options.traverse)
   }
 
-  initCompiler (compilers: object = {}) {
+  initCompiler (compilers: string[]) {
     loader.loadCompilers(compilers)
   }
 
-  initPlugin (plugins: object = {}) {
+  initPlugin (plugins: string[]) {
     loader.loadPlugins(plugins)
   }
 
   async checkLoader () {
     this.initCompiler(config.compilers)
     this.initPlugin(config.plugins)
-    debugger
-    let lackList = loader.getLacks()
-    if (lackList.length) {
-      for (const pkgName of lackList) {
+
+    let missingNpms = loader.getMissingNpms()
+    if (missingNpms.length) {
+      for (const pkgName of missingNpms) {
         await exec('npm', ['install', pkgName, '-D'], true, {})
       }
       return false
     }
     return true
+  }
+
+  async filesyncPlugin (watch = false) {
+    if (this['_isInitFilesyncPlugin']) {
+      return
+    }
+    // TODO 如果用户改变 dest 路径，最终同步的文件将不对
+    this['_isInitFilesyncPlugin'] = true
+
+    let helper = new PluginHelper(PluginHelper.Type.File, 'filesync')
+
+    await helper.apply({
+      cwd: config.cwd,
+      dest: config.dest,
+      filename: null,
+      extend: {
+        watch
+      }
+    })
   }
 
   /**
@@ -150,7 +168,6 @@ export class Xcx {
 
     log.newline()
     this.clear(isFromWatch)
-    // this.copyProjectConfig()
     this.appCompile()
     this.pagesCompile()
     this.imagesCompile()
@@ -205,7 +222,7 @@ export class Xcx {
    * @memberof Xcx
    */
   watch (): chokidar.FSWatcher {
-    let watcher = chokidar.watch([config.src, config.packages, config.filename, MINI_PROGRAM_CONFIG_FILE_NAME], {
+    let watcher = chokidar.watch([config.src, config.packages, config.filename], {
       cwd: config.cwd,
       ignored: /node_modules|\.git|\.txt|\.log|\.DS_Store|\.npmignore|package\.json/i,
       persistent: true,
@@ -374,14 +391,6 @@ export class Xcx {
    * @memberof Xcx
    */
   private watchAdd (file: string) {
-    let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
-
-    // if (isProjectConfig) { // 拷贝小程序项目配置文件
-    //   this.copyProjectConfig()
-    // } else {
-
-    // }
-
     xcxNext.watchNewFile(file)
     this.next()
   }
@@ -396,7 +405,6 @@ export class Xcx {
   private watchChange (file: string) {
     let isApp = file === path.join(config.src, `app${config.ext.wxa}`)
     let isMinConfig = file === config.filename
-    let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
 
     if (isApp || isMinConfig) { // 重新编译
       this.compile(true)
@@ -415,7 +423,6 @@ export class Xcx {
    */
   private watchDelete (file: string) {
     let isMinConfig = file === config.filename
-    let isProjectConfig = file === MINI_PROGRAM_CONFIG_FILE_NAME
 
     if (isMinConfig) { // 重新编译
       this.compile(true)

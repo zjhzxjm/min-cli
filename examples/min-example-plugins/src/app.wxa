@@ -42,4 +42,9 @@ page {
   font-size: 32rpx;
   line-height: 1.5;
 }
+
+.flex {
+  display: flex;
+  width: 1px;
+}
 </style>

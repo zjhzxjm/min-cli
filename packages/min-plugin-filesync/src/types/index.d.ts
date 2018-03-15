@@ -1,5 +1,3 @@
-/// <reference path="../../../../types/index.d.ts" />
-
 declare namespace FilesyncPlugin {
   export interface Config {
     cwd: string

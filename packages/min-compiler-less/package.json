@@ -23,6 +23,7 @@
     "@types/less": "0.0.32"
   },
   "dependencies": {
+    "@mindev/min-core": "^1.0.0",
     "less": "^2.7.1"
   },
   "author": "Min Team",

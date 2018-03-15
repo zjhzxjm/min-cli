@@ -23,6 +23,7 @@
     "@types/stylus": "^0.48.29"
   },
   "dependencies": {
+    "@mindev/min-core": "^1.0.0",
     "stylus": "^0.54.5"
   },
   "author": "Min Team",

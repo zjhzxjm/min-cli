@@ -17,6 +17,9 @@ module.exports = {
         jpg: {},
         png: {
           quality: '65-80'
+        },
+        webp: {
+          quality: 50
         }
       }
     }

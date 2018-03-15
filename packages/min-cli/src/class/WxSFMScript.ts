@@ -7,6 +7,7 @@ import * as traverse from 'babel-traverse'
 import { Depend, Request, WxSFM } from '../class'
 import { RequestType, CompileType } from '../declare'
 import util, { config, log, LogType, md, Global } from '../util'
+import { loader, PluginHelper } from '@mindev/min-core'
 
 import t = babel.types
 import NodePath = traverse.NodePath
@@ -318,6 +319,16 @@ export class WxSFMScript extends WxSFM {
    */
   private traverse () {
     let visitor: babel.Visitor = {
+      Identifier (path) {
+        let helper = new PluginHelper(PluginHelper.Type.Ast, 'define')
+        helper.apply({
+          cwd: config.cwd,
+          filename: null,
+          extend: {
+            ast: path.node
+          }
+        })
+      },
       Program: (path) => {
         this.createMixinsDeclaration(path)
       },

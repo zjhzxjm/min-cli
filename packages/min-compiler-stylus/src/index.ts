@@ -1,9 +1,15 @@
 import path from 'path'
 import stylus from 'stylus'
+import { CompilerHelper } from '@mindev/min-core'
 
-export default function (compilerOptions: CompilerOptions): Promise<any> {
-  let { filename, content, config } = compilerOptions
+export default function (compilerOptions: CompilerHelper.Options): Promise<string> {
+  let { filename, extend = {}, config } = compilerOptions
+  let { content = '' } = extend
   let opath = path.parse(filename)
+
+  if (!content) {
+    return Promise.resolve(content)
+  }
 
   let options = Object.assign({}, config, {
     paths: [opath.dir],

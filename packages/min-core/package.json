@@ -1,12 +1,12 @@
 {
-  "name": "@mindev/min-plugin-scaffold",
+  "name": "@mindev/min-core",
   "version": "1.0.0",
-  "description": "min plugin-scaffold",
+  "description": "min core",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/meili/min/tree/master/packages/min-plugin-scaffold"
+    "url": "https://github.com/meili/min/tree/master/packages/min-core"
   },
   "scripts": {
     "clean": "rm -rf ./{dist,lib,types}",
@@ -17,12 +17,9 @@
   },
   "keywords": [
     "min",
-    "scaffold"
+    "core"
   ],
-  "dependencies": {
-    "@mindev/min-core": "^1.0.0",
-    "lodash": "^4.17.5"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "author": "Min Team",
   "license": "MIT"

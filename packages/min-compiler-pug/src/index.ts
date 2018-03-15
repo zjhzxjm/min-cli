@@ -1,13 +1,18 @@
 import pug from 'pug'
+import { CompilerHelper } from '@mindev/min-core'
 
-export default function (compilerOptions: CompilerOptions): Promise<any> {
-  let { filename, content, config } = compilerOptions
+export default function (options: CompilerHelper.Options): Promise<string> {
+  let { filename, extend = {}, config } = options
+  let { content = '' } = extend
   let { data } = config
-  let p
+  let p = Promise.resolve(content)
 
-  delete config.data
+  if (!content) {
+    return p
+  }
 
   try {
+    delete config.data
     let templete = pug.compile(content, config)
     let html = templete(data)
     p = Promise.resolve(html)

@@ -1,11 +1,29 @@
 {
+  "compilers": {
+    "babel": {
+      "sourceMaps": "inline",
+      "presets": [
+        "env"
+      ],
+      "plugins": [
+        "syntax-export-extensions",
+        "transform-class-properties",
+        "transform-decorators-legacy",
+        "transform-export-extensions"
+      ]
+    }
+  },
   "plugins": {
-    "autoprefixer": {},
-    "define": {},
-    "filemin": {},
-    "filesync": {},
-    "imagemin": {},
-    "uglifyjs": {},
-    "unit2rpx": {}
+    "imagemin": {
+      "jpg": {},
+      "png": {
+        "quality": "1"
+      }
+    },
+    "filesync": {
+      "cwd": "src/assets",
+      "from": ["**/*.jpg", "**/*.png"],
+      "to": "/test"
+    }
   }
 }

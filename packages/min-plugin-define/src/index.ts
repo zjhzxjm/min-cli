@@ -1,76 +1,121 @@
-import { DEFAULTS } from './const'
-import t from 'babel-types'
+import * as _ from 'lodash'
+import * as t from 'babel-types'
+import { PluginHelper } from '@mindev/min-core'
 
-import Plugin = PluginHelper.Plugin
-import PluginOptions = PluginHelper.Options
-import Options = DefinePlugin.Options
+const DEFAULTS: DefinePlugin.Options = {
+  config: {
+    // PRODUCTION: true
+  },
+  // test: new RegExp('\.(js)$'),
+  filter (options: PluginHelper.Options) {
+    return true
+  }
+}
 
-export default class DefinePlugin implements Plugin {
-  useway = 'alone'
-
-  constructor (public options: Options) {
-    // {
-    //    PRODUCTION: Json.stringify(true)
-    // }
-    this.options = {...DEFAULTS, ...this.options}
+export namespace DefinePlugin {
+  export interface Config {
+    [key: string]: string | RegExp | Function
   }
 
-  apply (pluginOptions: PluginOptions, node: t.identifier) {
-    // let { filter, config } = this.options
-    // let { filename, content, output } = pluginOptions
+  export interface Options {
+    config: Config
+    // test: RegExp
+    filter (options: PluginHelper.Options): boolean
+  }
+}
 
-    // if (!filter.test(filename)) {
-    //   return Promise.resolve(content)
+export default class DefinePlugin extends PluginHelper.AstPlugin {
+
+  constructor (public options: DefinePlugin.Options) {
+    super()
+
+    this.options = {
+      ...DEFAULTS,
+      ...this.options
+    }
+  }
+
+  apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
+    let { filter } = this.options
+    let { filename, extend = {} } = options
+    let { ast: node = null } = extend
+    let p = Promise.resolve(options)
+
+    // if (_.isRegExp(test) && !test.test(filename)) {
+    //   return p
     // }
-    let definition = this.getDefinition()
 
-    let keys = Object.keys(definition)
-    keys.forEach(k => {
-      if (k === node.name && t.isIdentifier(node)) {
-        node.name = definition[k]
+    if (_.isFunction(filter) && !filter(options)) {
+      return p
+    }
+
+    if (!node || !t.isIdentifier(node)) {
+      return p
+    }
+
+    // output('变更', filename)
+
+    try {
+      let definition = this.getDefinition()
+
+      for (const key in definition) {
+        if (key === node.name) {
+          node.name = definition[key]
+        }
       }
-    })
+
+      _.merge(options, { extend: { ast: node } })
+    }
+    catch (err) {
+      p = Promise.reject(err)
+    }
+
+    return p
   }
 
   private getDefinition () {
-    let options = this.options
-    let definition = {}
-    Object.keys(options).forEach(key => {
+    let { config } = this.options
+    let definition: {
+      [key: string]: string
+    } = {}
+
+    for (let key in config) {
       // value
-      const code = options[key]
+      let code = config[key]
       if (code && typeof code === 'object' && !(code instanceof RegExp)) {
         // PRODUCTION: {env: 'dev'}
         // this.getDefinition(code)
         definition[key] = this.stringifyObj(code)
-        return
       }
-      definition[key] = this.toCode(code)
-    })
+      else {
+        definition[key] = this.toCode(code)
+      }
+    }
     return definition
   }
-  private toCode (code) {
+
+  private toCode (code: string | RegExp | Function): string {
     if (code === null) return 'null'
     else if (code === undefined) return 'undefined'
     else if (code instanceof RegExp && code.toString) return code.toString()
     else if (typeof code === 'function' && code.toString) return '(' + code.toString() + ')'
-    else if (typeof code === 'object') return stringifyObj(code)
+    else if (typeof code === 'object') return this.stringifyObj(code)
     else return code + ''
   }
   /*
   * 输入： {a: 1, b: 'name'}
   * 输出："Object({"a":1, "b": name})"
   * */
-  private stringifyObj (obj) {
+  private stringifyObj (obj: any): string {
     return (
       'Object({' +
       Object.keys(obj)
         .map(key => {
           const code = obj[key]
-          return JSON.stringify(key) + ':' + toCode(code)
+          return JSON.stringify(key) + ':' + this.toCode(code)
         })
         .join(',') +
       '})'
     )
   }
 }
-

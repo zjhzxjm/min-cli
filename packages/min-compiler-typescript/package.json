@@ -23,6 +23,7 @@
     "@types/typescript": "^2.0.0"
   },
   "dependencies": {
+    "@mindev/min-core": "^1.0.0",
     "typescript": "^2.7.2"
   },
   "author": "Min Team",

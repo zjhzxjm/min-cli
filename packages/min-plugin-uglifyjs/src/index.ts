@@ -1,30 +1,76 @@
-import uglify from 'uglify-js'
-import { DEFAULTS } from './const'
+import * as _ from 'lodash'
+import * as uglify from 'uglify-js'
+import { PluginHelper } from '@mindev/min-core'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
-import Options = UglifyjsPlugin.Options
 
-export default class UglifyjsPlugin implements Plugin {
-  useway = 'any'
+const DEFAULTS: UglifyjsPlugin.Options = {
+  config: {
+    compress: {
+      warnings: false
+    }
+  },
+  test: new RegExp('\.(js)$'),
+  filter (options: PluginHelper.Options) {
+    return true
+  }
+}
 
-  constructor (public options: Options) {
-    this.options = { ...DEFAULTS, ...this.options }
+export namespace UglifyjsPlugin {
+  export interface Config {
+    compress: {
+      warnings: boolean
+    }
   }
 
-  async apply (pluginOptions: PluginOptions): Promise<string> {
-    let { filter, config } = this.options
-    let { filename, content, output } = pluginOptions
+  export interface Options {
+    config: Config
+    test: RegExp
+    filter (options: PluginHelper.Options): boolean
+  }
+}
 
-    if (!filter.test(filename)) {
-      return Promise.resolve(content)
+export default class UglifyjsPlugin extends PluginHelper.TextPlugin {
+
+  constructor (public options: UglifyjsPlugin.Options) {
+    super()
+
+    this.options = {
+      ...DEFAULTS,
+      ...this.options
     }
-    else {
-      output('压缩', filename)
+  }
 
+  apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
+    let { test, filter, config } = this.options
+    let { filename, extend = {} } = options
+    let { content = '' } = extend
+    let p = Promise.resolve(options)
+
+    if (_.isRegExp(test) && !test.test(filename)) {
+      return p
+    }
+
+    if (_.isFunction(filter) && !filter(options)) {
+      return p
+    }
+
+    if (!content) {
+      return p
+    }
+
+    // output('压缩', filename)
+
+    try {
       let result = uglify.minify(content, config)
 
-      return Promise.resolve(result.code)
+      _.merge(options, { extend: { content: result.code } })
     }
+    catch (err) {
+      p = Promise.reject(err)
+    }
+
+    return p
   }
 }

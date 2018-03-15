@@ -20,7 +20,9 @@
     "scaffold"
   ],
   "devDependencies": {},
-  "dependencies": {},
+  "dependencies": {
+    "@mindev/min-core": "^1.0.0"
+  },
   "author": "Min Team",
   "license": "MIT"
 }

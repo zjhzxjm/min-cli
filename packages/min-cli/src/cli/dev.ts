@@ -81,6 +81,8 @@ export class DevCommand {
       }
     })
     xcx.compile()
+    xcx.filesyncPlugin(watch)
+
     if (watch) {
       this.watcher = xcx.watch()
     } else {

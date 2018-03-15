@@ -1,8 +1,14 @@
-import postcss from 'postcss'
+import * as postcss from 'postcss'
+import { CompilerHelper } from '@mindev/min-core'
 
-export default async function (compilerOptions: CompilerOptions): Promise<string> {
-  let { filename, content, config } = compilerOptions
-  let p
+export default async function (options: CompilerHelper.Options): Promise<string> {
+  let { filename, extend = {}, config } = options
+  let { content = '' } = extend
+  let p = Promise.resolve(content)
+
+  if (!content) {
+    return p
+  }
 
   try {
     let plugins: postcss.AcceptedPlugin[] = config.plugins || []

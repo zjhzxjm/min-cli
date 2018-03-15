@@ -23,6 +23,7 @@
     "@types/pug": "^2.0.4"
   },
   "dependencies": {
+    "@mindev/min-core": "^1.0.0",
     "pug": "^2.0.1"
   },
   "author": "Min Team",

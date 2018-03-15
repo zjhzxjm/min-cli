@@ -1,7 +1,7 @@
 
 declare module 'autoprefixer' {
   interface Autoprefixer {
-    (config: AutoprefixerPlugin.Config): any
+    (config: any): any
   }
   const autoprefixer: Autoprefixer
   export = autoprefixer

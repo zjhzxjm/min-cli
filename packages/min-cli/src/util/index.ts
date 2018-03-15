@@ -17,8 +17,6 @@ export { exec } from './exec'
 
 export { Global } from './global'
 
-export { loader, PluginHelper } from './loader'
-
 export { log, LogType, LogLevel } from './log'
 
 export { md } from './md'

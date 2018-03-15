@@ -5,7 +5,7 @@ import * as postcss from 'postcss'
 import { Depend, Request, WxSFM } from '../class'
 import { RequestType, CompileType } from '../declare'
 import util, { config, Global, ICONFONT_PATTERN } from '../util'
-import { postcssUnit2rpx } from '../plugin'
+// import { postcssUnit2rpx } from '../plugin'
 
 /* precss-start */
 // const precss = require('precss')
@@ -64,8 +64,8 @@ const processor = postcss([
   postcssExtend,
   postcssSelectorMatches,
   postcssSelectorNot,
-  postcssCalc,
-  postcssUnit2rpx
+  postcssCalc
+  // postcssUnit2rpx
 ])
 
 export namespace WxSFMStyle {
@@ -140,7 +140,7 @@ export class WxSFMStyle extends WxSFM {
 
     // 更新依赖路径后，重新编译
     return await postcss([
-      postcssUnit2rpx
+      // postcssUnit2rpx
     ]).process(this.result).then(result => result.css)
   }
 
@@ -172,7 +172,7 @@ export class WxSFMStyle extends WxSFM {
 
     // 经 postcss 编译 unit2px 转换
     source = await postcss([
-      postcssUnit2rpx
+      // postcssUnit2rpx
     ]).process(source).then(result => result.css)
 
     return source

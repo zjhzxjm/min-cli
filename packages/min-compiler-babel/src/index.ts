@@ -1,8 +1,14 @@
 import { transformFromAst } from 'babel-core'
+import { CompilerHelper } from '@mindev/min-core'
 
-export default function (compilerOptions: CompilerOptions): Promise<string> {
-  let { filename, ast, content, config } = compilerOptions
-  let p
+export default function (options: CompilerHelper.Options): Promise<string> {
+  let { filename, extend = {}, config } = options
+  let { ast = null, content = '' } = extend
+  let p = Promise.resolve(content)
+
+  if (!ast || !content) {
+    return p
+  }
 
   try {
     let result = transformFromAst(ast, content, {

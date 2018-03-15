@@ -1,5 +1,7 @@
-export default function (compilerOptions: CompilerOptions): Promise<any> {
-  let { filename, content, config } = compilerOptions
+import { CompilerHelper } from '@mindev/min-core'
+
+export default function (options: CompilerHelper.Options): Promise<void> {
+  let { filename, extend = {} } = options
   let p
 
   try {
