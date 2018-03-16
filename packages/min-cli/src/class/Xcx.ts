@@ -143,9 +143,9 @@ export class Xcx {
     // TODO 如果用户改变 dest 路径，最终同步的文件将不对
     this['_isInitFilesyncPlugin'] = true
 
-    let helper = new PluginHelper(PluginHelper.Type.File, 'filesync')
+    let plugin = new PluginHelper(PluginHelper.Type.File, 'filesync')
 
-    await helper.apply({
+    await plugin.apply({
       cwd: config.cwd,
       dest: config.dest,
       filename: null,

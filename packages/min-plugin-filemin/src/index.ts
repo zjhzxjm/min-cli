@@ -4,8 +4,8 @@ import { PluginHelper } from '@mindev/min-core'
 
 const DEFAULTS: FileminPlugin.Options = {
   config: {},
-  test: new RegExp('\.(wxml|xml|wxss|json)$'),
-  filter (options: PluginHelper.Options) {
+  filter: new RegExp('\.(wxml|xml|wxss|json)$'),
+  validate (options: PluginHelper.Options) {
     return true
   }
 }
@@ -15,8 +15,8 @@ export namespace FileminPlugin {
 
   export interface Options {
     config: Config
-    test: RegExp
-    filter (options: PluginHelper.Options): boolean
+    filter: RegExp
+    validate (options: PluginHelper.Options): boolean
   }
 }
 
@@ -32,16 +32,16 @@ export default class FileminPlugin extends PluginHelper.TextPlugin {
   }
 
   apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
-    let { test, filter, config } = this.options
+    let { filter, validate, config } = this.options
     let { filename, extend = {} } = options
     let { content = '' } = extend
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(test) && !test.test(filename)) {
+    if (_.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(filter) && !filter(options)) {
+    if (_.isFunction(validate) && !validate(options)) {
       return p
     }
 

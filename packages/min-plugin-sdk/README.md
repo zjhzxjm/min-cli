@@ -12,7 +12,10 @@ $ npm install @mindev/min-plugin-sdk --save-dev
 module.exports = {
   plugins: {
     sdk: {
-      filter: /\.wxss$/,
+      filter: new RegExp('\.js$'),
+      validate (options: PluginHelper.Options) {
+        return true
+      },
       config: {}
     }
   }

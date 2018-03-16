@@ -9,12 +9,12 @@ $ npm install @mindev/min-plugin-filesync --save-dev
 ## 配置 `min.config.js`
 
 ``` js
-interface Options {
+interface Config {
   cwd: String
   from: String | Array,
   to: String,
-  test: RegExp,
-  filter: Function
+  filter: RegExp,
+  validate: Function
   force: Boolean,
   ignore: String | Array
 }
@@ -27,8 +27,8 @@ module.exports = {
       cwd: 'assets'
       from: ['**/*'],
       to: 'img/',
-      test: /\.png$/,
-      filter (filename: string) {
+      filter: /\.png$/,
+      validate (filename: string) {
         return true
       }
       force: true,
@@ -45,7 +45,7 @@ module.exports = {
       wxFile: {
         cwd: 'pages'
         from: '**/*',
-        test: /index\.(wxml|wxss|js|json)$/,
+        filter: /index\.(wxml|wxss|js|json)$/,
         to: '/'
       }
     },

@@ -3,8 +3,8 @@ import { PluginHelper } from '@mindev/min-core'
 
 export const DEFAULTS: SdkPlugin.Options = {
   config: {},
-  test: new RegExp('\.(JS)$'),
-  filter (options: PluginHelper.Options) {
+  filter: new RegExp('\.(js)$'),
+  validate (options: PluginHelper.Options) {
     return true
   }
 }
@@ -14,8 +14,8 @@ export namespace SdkPlugin {
 
   export interface Options {
     config: Config
-    test: RegExp
-    filter (options: PluginHelper.Options): boolean
+    filter: RegExp
+    validate (options: PluginHelper.Options): boolean
   }
 }
 
@@ -31,17 +31,17 @@ export default class SdkPlugin extends PluginHelper.SdkPlugin {
   }
 
   async apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
-    let { test, filter, config } = this.options
+    let { filter, validate, config } = this.options
     let { filename, extend = {} } = options
 
     let { content = '' } = extend
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(test) && !test.test(filename)) {
+    if (_.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(filter) && !filter(options)) {
+    if (_.isFunction(validate) && !validate(options)) {
       return p
     }
 

@@ -18,8 +18,8 @@ const DEFAULTS: ImageminPlugin.Options = {
     },
     gif: {}
   },
-  test: new RegExp('\.(jpg|png|jpeg)$'),
-  filter (options: PluginHelper.Options) {
+  filter: new RegExp('\.(jpg|png|jpeg)$'),
+  validate (options: PluginHelper.Options) {
     return true
   }
 }
@@ -34,8 +34,8 @@ export namespace ImageminPlugin {
 
   export interface Options {
     config: Config
-    test: RegExp
-    filter (options: PluginHelper.Options): boolean
+    filter: RegExp
+    validate (options: PluginHelper.Options): boolean
   }
 }
 
@@ -51,15 +51,15 @@ export default class ImageminPlugin extends PluginHelper.ImagePlugin {
   }
 
   async apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
-    let { test, filter, config } = this.options
+    let { filter, validate, config } = this.options
     let { cwd, filename, extend } = options
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(test) && !test.test(filename)) {
+    if (_.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(filter) && !filter(options)) {
+    if (_.isFunction(validate) && !validate(options)) {
       return p
     }
 

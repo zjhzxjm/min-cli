@@ -12,7 +12,10 @@ $ npm install @mindev/min-plugin-scaffold --save-dev
 module.exports = {
   plugins: {
     scaffold: {
-      filter: /\.wxss$/,
+      filter: new RegExp('\.ext$'),
+      validate (options: PluginHelper.Options) {
+        return true
+      },
       config: {}
     }
   }

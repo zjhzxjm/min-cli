@@ -320,8 +320,8 @@ export class WxSFMScript extends WxSFM {
   private traverse () {
     let visitor: babel.Visitor = {
       Identifier (path) {
-        let helper = new PluginHelper(PluginHelper.Type.Ast, 'define')
-        helper.apply({
+        let plugin = new PluginHelper(PluginHelper.Type.Ast, 'define')
+        plugin.apply({
           cwd: config.cwd,
           filename: null,
           extend: {

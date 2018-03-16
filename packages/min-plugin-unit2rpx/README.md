@@ -13,6 +13,9 @@ module.exports = {
   plugins: {
     unit2rpx: {
       filter: new RegExp('\.(wxss)$'),
+      validate (options: PluginHelper.Options) {
+        return true
+      },
       config: {
         px: 1,
         rem: 100

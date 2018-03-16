@@ -6,8 +6,8 @@ const DEFAULTS: DefinePlugin.Options = {
   config: {
     // PRODUCTION: true
   },
-  // test: new RegExp('\.(js)$'),
-  filter (options: PluginHelper.Options) {
+  // filter: new RegExp('\.(js)$'),
+  validate (options: PluginHelper.Options) {
     return true
   }
 }
@@ -19,8 +19,8 @@ export namespace DefinePlugin {
 
   export interface Options {
     config: Config
-    // test: RegExp
-    filter (options: PluginHelper.Options): boolean
+    // filter: RegExp
+    validate (options: PluginHelper.Options): boolean
   }
 }
 
@@ -36,16 +36,16 @@ export default class DefinePlugin extends PluginHelper.AstPlugin {
   }
 
   apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
-    let { filter } = this.options
+    let { validate } = this.options
     let { filename, extend = {} } = options
     let { ast: node = null } = extend
     let p = Promise.resolve(options)
 
-    // if (_.isRegExp(test) && !test.test(filename)) {
+    // if (_.isRegExp(filter) && !filter.test(filename)) {
     //   return p
     // }
 
-    if (_.isFunction(filter) && !filter(options)) {
+    if (_.isFunction(validate) && !validate(options)) {
       return p
     }
 

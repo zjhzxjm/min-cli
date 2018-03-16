@@ -24,7 +24,7 @@ export class PluginHelper {
     }
   }
 
-  get isUse () {
+  get isCanUse () {
     return this.plugins.length > 0
   }
 

@@ -25,8 +25,8 @@ export default async function filesync (cwd: string, dest: string, filename: str
   // c/index.js
   let filepart = path.relative(fromdirname, filepath)
 
-  // RegExp test
-  if (_.isRegExp(config.test) && !config.test.test(filepart)) {
+  // RegExp filter
+  if (_.isRegExp(config.filter) && !config.filter.test(filepart)) {
     return
   }
 
@@ -70,10 +70,10 @@ async function copy (cwd: string, filename: string, src: string, dest: string) {
   let destdirname = path.dirname(dest)
   await fs.ensureDir(destdirname)
 
-  let helper = new PluginHelper(PluginHelper.Type.Image, 'imagemin')
+  let plugin = new PluginHelper(PluginHelper.Type.Image, 'imagemin')
 
-  if (helper.isUse) {
-    let result = await helper.apply({
+  if (plugin.isCanUse) {
+    let result = await plugin.apply({
       cwd,
       filename
     })

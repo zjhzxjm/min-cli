@@ -14,16 +14,44 @@
     }
   },
   "plugins": {
+    "autoprefixer": {
+      "config": {
+        "browsers": ["Android >= 2.3", "Chrome > 20", "iOS >= 6"]
+      }
+    },
+    "define": {
+      "config": {
+        "PRODUCTION": false
+      }
+    },
+    "filemin": {
+      "config": {
+
+      }
+    },
     "imagemin": {
-      "jpg": {},
-      "png": {
-        "quality": "1"
+      "config": {
+        "jpg": {},
+        "png": {
+          "quality": "5"
+        }
       }
     },
     "filesync": {
       "cwd": "src/assets",
       "from": ["**/*.jpg", "**/*.png"],
-      "to": "/test"
+      "to": "/images"
+    },
+    "uglifyjs": {
+      "config": {
+        "warnings": false
+      }
+    },
+    "unit2rpx": {
+      "config": {
+        "px": 2,
+        "rem": 1
+      }
     }
   },
   "lint": {

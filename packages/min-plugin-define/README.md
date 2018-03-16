@@ -12,10 +12,15 @@ $ npm install @mindev/min-plugin-define --save-dev
 module.exports = {
   plugins: {
     define: {
-      PRODUCTION: JSON.stringify(true),
-      VERSION: JSON.stringify("5fa3b9"),
-      BROWSER_SUPPORTS_HTML5: true,
-      TWO: {}
+      validate (options: PluginHelper.Options) {
+        return true
+      },
+      config: {
+        PRODUCTION: JSON.stringify(true),
+        VERSION: JSON.stringify("5fa3b9"),
+        BROWSER_SUPPORTS_HTML5: true,
+        TWO: {}
+      }
     }
   }
 }

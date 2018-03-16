@@ -140,7 +140,7 @@ export const loader = {
       }
     }
     else {
-      console.warn(`Unknown plug-in name: ${plugins}`)
+      console.warn(`Unknown plugin name: ${plugins}`)
     }
   },
 

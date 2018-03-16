@@ -12,7 +12,11 @@ $ npm install @mindev/min-plugin-filemin --save-dev
 module.exports = {
   plugins: {
     filemin: {
-      filter: /\.(wxml|xml|wxss|json)$/
+      filter: new RegExp('\.(wxml|xml|wxss|json)$'),
+      validate (options: PluginHelper.Options) {
+        return true
+      },
+      config: {}
     }
   }
 }

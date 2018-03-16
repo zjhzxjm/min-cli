@@ -13,11 +13,11 @@ module.exports = {
   plugins: {
     uglifyjs: {
       filter: new RegExp('\.(js)$'),
+      validate (options: PluginHelper.Options) {
+        return true
+      },
       config: {
-        compress: {
-          warnings: false
-        },
-        fromString: true
+        warnings: false
       }
     }
   }

@@ -13,6 +13,9 @@ module.exports = {
   plugins: {
     imagemin: {
       filter: new RegExp('\.(jpg|png|jpeg)$'),
+      validate (options: PluginHelper.Options) {
+        return true
+      },
       config: {
         jpg: {},
         png: {

@@ -2,7 +2,6 @@ import { loader } from '@mindev/min-core'
 import util, { log, config } from './index'
 
 export function eslint (filepath: string) {
-  debugger
   if (!config.lint || !config.lint.eslint) {
     return
   }

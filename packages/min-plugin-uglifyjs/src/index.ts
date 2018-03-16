@@ -7,27 +7,23 @@ import PluginOptions = PluginHelper.Options
 
 const DEFAULTS: UglifyjsPlugin.Options = {
   config: {
-    compress: {
-      warnings: false
-    }
+    warnings: false
   },
-  test: new RegExp('\.(js)$'),
-  filter (options: PluginHelper.Options) {
+  filter: new RegExp('\.(js)$'),
+  validate (options: PluginHelper.Options) {
     return true
   }
 }
 
 export namespace UglifyjsPlugin {
   export interface Config {
-    compress: {
-      warnings: boolean
-    }
+    warnings: boolean
   }
 
   export interface Options {
     config: Config
-    test: RegExp
-    filter (options: PluginHelper.Options): boolean
+    filter: RegExp
+    validate (options: PluginHelper.Options): boolean
   }
 }
 
@@ -43,16 +39,16 @@ export default class UglifyjsPlugin extends PluginHelper.TextPlugin {
   }
 
   apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {
-    let { test, filter, config } = this.options
+    let { filter, validate, config: $config } = this.options
     let { filename, extend = {} } = options
     let { content = '' } = extend
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(test) && !test.test(filename)) {
+    if (_.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(filter) && !filter(options)) {
+    if (_.isFunction(validate) && !validate(options)) {
       return p
     }
 
@@ -62,13 +58,15 @@ export default class UglifyjsPlugin extends PluginHelper.TextPlugin {
 
     // output('压缩', filename)
 
-    try {
-      let result = uglify.minify(content, config)
+    let config = _.cloneDeep($config)
 
-      _.merge(options, { extend: { content: result.code } })
+    let result: any = uglify.minify(content, config)
+
+    if (result.error) {
+      p = Promise.reject(result.error)
     }
-    catch (err) {
-      p = Promise.reject(err)
+    else {
+      _.merge(options, { extend: { content: result.code } })
     }
 
     return p

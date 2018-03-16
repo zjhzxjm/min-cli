@@ -193,8 +193,8 @@ export class WxSFM {
       }
     }
 
-    let helper = new PluginHelper(PluginHelper.Type.Text)
-    options = await helper.apply(options)
+    let plugin = new PluginHelper(PluginHelper.Type.Text)
+    options = await plugin.apply(options)
     code = options.extend.content || ''
 
     log.msg(LogType.WRITE, this.destRelative)
