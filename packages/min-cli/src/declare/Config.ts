@@ -1,6 +1,7 @@
 export interface CustomConfig {
   compilers?: any
   plugins?: any
+  lint?: any
   style?: {
     [key: string]: string | { [key: string]: string | Function | boolean | number }
   }
@@ -101,6 +102,7 @@ export interface Config extends CustomConfig {
   }
   compilers: any
   plugins: any
+  lint: any
   style: {
     lang: { // CSS预编译器 【当前版本不支持自定义配置】
       less: string

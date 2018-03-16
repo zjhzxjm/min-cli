@@ -1,12 +1,12 @@
 {
-  "name": "@mindev/min-eslint",
+  "name": "@mindev/min-lint-eslint",
   "version": "1.0.0",
   "description": "min eslint",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/meili/min/tree/master/packages/min-eslint"
+    "url": "https://github.com/meili/min/tree/master/packages/min-lint-eslint"
   },
   "scripts": {
     "clean": "rm -rf ./{dist,lib,types}",
@@ -17,6 +17,7 @@
   },
   "keywords": [
     "min",
+    "lint",
     "eslint"
   ],
   "dependencies": {

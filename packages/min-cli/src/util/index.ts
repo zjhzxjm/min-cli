@@ -17,6 +17,8 @@ export { exec } from './exec'
 
 export { Global } from './global'
 
+export { eslint } from './lint'
+
 export { log, LogType, LogLevel } from './log'
 
 export { md } from './md'

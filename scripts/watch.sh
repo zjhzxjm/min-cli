@@ -14,7 +14,7 @@ packages=(
   # '@mindev/min-compiler-stylus'
   # '@mindev/min-compiler-typescript'
   '@mindev/min-core'
-  # '@mindev/min-eslint'
+  '@mindev/min-lint-eslint'
   '@mindev/min-plugin-autoprefixer'
   '@mindev/min-plugin-define'
   '@mindev/min-plugin-filemin'

@@ -3,7 +3,7 @@
 ## 安装
 
 ``` bash
-$ npm install @mindev/min-eslint --save-dev
+$ npm install @mindev/min-lint-eslint --save-dev
 ```
 
 ## 配置 `min.config.js`

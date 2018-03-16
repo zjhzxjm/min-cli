@@ -1,5 +1,5 @@
 import { Depend, Request, WxNFC, WxSFC, CompileStatic } from '../class'
-import util, { log } from '../util'
+import util, { log, eslint } from '../util'
 
 export namespace WxFile {
   /**
@@ -77,6 +77,8 @@ export class WxFile implements WxFile.Core {
     } else {
       throw new Error(`创建【WxFile】失败，没有找到扩展名为 ${ext} 的编译类型`)
     }
+
+    eslint(src)
   }
 
   /**

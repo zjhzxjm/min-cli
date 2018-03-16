@@ -25,5 +25,8 @@
       "from": ["**/*.jpg", "**/*.png"],
       "to": "/test"
     }
+  },
+  "lint": {
+    "eslint": false
   }
 }
