@@ -18,5 +18,6 @@ export namespace CompilerHelper {
 
   export interface Compiler {
     (options: Options): Promise<Result>
+    sync? (options: Options): Result
   }
 }

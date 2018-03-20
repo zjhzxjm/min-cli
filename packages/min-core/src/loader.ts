@@ -118,6 +118,10 @@ export const loader = {
       }
     }
 
+    if (!lang) {
+      throw new Error(`未知编译语言`)
+    }
+
     let compilerName = this.getCompilerName(lang)
     let compiler = this.load(compilerName)
 
@@ -125,6 +129,7 @@ export const loader = {
       this.addMissingNpm(compilerName)
       console.warn(`Missing compiler: ${compilerName}.`)
     }
+
     return compiler
   },
 
@@ -155,6 +160,10 @@ export const loader = {
 
     if (!_.isObject(config)) {
       return null
+    }
+
+    if (!name) {
+      throw new Error(`未知插件名称`)
     }
 
     let pluginName = this.getPluginName(name)
