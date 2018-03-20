@@ -27,7 +27,7 @@ const compiler: Compiler = (options: Options): Promise<Result> => {
       else {
         _.merge(options, {
           extend: {
-            css: result.css,
+            code: result.css.toString(),
             map: result.map,
             imports: result.stats.includedFiles
           }
