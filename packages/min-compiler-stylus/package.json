@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "@mindev/min-core": "^1.0.0",
-    "stylus": "^0.54.5"
+    "stylus": "^0.54.5",
+    "lodash": "^4.17.4"
   },
   "author": "Min Team",
   "license": "MIT"
