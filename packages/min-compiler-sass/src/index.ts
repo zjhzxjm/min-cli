@@ -1,12 +1,21 @@
-import sass from 'node-sass'
+import * as _ from 'lodash'
+import * as sass from 'node-sass'
 import { CompilerHelper } from '@mindev/min-core'
 
-export default function (options: CompilerHelper.Options): Promise<sass.Result> {
+import Compiler = CompilerHelper.Compiler
+import Options = CompilerHelper.Options
+import Result = CompilerHelper.Result
+
+const compiler: Compiler = (options: Options): Promise<Result> => {
   let { filename, extend = {}, config: $config } = options
-  let { content = '' } = extend
+  let { code = '' } = extend
+
+  if (!code) {
+    return Promise.resolve(options)
+  }
 
   let config: sass.Options = Object.assign({}, $config, {
-    data: content,
+    data: code,
     file: filename
   })
 
@@ -16,8 +25,17 @@ export default function (options: CompilerHelper.Options): Promise<sass.Result> 
         reject(err)
       }
       else {
-        resolve(result)
+        _.merge(options, {
+          extend: {
+            css: result.css,
+            map: result.map,
+            imports: result.stats.includedFiles
+          }
+        })
+        resolve(options)
       }
     })
   })
 }
+
+export default compiler
