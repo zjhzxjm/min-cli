@@ -18,7 +18,7 @@ let loadedPlugins: {
 export const loader = {
   missingNpms: new Array(),
 
-  noCompileLangs: ['wxml', 'xml', 'css', 'js'],
+  noCompileLangs: ['wxml', 'xml', 'wxss', 'css', 'js'],
 
   getCompilerName (lang: string) {
     let prefix = '@mindev/min-compiler'
@@ -84,7 +84,7 @@ export const loader = {
     }
     catch (err) {
       if (err.message !== 'missing path') {
-        console.log(err)
+        console.error(err)
       }
     }
 
@@ -111,7 +111,7 @@ export const loader = {
     }
   },
 
-  loadCompiler (lang: string) {
+  loadCompiler (lang: string): CompilerHelper.Compiler | null {
     if (this.noCompileLangs.indexOf(lang) > -1) {
       return (options: CompilerHelper.Options) => {
         return Promise.resolve(options)
@@ -119,13 +119,13 @@ export const loader = {
     }
 
     let compilerName = this.getCompilerName(lang)
-    let compilerClass = this.load(compilerName)
+    let compiler = this.load(compilerName)
 
-    if (!compilerClass) {
+    if (!compiler) {
       this.addMissingNpm(compilerName)
       console.warn(`Missing compiler: ${compilerName}.`)
     }
-    return compilerClass
+    return compiler
   },
 
   loadPlugins (plugins: string[] | {[key: string]: object | boolean | Function}) {

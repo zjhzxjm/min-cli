@@ -62,8 +62,8 @@ export class PluginHelper {
 export namespace PluginHelper {
 
   export interface Options {
-    cwd: string // current work dir
-    filename: string // may be dest relative path
+    cwd: string // Current working directory
+    filename: string // Relative path to the current working directory.
     src?: string // source path
     dest?: string // dist path
     extend?: {
