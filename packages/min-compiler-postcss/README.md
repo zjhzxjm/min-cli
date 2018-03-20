@@ -14,11 +14,27 @@ import bem from 'postcss-bem'
 import calc from 'postcss-calc'
 import precss from 'precss'
 
+const bemOptions = {
+  defaultNamespace: undefined,
+  style: 'suit',
+  separators: {
+    descendent: '__',
+    modifier: '--'
+  },
+  shortcuts: {
+    utility: 'u',
+    component: 'b',
+    descendent: 'e',
+    modifier: 'm',
+    when: 'is'
+  }
+}
+
 module.exports = {
   compilers: {
     postcss: {
       plugins: [
-        bem,
+        bem(bemOptions),
         precss,
         calc
       ]

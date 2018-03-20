@@ -1,19 +1,36 @@
+import * as _ from 'lodash'
 import * as postcss from 'postcss'
 import { CompilerHelper } from '@mindev/min-core'
 
-export default async function (options: CompilerHelper.Options): Promise<string> {
-  let { filename, extend = {}, config } = options
-  let { content = '' } = extend
-  let p = Promise.resolve(content)
+import Compiler = CompilerHelper.Compiler
+import Options = CompilerHelper.Options
+import Result = CompilerHelper.Result
 
-  if (!content) {
+const compiler: Compiler = async (options: Options): Promise<Result> => {
+  let { filename, extend = {}, config = {} } = options
+  let { code = '' } = extend
+  let p = Promise.resolve(options)
+
+  if (!code) {
+    return p
+  }
+
+  let plugins: postcss.AcceptedPlugin[] = config.plugins || []
+
+  if (!plugins.length) {
     return p
   }
 
   try {
-    let plugins: postcss.AcceptedPlugin[] = config.plugins || []
-    let css = await postcss(plugins).process(content).then(result => result.css)
-    p = Promise.resolve(css)
+    let processor = postcss(plugins)
+    let result = await processor.process(code)
+
+    _.merge(options, {
+      extend: {
+        code: result.css,
+        map: result.map
+      }
+    })
   }
   catch (err) {
     p = Promise.reject(err)
@@ -21,3 +38,5 @@ export default async function (options: CompilerHelper.Options): Promise<string>
 
   return p
 }
+
+export default compiler
