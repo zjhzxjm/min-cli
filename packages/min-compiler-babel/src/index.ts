@@ -1,23 +1,21 @@
+import * as _ from 'lodash'
 import { transformFromAst } from 'babel-core'
 import { CompilerHelper } from '@mindev/min-core'
 
-export default function (options: CompilerHelper.Options): Promise<string> {
-  let { filename, extend = {}, config } = options
-  let { ast = null, content = '' } = extend
-  let p = Promise.resolve(content)
+import Compiler = CompilerHelper.Compiler
+import Options = CompilerHelper.Options
+import Result = CompilerHelper.Result
 
-  if (!ast || !content) {
-    return p
-  }
+const noop = (options: Options): Result => {
+  return options
+}
+
+const compiler: Compiler = (options: Options): Promise<Result> => {
+  let p = Promise.resolve(options)
+  let { sync = noop } = compiler
 
   try {
-    let result = transformFromAst(ast, content, {
-      ast: false,
-      babelrc: false,
-      filename,
-      ...config
-    })
-    p = Promise.resolve(result.code || '')
+    sync(options)
   }
   catch (err) {
     p = Promise.reject(err)
@@ -25,3 +23,35 @@ export default function (options: CompilerHelper.Options): Promise<string> {
 
   return p
 }
+
+compiler.sync = (options: Options): Result => {
+  let {
+    filename,
+    extend: {
+      ast = null,
+      code = ''
+    } = {},
+    config
+  } = options
+
+  if (!ast || !code) {
+    return options
+  }
+
+  let result = transformFromAst(ast, code, {
+    ast: false,
+    babelrc: false,
+    ...config,
+    filename
+  })
+
+  _.merge(options, {
+    extend: {
+      ..._.pick(result, ['ast', 'code', 'map'])
+    }
+  })
+
+  return options
+}
+
+export default compiler
