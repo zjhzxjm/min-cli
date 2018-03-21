@@ -10,8 +10,8 @@ base=(
 )
 
 libs=(
-  '@mindev/min'
-  '@mindev/min-async-await'
+  '@minlib/min'
+  '@minlib/min-async-await'
 )
 
 lints=(

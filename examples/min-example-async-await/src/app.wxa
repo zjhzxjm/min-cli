@@ -10,7 +10,7 @@
 </template>
 
 <script>
-  import '@mindev/min-async-await'
+  import '@minlib/min-async-await'
   export default {
     config: {
       usingComponents: {

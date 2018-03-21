@@ -10,8 +10,8 @@
     "watch": "../../packages/min-cli/lib/bin/min.js dev"
   },
   "dependencies": {
-    "@mindev/min": "^1.0.0",
-    "@mindev/min-async-await": "^1.0.0",
+    "@minlib/min": "^1.0.0",
+    "@minlib/min-async-await": "^1.0.0",
     "@minui/wxc-loading": "^1.0.2",
     "@minui/wxc-toast": "^1.0.6"
   },

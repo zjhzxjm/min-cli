@@ -13,8 +13,8 @@
 </template>
 
 <script>
-  import '@mindev/min-async-await'
-  import min from '@mindev/min'
+  import '@minlib/min-async-await'
+  import min from '@minlib/min'
   import interceptors from './interceptors'
   import loading from 'mixins/loading'
   import toast from './mixins/toast'

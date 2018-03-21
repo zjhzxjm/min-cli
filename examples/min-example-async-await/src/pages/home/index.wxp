@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import min from '@mindev/min'
+import min from '@minlib/min'
 import data from 'mixins/data'
 
 export default min.Page({

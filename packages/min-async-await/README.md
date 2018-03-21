@@ -5,7 +5,7 @@
 - **async-await**
 
 ``` bash
-$ npm install @mindev/min-async-await --save
+$ npm install @minlib/min-async-await --save
 ```
 
 - **babel**
@@ -21,7 +21,7 @@ $ npm install babel-plugin-transform-export-extensions --save-dev
 - **app.wxa**
 
 ``` js
-import '@mindev/min-async-await';
+import '@minlib/min-async-await';
 ```
 
 ## 配置babel编译器

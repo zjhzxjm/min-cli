@@ -1,5 +1,5 @@
 {
-  "name": "@mindev/min",
+  "name": "@minlib/min",
   "version": "1.0.0",
   "description": "min",
   "main": "lib/index.js",
