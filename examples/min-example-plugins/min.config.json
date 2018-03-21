@@ -1,4 +1,7 @@
 {
+  "style": {
+    "w": "100px"
+  },
   "compilers": {
     "babel": {
       "sourceMaps": "inline",
@@ -11,6 +14,17 @@
         "transform-decorators-legacy",
         "transform-export-extensions"
       ]
+    },
+    "less": {
+
+    },
+    "postcss": {
+      "plugins": [
+      ]
+    },
+
+    "stylus": {
+
     }
   },
   "plugins": {
@@ -21,7 +35,8 @@
     },
     "define": {
       "config": {
-        "PRODUCTION": false
+        "PRODUCTION": true,
+        "__dev__": true
       }
     },
     "filemin": {
@@ -55,6 +70,6 @@
     }
   },
   "lint": {
-    "eslint": false
+    "eslint": true
   }
 }

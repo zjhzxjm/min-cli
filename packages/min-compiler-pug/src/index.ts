@@ -11,8 +11,8 @@ const noop = (options: Options): Result => {
 }
 
 const compiler: Compiler = (options: Options): Promise<Result> => {
-  let p = Promise.resolve(options)
   let { sync = noop } = compiler
+  let p = Promise.resolve(options)
 
   try {
     sync(options)
@@ -25,12 +25,8 @@ const compiler: Compiler = (options: Options): Promise<Result> => {
 }
 
 compiler.sync = (options: Options): Result => {
-  let {
-    extend: {
-      code = ''
-    } = {},
-    config = {}
-  } = options
+  let { extend = {}, config = {} } = options
+  let { code = '' } = extend
 
   if (!code) {
     return options

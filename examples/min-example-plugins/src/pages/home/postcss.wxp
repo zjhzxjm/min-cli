@@ -1,0 +1,17 @@
+<template>
+  <view>
+
+  </view>
+
+</template>
+
+<script>
+export default {
+}
+</script>
+
+<style lang="postcss">
+#main {
+  width: $w;
+}
+</style>

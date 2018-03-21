@@ -1,0 +1,18 @@
+<template>
+  <view>
+
+  </view>
+
+</template>
+
+<script>
+export default {
+}
+</script>
+
+<style lang="styl">
+#main {
+  width: w;
+  height: w;
+}
+</style>

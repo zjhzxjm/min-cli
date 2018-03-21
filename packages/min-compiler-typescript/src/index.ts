@@ -1,19 +1,21 @@
+import * as _ from 'lodash'
 import * as ts from 'typescript'
 import { CompilerHelper } from '@mindev/min-core'
 
-export default function (options: CompilerHelper.Options): Promise<string> {
-  let { extend = {}, config } = options
-  let { content = '' } = extend
-  let p = Promise.resolve(content)
+import Compiler = CompilerHelper.Compiler
+import Options = CompilerHelper.Options
+import Result = CompilerHelper.Result
 
-  if (!content) {
-    return p
-  }
+const noop = (options: Options): Result => {
+  return options
+}
+
+const compiler: Compiler = (options: Options): Promise<Result> => {
+  let { sync = noop } = compiler
+  let p = Promise.resolve(options)
 
   try {
-    let result = ts.transpileModule(content, config)
-    let { outputText } = result
-    p = Promise.resolve(outputText)
+    sync(options)
   }
   catch (err) {
     p = Promise.reject(err)
@@ -21,3 +23,25 @@ export default function (options: CompilerHelper.Options): Promise<string> {
 
   return p
 }
+
+compiler.sync = (options: Options): Result => {
+  let {extend = {}, config = {} } = options
+  let { code = '' } = extend
+
+  if (!code) {
+    return options
+  }
+
+  let result = ts.transpileModule(code, config)
+
+  _.merge(options, {
+    extend: {
+      code: result.outputText,
+      map: result.sourceMapText
+    }
+  })
+
+  return options
+}
+
+export default compiler
