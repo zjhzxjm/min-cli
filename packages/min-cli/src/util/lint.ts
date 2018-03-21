@@ -6,14 +6,13 @@ export function eslint (filepath: string) {
     return
   }
 
-  const compiler = loader.load('@mindev/min-lint-eslint')
+  const lint = loader.load('@mindev/min-lint-eslint')
 
-  if (!compiler) {
+  if (!lint) {
     log.warn('未安装 @mindev/min-lint-eslint，执行 npm install @mindev/min-lint-eslint --save-dev 或者在 min.config.js 中关闭 eslint 选项')
     return
   }
 
-  // 使用 eslint
   const esConfig = Object.assign({
     output: false,
     useEslintrc: true,
@@ -21,8 +20,9 @@ export function eslint (filepath: string) {
   }, config.lint.eslint === true ? {} : config.lint.eslint)
 
   esConfig.output = false
-  let rst = compiler(esConfig, filepath)
-  if (rst) {
-    console.log(rst)
+
+  let result = lint(esConfig, filepath)
+  if (result) {
+    console.log(result)
   }
 }

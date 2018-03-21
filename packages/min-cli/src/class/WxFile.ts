@@ -58,7 +58,7 @@ export class WxFile implements WxFile.Core {
    * @memberof WxFile
    */
   constructor (request: Request) {
-    let { ext, src, isSFC, isNFC, isStatic } = request
+    let { ext, src, isSFC, isNFC, isStatic, isThreeNpm } = request
 
     if (isSFC) { // 单文件
 
@@ -78,7 +78,9 @@ export class WxFile implements WxFile.Core {
       throw new Error(`创建【WxFile】失败，没有找到扩展名为 ${ext} 的编译类型`)
     }
 
-    eslint(src)
+    if (!isThreeNpm) {
+      eslint(src)
+    }
   }
 
   /**

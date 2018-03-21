@@ -1,6 +1,5 @@
-import { LangTypes, CompileType } from '../declare'
 import { getInnerHTML } from '../util'
-const htmlparser = require('htmlparser2')
+const { DomHandler, Parser, DomUtils } = require('htmlparser2')
 
 /**
  * 将 source 转换成 dom 节点树
@@ -9,8 +8,8 @@ const htmlparser = require('htmlparser2')
  * @returns
  */
 function make (source: string) {
-  let handler = new htmlparser.DomHandler()
-  let parser = new htmlparser.Parser(handler, {
+  let handler = new DomHandler()
+  let parser = new Parser(handler, {
     lowerCaseAttributeNames: false
   })
 
@@ -22,28 +21,23 @@ function make (source: string) {
 /**
  * 获得单文件模块dom树
  *
- * @param {*} parentElem
- * @param {string} module
+ * @param {*} parent
+ * @param {string} tagName
  * @returns
  */
-function getSFM (parentElem: any, module: string) {
-  let elem = htmlparser.DomUtils.getElementsByTagName(module, parentElem, true, [])[0]
+function getSFM (parent: any, tagName: string) {
+  let elem = DomUtils.getElementsByTagName(tagName, parent, true, [])[0]
   let code = ''
   let lang = ''
-  let compileType: CompileType | undefined
 
   if (elem) {
     // code = htmlparser.DomUtils.getInnerHTML(elem)
     code = getInnerHTML(elem)
     lang = elem.attribs.lang
-
-    let langType = LangTypes[`.${lang}`]
-    compileType = langType ? langType.compileType : undefined
   }
   return {
     code,
-    lang,
-    compileType
+    lang
   }
 }
 

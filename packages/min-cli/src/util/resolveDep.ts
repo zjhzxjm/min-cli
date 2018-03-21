@@ -157,15 +157,14 @@ function isWxcPackage (request: string, requestType: RequestType): boolean {
 }
 
 function getRequestType (ext: string): RequestType | undefined {
-  let { requestType = undefined } = LangTypes[ext] || {}
-  return requestType
+  return LangTypes[ext]
 }
 
 function getRequestLookupExts (requestType: RequestType): string[] {
   let exts: string[] = []
 
   _.forIn(LangTypes, (value, key) => {
-    if (requestType === value.requestType) {
+    if (requestType === value) {
       exts.push(key)
     }
   })

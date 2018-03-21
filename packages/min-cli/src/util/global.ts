@@ -4,7 +4,32 @@ import * as _ from 'lodash'
 import { WxSFMScript, Request } from '../class'
 import { config, dom, log, LogType } from '../util'
 
-type StyleType = 'Less' | 'Pcss'
+interface SymbolExpression {
+  name: string
+  exp: string
+}
+
+const SymbolType: {
+  [key: string]: SymbolExpression
+} = {
+  // @w: 100px
+  AT: {
+    name: '@',
+    exp: ':'
+  }, // less
+
+  // $w: 100px
+  Dollar: {
+    name: '$',
+    exp: ':'
+  }, // postcss、sass
+
+  // font-size = 14px
+  None: {
+    name: '',
+    exp: '='
+  } // stylus
+}
 
 export namespace Global {
 
@@ -14,8 +39,11 @@ export namespace Global {
 
   export interface Style {
     config: StyleConfig
-    lessCode: string
-    pcssCode: string
+    withAtSymbolVariables: string
+    withDollarSymbolVariables: string
+    noWithSymbolVariables: string
+    // lessCode: string
+    // pcssCode: string
   }
 
   export interface Config {
@@ -204,13 +232,13 @@ export class Global {
     let file = path.join(config.cwd, config.filename)
     let configData = fs.existsSync(file) ? fs.readJsonSync(file) : {}
     let { style: styleConfig = {} } = configData
-    let lessCode = this.generateStyleVariables(styleConfig, 'Less')
-    let pcssCode = this.generateStyleVariables(styleConfig, 'Pcss')
+
     this.config = {
       style: {
         config: configData,
-        lessCode,
-        pcssCode
+        withAtSymbolVariables: this.generateStyleVariables(styleConfig, SymbolType['AT']),
+        withDollarSymbolVariables: this.generateStyleVariables(styleConfig, SymbolType['Dollar']),
+        noWithSymbolVariables: this.generateStyleVariables(styleConfig, SymbolType['None'])
       }
     }
   }
@@ -220,29 +248,20 @@ export class Global {
    *
    * @private
    * @param {Global.StyleConfig} styleConfig
-   * @param {StyleType} styleType
+   * @param {SymbolExpression} symbolExpression
    * @returns
    * @memberof Global
    */
-  private generateStyleVariables (styleConfig: Global.StyleConfig, styleType: StyleType) {
+  private generateStyleVariables (styleConfig: Global.StyleConfig, symbolExpression: SymbolExpression) {
     let map: string[] = []
     let httpRegExp = /^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i
-    let symbol = ''
-    switch (styleType) {
-      case 'Less':
-        symbol = '@'
-        break
-      case 'Pcss':
-        symbol = '$'
-        break
-      default:
-        throw new Error('没有找到StyleType类型')
-    }
+    let { name: symbolName, exp: symbolExp} = symbolExpression
+
     _.forIn(styleConfig, (value, key) => {
       if (httpRegExp.test(value)) {
         value = `'${value}'`
       }
-      map.push(`${symbol}${key}: ${value};`)
+      map.push(`${symbolName}${key}${symbolExp} ${value};`)
     })
     return map.join('\n')
   }
@@ -269,20 +288,19 @@ export class Global {
       mixins: [],
       requestDeclaration: []
     }
-    let mixins = []
 
     if (request.src) {
       let source = fs.readFileSync(request.src, 'utf-8')
 
       // 单文件组合
       let {
-        script: { code: scriptCode, compileType: scriptCompileType },
+        script,
         template: { code: templateCode }
       } = dom.getSFC(source)
 
       // script模块
-      let wxSFMScript = new WxSFMScript(scriptCode, request, {
-        compileType: scriptCompileType
+      let wxSFMScript = new WxSFMScript(script.code, request, {
+        lang: script.lang
       })
 
       template = templateCode

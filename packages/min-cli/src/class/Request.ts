@@ -167,127 +167,6 @@ export namespace Request {
    * @interface Extend
    */
   export interface Extend {
-
-    /**
-     * 是否.wxa扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isWxa: boolean
-
-    /**
-     * 是否.wxp扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isWxp: boolean
-
-    /**
-     * 是否.wxc扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isWxc: boolean
-
-    /**
-     * 是否.wxml扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isWxml: boolean
-
-    /**
-     * 是否.wxss扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isWxss: boolean
-
-    /**
-     * 是否.wxs扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isWxs: boolean
-
-    /**
-     * 是否.js扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isJs: boolean
-
-    /**
-     * 是否.ts扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isTs: boolean
-
-    /**
-     * 是否.cs扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isCs: boolean
-
-    /**
-     * 是否.json扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isJson: boolean
-
-    /**
-     * 是否.css扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isCss: boolean
-
-    /**
-     * 是否.less扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isLess: boolean
-
-    /**
-     * 是否.pcss扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isPcss: boolean
-
-    /**
-     * 是否.sass扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isSass: boolean
-
-    /**
-     * 是否.stylus扩展
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isStylus: boolean
-
     /**
      * 是否单文件类型，比如.wxa .wxp .wxc，当isWxa isWxp isWxc 三者中值存在真时它就为真
      *
@@ -295,6 +174,10 @@ export namespace Request {
      * @memberof Extend
      */
     isSFC: boolean
+
+    isWxa: boolean
+    isWxp: boolean
+    isWxc: boolean
 
     /**
      * 是否原生文件类型，理论上非单文件类型的都属于原生文件，当isTemplate isScript isStyle 三者中值存在真时它就为真
@@ -305,28 +188,56 @@ export namespace Request {
     isNFC: boolean
 
     /**
-     * 是否模板文件类型，比如.wxml等
+     * 是否模板文件类型，比如.wxml .pug等
      *
      * @type {boolean}
      * @memberof Extend
      */
     isTemplate: boolean
 
+    isWxml: boolean
+    isPug: boolean
+
     /**
-     * 是否脚本文件类型，比如.js .ts .cs .wxs等
+     * 是否脚本文件类型，比如.js .ts .wxs等
      *
      * @type {boolean}
      * @memberof Extend
      */
     isScript: boolean
 
+    isJs: boolean
+    isTs: boolean
+    isWxs: boolean
+
     /**
-     * 是否为样式文件类型，比如.css .wxss .less .pcss等
+     * 是否为样式文件类型，比如.css .wxss .less .pcss .postcss .sass .scss .styl .stylus等
      *
      * @type {boolean}
      * @memberof Extend
      */
     isStyle: boolean
+
+    isCss: boolean
+    isWxss: boolean
+    isLess: boolean
+    isPcss: boolean
+    isPostcss: boolean
+    isSass: boolean
+    isScss: boolean
+    isStyl: boolean
+    isStylus: boolean
+
+    // JSON
+    isJson: boolean
+
+    /**
+     * 是否为图片文件类型，比如.png .jpg .jpeg .gif .bmp .webp
+     *
+     * @type {boolean}
+     * @memberof Extend
+     */
+    isImage: boolean
 
     isPng: boolean
     isJpg: boolean
@@ -336,25 +247,17 @@ export namespace Request {
     isWebp: boolean
 
     /**
-     * 是否为图片文件类型，比如.png .jpeg .gif .bmp .webp
-     *
-     * @type {boolean}
-     * @memberof Extend
-     */
-    isImage: boolean
-
-    isEot: boolean
-    isSvg: boolean
-    isTtf: boolean
-    isWoff: boolean
-
-    /**
      * 是否为图标字体文件，比如.eot .svg .ttf .woff
      *
      * @type {boolean}
      * @memberof Extend
      */
     isIconFont: boolean
+
+    isEot: boolean
+    isSvg: boolean
+    isTtf: boolean
+    isWoff: boolean
   }
 }
 
@@ -401,20 +304,35 @@ export class RequestCore implements Request.Core {
  * @implements {Request.Extend}
  */
 export class RequestExtend extends RequestCore implements Request.Extend {
+  // SFC
   isWxa: boolean
   isWxp: boolean
   isWxc: boolean
 
+  // TEMPLATE
   isWxml: boolean
-  isWxss: boolean
+  isPug: boolean
 
+  // SCRIPT
   isJs: boolean
   isTs: boolean
-  isCs: boolean
-
-  isJson: boolean
   isWxs: boolean
 
+  // STYLE
+  isCss: boolean
+  isWxss: boolean
+  isLess: boolean
+  isPcss: boolean
+  isPostcss: boolean
+  isSass: boolean
+  isScss: boolean
+  isStyl: boolean
+  isStylus: boolean
+
+  // JSON
+  isJson: boolean
+
+  // IMAGE
   isPng: boolean
   isJpg: boolean
   isJpeg: boolean
@@ -422,16 +340,11 @@ export class RequestExtend extends RequestCore implements Request.Extend {
   isBmp: boolean
   isWebp: boolean
 
+  // ICONFONT
   isEot: boolean
   isSvg: boolean
   isTtf: boolean
   isWoff: boolean
-
-  isCss: boolean
-  isLess: boolean
-  isPcss: boolean
-  isSass: boolean
-  isStylus: boolean
 
   /**
    * 是否单文件类型
@@ -460,7 +373,7 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    * @memberof RequestExtend
    */
   get isTemplate () {
-    return this.isWxml
+    return this.isWxml || this.isPug
   }
 
   /**
@@ -470,7 +383,7 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    * @memberof RequestExtend
    */
   get isScript () {
-    return this.isJs || this.isTs || this.isCs || this.isWxs
+    return this.isJs || this.isTs || this.isWxs
   }
 
   /**
@@ -480,7 +393,11 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    * @memberof RequestExtend
    */
   get isStyle () {
-    return this.isCss || this.isWxss || this.isLess || this.isPcss || this.isSass || this.isStylus
+    return this.isCss || this.isWxss ||
+      this.isLess ||
+      this.isPcss || this.isPostcss ||
+      this.isSass || this.isScss ||
+      this.isStyl || this.isStylus
   }
 
   /**
@@ -494,6 +411,21 @@ export class RequestExtend extends RequestCore implements Request.Extend {
   }
 
   /**
+   * 是否为图片文件
+   *
+   * @readonly
+   * @memberof RequestExtend
+   */
+  get isImage () {
+    return this.isPng ||
+      this.isJpg ||
+      this.isJpeg ||
+      this.isGif ||
+      this.isBmp ||
+      this.isWebp
+  }
+
+  /**
    * 是否为图标字体文件
    *
    * @readonly
@@ -501,16 +433,6 @@ export class RequestExtend extends RequestCore implements Request.Extend {
    */
   get isIconFont () {
     return this.isEot || this.isSvg || this.isTtf || this.isWoff
-  }
-
-  /**
-   * 是否为图片文件
-   *
-   * @readonly
-   * @memberof RequestExtend
-   */
-  get isImage () {
-    return this.isPng || this.isJpg || this.isJpeg || this.isGif || this.isBmp || this.isWebp
   }
 
   /**

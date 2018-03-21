@@ -5,9 +5,9 @@ import * as changeCase from 'change-case'
 import * as babel from 'babel-core'
 import * as traverse from 'babel-traverse'
 import { Depend, Request, WxSFM } from '../class'
-import { RequestType, CompileType } from '../declare'
+import { RequestType } from '../declare'
 import util, { config, log, LogType, md, Global } from '../util'
-import { loader, PluginHelper } from '@mindev/min-core'
+import core, { loader, PluginHelper } from '@mindev/min-core'
 
 import t = babel.types
 import NodePath = traverse.NodePath
@@ -31,12 +31,12 @@ export namespace WxSFMScript {
   export interface Options {
 
     /**
-     * 编译类型
+     * 预编译语言
      *
-     * @type {CompileType}
+     * @type {string}
      * @memberof Options
      */
-    compileType?: CompileType
+    lang: string
   }
 
   /**
@@ -120,7 +120,7 @@ export class WxSFMScript extends WxSFM {
    * Creates an instance of WxSFMScript.
    * @param {string} source
    * @param {Request} request
-   * @param {CompileType} compileType
+   * @param {WxSFMScript.Options} options
    * @memberof WxSFMScript
    */
   constructor (source: string, request: Request, public options: WxSFMScript.Options) {
@@ -232,25 +232,62 @@ export class WxSFMScript extends WxSFM {
    * @memberof WxSFMScript
    */
   generator (): string {
-    let { isThreeNpm, ext } = this.request
-
-    // for @mindev/min-compiler-babel
-    // 第三方NPM包，不使用babel编译
-    let transformOptions = isThreeNpm ? {} : (config.compilers['babel'] || {})
-
-    // TODO BUG
-    // wxs文件 或者 build编译情况下，关闭sourceMaps
-    if (ext === config.ext.wxs) {
-      transformOptions = _.omit(transformOptions, 'sourceMaps')
+    if (!this.node) {
+      return ''
     }
 
-    let result = babel.transformFromAst(this.node, this.source, {
-      ast: false,
-      babelrc: false,
+    let { lang = 'babel' } = this.options
+    let { isThreeNpm, ext } = this.request
+
+    if (lang === 'ts') {
+      lang = 'typescript'
+    }
+
+    if (isThreeNpm || lang === 'js' || lang === 'typescript') {
+      let result = babel.transformFromAst(this.node, this.source, {
+        ast: false,
+        babelrc: false,
+        filename: this.request.src
+      })
+      return result.code || ''
+    }
+
+    let compilerConfig = config.compilers[lang] || {}
+
+    if (lang === 'babel') {
+      if (ext === config.ext.wxs) {
+        // TODO BUG
+        // wxs文件 或者 build编译情况下，关闭sourceMaps
+        compilerConfig = _.omit(compilerConfig, 'sourceMaps')
+      }
+    }
+
+    let compiler = loader.loadCompiler(lang)
+
+    if (!compiler) {
+      throw new Error(`未发现 ${lang} 的编译器，请安装@mindev/min-compiler-${lang}`)
+    }
+
+    if (!compiler.sync) {
+      throw new Error(`未发现 ${lang} 的编译器的 sync 同步方法`)
+    }
+
+    let result = compiler.sync({
+      cwd: config.cwd,
       filename: this.request.src,
-      ...transformOptions
+      config: compilerConfig,
+      extend: {
+        ast: this.node,
+        code: this.source
+      }
     })
-    let { code = '' } = result
+
+    let {
+      extend: {
+        code = ''
+      } = {}
+    } = result
+
     return code
   }
 
@@ -302,7 +339,40 @@ export class WxSFMScript extends WxSFM {
    * @memberof WxSFMScript
    */
   private initNode () {
-    let result = babel.transform(this.source, {
+    let { source } = this
+    let { lang = 'babel' } = this.options
+
+    if (!source) {
+      return
+    }
+
+    if (lang === 'ts') {
+      lang = 'typescript'
+    }
+
+    if (lang === 'typescript') {
+      let compiler = loader.loadCompiler(lang)
+
+      if (!compiler) {
+        throw new Error(`未发现 ${lang} 的编译器，请安装@mindev/min-compiler-${lang}`)
+      }
+
+      if (!compiler.sync) {
+        throw new Error(`未发现 ${lang} 的编译器的 sync 同步方法`)
+      }
+
+      let result = compiler.sync({
+        cwd: config.cwd,
+        filename: this.request.src,
+        config: config.compilers[lang],
+        extend: {
+          code: this.source
+        }
+      })
+      source = result.extend.code
+    }
+
+    let result = babel.transform(source, {
       ast: true,
       babelrc: false
     })

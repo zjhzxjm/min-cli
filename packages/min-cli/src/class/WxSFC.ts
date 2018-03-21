@@ -24,27 +24,25 @@ export class WxSFC implements WxFile.Core {
    */
   constructor (public source: string, request: Request) {
     let {
-      script: { code: scriptCode, compileType: scriptCompileType },
-      template: { code: templateCode, compileType: templateCompileType },
-      style: { code: styleCode, compileType: styleCompileType }
+      script, template, style
     } = dom.getSFC(this.source)
 
     // SCRIPT
-    this.script = new WxSFMScript(scriptCode, request, {
-      compileType: scriptCompileType
+    this.script = new WxSFMScript(script.code, request, {
+      lang: script.lang
     })
 
     let usingComponents = this.script.getUsingComponents()
 
     // TEMPLATE
-    this.template = new WxSFMTemplate(templateCode, request, {
-      compileType: templateCompileType,
+    this.template = new WxSFMTemplate(template.code, request, {
+      lang: template.lang,
       usingComponents
     })
 
     // STYLE
-    this.style = new WxSFMStyle(styleCode, request, {
-      compileType: styleCompileType
+    this.style = new WxSFMStyle(style.code, request, {
+      lang: style.lang
     })
   }
 

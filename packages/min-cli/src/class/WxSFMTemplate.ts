@@ -1,9 +1,9 @@
 import * as path from 'path'
 import * as changeCase from 'change-case'
 import { Depend, Request, WxSFM } from '../class'
-import { CompileType } from '../declare'
 import util, { config, dom, log, beautifyHtml, Global, getOuterHTML } from '../util'
 import { RequestType } from '../declare/RequestType'
+import core, { loader } from '@mindev/min-core'
 
 const htmlparser = require('htmlparser2')
 const PID_KEY = '_pid'
@@ -12,12 +12,12 @@ export namespace WxSFMTemplate {
   export interface Options {
 
     /**
-     * 编译类型
+     * 预编译语言
      *
-     * @type {CompileType}
+     * @type {string}
      * @memberof Options
      */
-    compileType?: CompileType
+    lang: string
 
     /**
      * 引用组件
@@ -84,7 +84,7 @@ export class WxSFMTemplate extends WxSFM {
    * Creates an instance of WxSFMTemplate.
    * @param {string} source
    * @param {Request} request
-   * @param {CompileType} compileType
+   * @param {WxSFMTemplate.Options} options
    * @memberof WxSFMTemplate
    */
   constructor (source: string, request: Request, public options: WxSFMTemplate.Options) {
@@ -188,18 +188,19 @@ export class WxSFMTemplate extends WxSFM {
    * @memberof WxSFMTemplate
    */
   private initDom () {
-    if (!this.source) return
+    let { source } = this
+    let { lang = 'wxml', usingComponents = {} } = this.options
 
-    let { usingComponents = {} } = this.options
+    if (!source) return
 
-    let source = this.source
+    source = this.comiple(source, lang)
 
     if (this.isWxp) { // 只有.wxp页面才可以使用公共模板
       let { template } = Global.layout.app
       let { placeholder } = config.layout
       source = template.indexOf(placeholder) !== -1
-        ? template.replace(placeholder, this.source)
-        : this.source
+        ? template.replace(placeholder, source)
+        : source
     }
 
     this.dom = dom.make(source)
@@ -218,6 +219,42 @@ export class WxSFMTemplate extends WxSFM {
     this.demoElems = htmlparser.DomUtils.getElementsByTagName((name: string) => {
       return /^demo-/.test(name)
     }, this.exampleElem, true, [])
+  }
+
+  private comiple (source: string, lang: string): string {
+    let compiler = loader.loadCompiler(lang)
+
+    if (!compiler) {
+      throw new Error(`未发现 ${lang} 的编译器，请安装@mindev/min-compiler-${lang}`)
+    }
+
+    if (lang === 'pug') {
+      let indent = core.util.getIndent(source)
+      if (indent.firstLineIndent) {
+        source = core.util.fixIndent(source, indent.firstLineIndent * -1, indent.char)
+      }
+    }
+
+    if (compiler.sync) {
+      let result = compiler.sync({
+        cwd: config.cwd,
+        filename: this.request.src,
+        config: config.compilers[lang],
+        extend: {
+          code: source
+        }
+      })
+
+      let {
+        extend: {
+          code = ''
+        } = {}
+      } = result
+
+      source = code
+    }
+
+    return source
   }
 
   /**

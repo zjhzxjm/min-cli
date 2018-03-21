@@ -59,39 +59,47 @@ export interface Config extends CustomConfig {
     [key: string]: string
   }
   ext: { // 扩展名
-    // 单文件
-    wxc: string
-    wxp: string
+    // SFC
     wxa: string
+    wxp: string
+    wxc: string
 
-    // 多文件
+    // TEMPLATE
     wxml: string
-    wxss: string
+    pug: string
+
+    // SCRIPT
     js: string
+    ts: string
+    wxs: string
+
+    // STYLE
+    css: string
+    wxss: string
+    less: string
+    pcss: string
+    postcss: string
+    sass: string
+    scss: string
+    styl: string
+    stylus: string
+
+    // JSON
     json: string
 
+    // IMAGE
     png: string
     jpg: string
     jpeg: string
     gif: string
+    bmp: string
     webp: string
 
+    // ICONFONT
     eot: string
     svg: string
     ttf: string
     woff: string
-
-    wxs: string
-
-    // 不支持 .css 扩展
-    // css: '.css'
-
-    // 预编译
-    less: string
-    pcss: string
-
-    // sass: '.sass'
-    // stylus: '.stylus'
 
     [key: string]: string
   }
@@ -103,29 +111,7 @@ export interface Config extends CustomConfig {
   compilers: any
   plugins: any
   lint: any
-  style: {
-    lang: { // CSS预编译器 【当前版本不支持自定义配置】
-      less: string
-      scss: string
-      sass: string
-      pcss: string
-      postcss: string
-    }
-    compile: { // 编译插件 【当前版本不支持自定义配置】
-      // 'less': () => {}
-      // 'sass': () => {}
-      // 'postcss': () => {}
-      [key: string]: Function
-    }
-    unit: {
-      px2rpx: boolean
-      rem2rpx: boolean
-    }
-    bem: {
-      use: boolean
-      rule: string
-    }
-  }
+
   log: {
     verbose: boolean // 显示详细信息
     time: boolean // 显示时间

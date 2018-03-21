@@ -1,5 +1,4 @@
 import { Depend, Request, WxFile, WxSFMTemplate, WxSFMScript, WxSFMStyle } from '../class'
-import { LangTypes } from '../declare'
 
 /**
  * 原生文件组合类
@@ -19,22 +18,22 @@ export class WxNFC implements WxFile.Core {
    */
   constructor (public source: string, public request: Request) {
     let { isScript, isStyle, isTemplate } = request
-    let { compileType = undefined } = LangTypes[request.ext] || {}
+    let lang = request.ext
 
     if (isScript) {
       // SCRIPT
       this.sfm = new WxSFMScript(this.source, request, {
-        compileType
+        lang
       })
     } else if (isStyle) {
       // STYLE
       this.sfm = new WxSFMStyle(this.source, request, {
-        compileType
+        lang
       })
     } else if (isTemplate) {
       // TEMPLATE
       this.sfm = new WxSFMTemplate(this.source, request, {
-        compileType
+        lang
       })
     } else {
       throw new Error(`创建【WxNFC】失败，没有找到扩展名为 ${request.ext} 的编译类型`)

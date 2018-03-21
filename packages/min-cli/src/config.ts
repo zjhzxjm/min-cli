@@ -45,40 +45,47 @@ const config: Config = {
   resolveId: {},
   resolveVirtual: {},
   ext: { // 扩展名
-    // 单文件
-    wxc: '.wxc',
-    wxp: '.wxp',
+    // SFC
     wxa: '.wxa',
+    wxp: '.wxp',
+    wxc: '.wxc',
 
-    // 多文件
+    // TEMPLATE
     wxml: '.wxml',
-    wxss: '.wxss',
+    pug: '.pug',
+
+    // SCRIPT
     js: '.js',
+    ts: '.ts',
+    wxs: '.wxs',
+
+    // STYLE
+    css: '.css',
+    wxss: '.wxss',
+    less: '.less',
+    pcss: '.pcss',
+    postcss: '.postcss',
+    sass: '.sass',
+    scss: '.scss',
+    styl: '.styl',
+    stylus: '.stylus',
+
+    // JSON
     json: '.json',
 
+    // IMAGE
     png: '.png',
     jpg: '.jpg',
     jpeg: '.jpeg',
     gif: '.gif',
+    bmp: '.bmp',
     webp: '.webp',
 
+    // ICONFONT
     eot: '.eot',
     svg: '.svg',
     ttf: '.ttf',
-    woff: '.woff',
-
-    wxs: '.wxs',
-
-    // 不支持 .css 扩展
-    css: '.css',
-
-    // 预编译
-    less: '.less',
-    pcss: '.pcss',
-    postcss: '.postcss',
-
-    sass: '.sass',
-    stylus: '.stylus'
+    woff: '.woff'
   },
   structure: { // 构造器
     wxc: 'Component',
@@ -88,28 +95,6 @@ const config: Config = {
   compilers: {},
   plugins: {},
   lint: {},
-  style: {
-    lang: { // CSS预编译器 【当前版本不支持自定义配置】
-      'less': 'less',
-      'scss': 'sass',
-      'sass': 'sass',
-      'pcss': 'postcss',
-      'postcss': 'postcss'
-    },
-    compile: { // 编译插件 【当前版本不支持自定义配置】
-      // 'less': () => {},
-      // 'sass': () => {},
-      // 'postcss': () => {}
-    },
-    unit: {
-      px2rpx: true,
-      rem2rpx: true
-    },
-    bem: {
-      use: true,
-      rule: ''
-    }
-  },
   log: {
     verbose: true, // 显示详细信息
     time: true, // 显示时间
