@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "min core",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -20,7 +20,8 @@
     "core"
   ],
   "dependencies": {
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "tslib": "^1.9.0"
   },
   "devDependencies": {},
   "author": "Min Team",

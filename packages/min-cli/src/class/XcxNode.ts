@@ -185,7 +185,7 @@ export class XcxNode {
 
       if (isVirtual) {
         this.resolveVirtual(depend)
-        return
+        continue
       }
 
       // 创建一个节点

@@ -23,7 +23,5 @@
   "author": "Min Team",
   "license": "MIT",
   "devDependencies": {},
-  "dependencies": {
-    "tslib": "^1.9.0"
-  }
+  "dependencies": {}
 }
