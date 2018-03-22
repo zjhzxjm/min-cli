@@ -3,6 +3,8 @@ import { Config } from './declare'
 const scope = '@minui'
 
 const config: Config = {
+  clear: true,
+  app: true,
   title: 'MinUI',
   cli: 'min',
   filename: 'min.config.json',

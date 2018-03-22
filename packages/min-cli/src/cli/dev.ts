@@ -1,6 +1,6 @@
 import * as chokidar from 'chokidar'
 import { CLIExample, Xcx, XcxNode } from '../class'
-import util, { Global } from '../util'
+import util, { Global, config } from '../util'
 
 export namespace DevCommand {
 
@@ -76,6 +76,12 @@ export class DevCommand {
           xcxNode.compile()
         },
         pages (pages: string[]) {
+          // TODO 此处待优化CONFIG - START
+          if (!config.app) {
+            return
+          }
+          // TODO 此处待优化CONFIG - END
+
           Global.saveAppConfig(pages)
         }
       }
@@ -129,7 +135,9 @@ export default {
     let devCommand = new DevCommand({
       pages,
       watch: true,
-      clear: true
+      // TODO 此处待优化CONFIG - START
+      clear: config.clear
+      // TODO 此处待优化CONFIG - END
     })
     await devCommand.run()
   }

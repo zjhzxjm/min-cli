@@ -26,6 +26,10 @@ export interface CustomConfig {
 }
 
 export interface Config extends CustomConfig {
+  // TODO 此处待优化CONFIG - START
+  clear: boolean
+  app: boolean
+  // TODO 此处待优化CONFIG - END
   title: string
   cli: string
   filename: string

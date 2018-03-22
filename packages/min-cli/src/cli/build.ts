@@ -69,7 +69,9 @@ export class BuildCommand {
    */
   private async buildMinProject () {
     let xcx = new Xcx({
-      isClear: true,
+      // TODO 此处待优化CONFIG - START
+      isClear: config.clear,
+      // TODO 此处待优化CONFIG - END
       app: {
         isSFC: true
       },
@@ -78,6 +80,12 @@ export class BuildCommand {
           xcxNode.compile()
         },
         pages (pages: string[]) {
+          // TODO 此处待优化CONFIG - START
+          if (!config.app) {
+            return
+          }
+          // TODO 此处待优化CONFIG - END
+
           Global.saveAppConfig(pages)
         }
       }

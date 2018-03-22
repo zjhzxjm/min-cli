@@ -277,6 +277,12 @@ export class Xcx {
    * @memberof Xcx
    */
   private appCompile () {
+    // TODO 此处待优化CONFIG - START
+    if (!config.app) {
+      return
+    }
+    // TODO 此处待优化CONFIG - END
+
     let { app = {} } = this.options
     let { isSFC } = app
     let xcxEntry: Xcx.Entry = {

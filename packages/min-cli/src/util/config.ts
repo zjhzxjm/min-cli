@@ -14,6 +14,10 @@ type GetPathType = 'file' | 'src' | 'dest' | 'pages' | 'packages' | 'cache.file'
  * 自定义配置白名单成员
  */
 const CUSTOM_CONFIG_MEMBER: string[] = [
+  // TODO 此处待优化CONFIG - START
+  'clear', // 编译时，是否清空目录
+  'app', // 是否输出app.js app.json app.wxss
+  // TODO 此处待优化CONFIG - END
   'style',
   'compilers', // 编译器
   'plugins', // 插件
