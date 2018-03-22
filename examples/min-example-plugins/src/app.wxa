@@ -9,7 +9,7 @@
   </view>
 </template>
 
-<script>
+<script lang="babel">
   export default {
     config: {
       usingComponents: {

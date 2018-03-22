@@ -34,6 +34,10 @@ function getSFM (parent: any, tagName: string) {
     // code = htmlparser.DomUtils.getInnerHTML(elem)
     code = getInnerHTML(elem)
     lang = elem.attribs.lang
+
+    if (typeof lang !== 'undefined') {
+      lang = lang.toLowerCase()
+    }
   }
   return {
     code,

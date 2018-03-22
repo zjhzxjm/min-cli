@@ -14,17 +14,6 @@
         "transform-decorators-legacy",
         "transform-export-extensions"
       ]
-    },
-    "less": {
-
-    },
-    "postcss": {
-      "plugins": [
-      ]
-    },
-
-    "stylus": {
-
     }
   },
   "plugins": {

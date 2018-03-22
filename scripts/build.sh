@@ -42,6 +42,7 @@ examples=(
   'min-example-async-await'
   'min-example-compilers'
   'min-example-mixins'
+  'min-example-plugins'
 )
 
 if [ ! "$1" ] ;then  # npm run build

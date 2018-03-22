@@ -18,7 +18,7 @@ export class WxNFC implements WxFile.Core {
    */
   constructor (public source: string, public request: Request) {
     let { isScript, isStyle, isTemplate } = request
-    let lang = request.ext
+    let lang = request.ext.replace(/[^a-z]/, '')
 
     if (isScript) {
       // SCRIPT

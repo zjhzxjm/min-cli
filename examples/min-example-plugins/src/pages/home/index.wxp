@@ -16,7 +16,7 @@
 
 </template>
 
-<script>
+<script lang="Babel">
 if (PRODUCTION) {
   console.log('PRODUCTION')
 }

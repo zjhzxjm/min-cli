@@ -550,7 +550,7 @@ export function resolveDep (requestOptions: Request.Options): Request.Core {
   let src = findPath(rawRequest, requestType, lookupPaths, lookupExts) || ''
   if (src) {
     srcRelative = path.relative(config.cwd, src)
-    ext = path.extname(src)
+    ext = path.extname(src).toLowerCase()
     destRelative = src2destRelative(srcRelative, isPublish)
     dest = path.join(config.cwd, destRelative)
 

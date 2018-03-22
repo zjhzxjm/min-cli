@@ -10,17 +10,12 @@
     "watch": "../../packages/min-cli/lib/bin/min.js dev"
   },
   "dependencies": {
-    "@minui/wxc-dialog": "^1.0.8",
-    "node-sass": "^4.7.2"
+    "@minui/wxc-dialog": "^1.0.8"
   },
   "devDependencies": {
     "@mindev/min-compiler-babel": "^1.0.0",
     "@mindev/min-compiler-less": "^1.0.0",
     "@mindev/min-compiler-postcss": "^1.0.0",
-    "@mindev/min-compiler-pug": "^1.0.0",
-    "@mindev/min-compiler-sass": "^1.0.0",
-    "@mindev/min-compiler-stylus": "^1.0.0",
-    "@mindev/min-compiler-typescript": "^1.0.0",
     "@mindev/min-lint-eslint": "^1.0.0",
     "@mindev/min-plugin-autoprefixer": "^1.0.0",
     "@mindev/min-plugin-define": "^1.0.0",
@@ -40,8 +35,7 @@
     "eslint-friendly-formatter": "^2.0.7",
     "eslint-plugin-html": "^2.0.3",
     "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "^2.0.1",
-    "precss": "^3.1.2"
+    "eslint-plugin-standard": "^2.0.1"
   },
   "minConfig": {
     "projectType": "application"
