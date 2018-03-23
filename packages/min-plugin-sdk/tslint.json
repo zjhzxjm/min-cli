@@ -1,8 +1,0 @@
-{
-  "extends": "../../tslint.json",
-  "rules": {
-    "one-line": [true],
-    "brace-style": [true],
-    "no-empty": [false]
-  }
-}
