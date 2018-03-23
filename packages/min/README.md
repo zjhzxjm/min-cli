@@ -45,7 +45,7 @@ min.init({
 
 ## 使用
 
-### 一、使用 mixins
+### 一、使用 mixin
 
 - **定义一个 sayHello mixin 对象**
 
@@ -99,9 +99,9 @@ export default {
 </style>
 ```
 
-### 二、注册全局 Components、mixins
+### 二、注册全局 Component、mixin
 
-> 将公共基础组件放置全局模板内，并提供全局的mixins函数，通过 min dev 编译后让每个页面都能直接控制其组件实例
+> 将公共基础组件放置全局模板内，并提供全局的mixin函数，通过 min dev 编译后让每个页面都能直接控制其组件实例
 
 - **安装示例中用到的 MinUI 组件**
 
@@ -139,7 +139,7 @@ export default {
 }
 ```
 
-- **在 app.wxa 内放置公共模板、注册全局 Components 和 mixins**
+- **在 app.wxa 内放置公共模板、注册全局 Component 和 mixin**
 
 ``` html
 // 全局模板
@@ -187,7 +187,7 @@ export default {
 
 - **在任意的 .wxp 里可直接访问**
 
-> 经 min dev 编译后，全局 mixins 已混入到各个 .wxp 页面中
+> 经 min dev 编译后，全局 mixin 已混入到各个 .wxp 页面中
 
 ``` js
 export default min.Page({
@@ -266,9 +266,9 @@ min.intercept('request', {
 ## ChangeLog
 
 - **2.0.0**
-  - 支持 mixins
+  - 支持 mixin
   - 支持 全局访问 min 变量
-  - 支持 全局注册 Component、mixins
+  - 支持 全局注册 Component、mixin
   - 支持 min.api 接口 promise 化
   - 支持 min.intercept 拦截器
   - 优化 wx.request 并发次数限制
