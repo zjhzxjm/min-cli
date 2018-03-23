@@ -8,20 +8,7 @@ import core, { loader, CompilerHelper } from '@mindev/min-core'
 
 export namespace WxSFMStyle {
 
-  /**
-   * 选项
-   *
-   * @export
-   * @interface Options
-   */
   export interface Options {
-
-    /**
-     * 预编译语言
-     *
-     * @type {string}
-     * @memberof Options
-     */
     lang: string
   }
 }
@@ -42,6 +29,7 @@ export class WxSFMStyle extends WxSFM {
    * @type {postcss.Result}
    * @memberof WxSFMStyle
    */
+  private result: postcss.Result = null
 
   /**
    * 依赖列表
@@ -63,6 +51,8 @@ export class WxSFMStyle extends WxSFM {
     super(source, request, {
       destExt: config.ext.wxss
     })
+
+    this.initDepends()
   }
 
   /**
@@ -79,11 +69,24 @@ export class WxSFMStyle extends WxSFM {
       return source
     }
 
+    if (lang === 'wxss') {
+      if (this.result) {
+        source = await postcss().process(this.result).then(result => result.css)
+      }
+      return source
+    }
+
+    if (lang === 'pcss') {
+      lang = 'postcss'
+    } else if (lang === 'styl') {
+      lang = 'stylus'
+    }
+
     let compilerConfig = config.compilers[lang]
 
     if (lang === 'sass' || lang === 'scss') {
       let indentedSyntax = false
-      compilerConfig = Object.assign({}, config.compilers.sass || {})
+      compilerConfig = Object.assign({}, config.compilers['sass'] || {})
 
       if (lang === 'sass') { // sass is using indented syntax
         indentedSyntax = true
@@ -97,10 +100,6 @@ export class WxSFMStyle extends WxSFM {
       }
 
       lang = 'sass'
-    } else if (lang === 'pcss') {
-      lang = 'postcss'
-    } else if (lang === 'styl') {
-      lang = 'stylus'
     }
 
     let compiler = loader.loadCompiler(lang)
@@ -158,37 +157,37 @@ export class WxSFMStyle extends WxSFM {
    * @memberof WxSFMStyle
    */
   updateDepends (useRequests: Request.Core[]): void {
-    // let depends = this.getDepends()
+    let depends = this.getDepends()
 
-    // if (!depends.length) return
+    if (!depends.length) return
 
-    // useRequests.forEach(useRequest => {
-    //   depends
-    //   .filter(depend => {
-    //     return depend.requestType === useRequest.requestType && depend.request === useRequest.request
-    //   })
-    //   .forEach(depend => {
-    //     let request = ''
-    //     request = path.relative(path.dirname(this.dest), path.dirname(useRequest.dest))
-    //     request = path.join(request, path.basename(useRequest.dest, useRequest.ext))
-    //     request = request.charAt(0) !== '.' ? `./${request}` : request
-    //     request = request.split(path.sep).join('/')
+    useRequests.forEach(useRequest => {
+      depends
+      .filter(depend => {
+        return depend.requestType === useRequest.requestType && depend.request === useRequest.request
+      })
+      .forEach(depend => {
+        let request = ''
+        request = path.relative(path.dirname(this.dest), path.dirname(useRequest.dest))
+        request = path.join(request, path.basename(useRequest.dest, useRequest.ext))
+        request = request.charAt(0) !== '.' ? `./${request}` : request
+        request = request.split(path.sep).join('/')
 
-    //     switch (depend.requestType) {
-    //       case RequestType.STYLE:
-    //         // ② 更新依赖引用路径，将所有的扩展名统一改成 .wxss
-    //         depend.$atRule.params = `'${request}${config.ext.wxss}'`
-    //         break
+        switch (depend.requestType) {
+          case RequestType.STYLE:
+            // ② 更新依赖引用路径，将所有的扩展名统一改成 .wxss
+            depend.$atRule.params = `'${request}${config.ext.wxss}'`
+            break
 
-    //       case RequestType.ICONFONT:
-    //         let requestURL = url.parse(depend.request)
-    //         // depend.request => ./iconfont.eot?t=1515059114217
-    //         // depend.$decl.value => url('./iconfont.eot?t=1515059114217')
-    //         depend.$decl.value = depend.$decl.value.replace(depend.request, `${request}${useRequest.ext}${requestURL.search}`)
-    //         break
-    //     }
-    //   })
-    // })
+          case RequestType.ICONFONT:
+            let requestURL = url.parse(depend.request)
+            // depend.request => ./iconfont.eot?t=1515059114217
+            // depend.$decl.value => url('./iconfont.eot?t=1515059114217')
+            depend.$decl.value = depend.$decl.value.replace(depend.request, `${request}${useRequest.ext}${requestURL.search}`)
+            break
+        }
+      })
+    })
   }
 
   private appendVariables (source: string, lang: string) {
@@ -236,71 +235,73 @@ export class WxSFMStyle extends WxSFM {
    * @private
    * @memberof WxSFMStyle
    */
-  // private initDepends () {
-  //   if (!this.source) return
-  //   if (this.options.lang === 'less') return
+  private initDepends () {
+    if (!this.source) return
+    let { lang = 'wxss' } = this.options
 
-  //   let transformer: postcss.Transformer = root => {
-  //     // @import
-  //     root.walkAtRules((rule, index) => {
-  //       if (rule.name !== 'import') {
-  //         return
-  //       }
-  //       // ① 收集所有的依赖，用于后续的依赖加载和路径更新
-  //       this.depends.push({
-  //         request: rule.params.replace(/^('|")(.*)('|")$/g, (match, quotn, filename) => filename),
-  //         requestType: RequestType.STYLE,
-  //         $atRule: rule
-  //       })
-  //     })
+    if (lang !== 'wxss') return
 
-  //     // background background-image
-  //     root.walkDecls((decl, index) => {
-  //       // WXSS 里不用本地资源
-  //       // background background-image => IMAGE
-  //       // decl.prop !== 'background' && decl.prop !== 'background-image'
+    let transformer: postcss.Transformer = root => {
+      // @import
+      root.walkAtRules((rule, index) => {
+        if (rule.name !== 'import') {
+          return
+        }
+        // ① 收集所有的依赖，用于后续的依赖加载和路径更新
+        this.depends.push({
+          request: rule.params.replace(/^('|")(.*)('|")$/g, (match, quotn, filename) => filename),
+          requestType: RequestType.STYLE,
+          $atRule: rule
+        })
+      })
 
-  //       // src => ICONFONT
-  //       if (decl.prop !== 'src') {
-  //         return
-  //       }
+      // background background-image
+      root.walkDecls((decl, index) => {
+        // WXSS 里不用本地资源
+        // background background-image => IMAGE
+        // decl.prop !== 'background' && decl.prop !== 'background-image'
 
-  //       // src: url('./iconfont.eot?t=1515059114217');
-  //       if (decl.value.indexOf('url') === -1) {
-  //         return
-  //       }
+        // src => ICONFONT
+        if (decl.prop !== 'src') {
+          return
+        }
 
-  //       // src: url('./iconfont.eot?t') format('embedded-opentype'), /* IE6-IE8 */
-  //       //      url('./iconfont.ttf?t=1515059114217') format('truetype')
-  //       let urls = decl.value.split(/format\([\'\"][a-z-]+[\'\"]\),/)
+        // src: url('./iconfont.eot?t=1515059114217');
+        if (decl.value.indexOf('url') === -1) {
+          return
+        }
 
-  //       urls.forEach(url => {
-  //         let matchs = url.match(ICONFONT_PATTERN)
-  //         if (!matchs) {
-  //           return
-  //         }
+        // src: url('./iconfont.eot?t') format('embedded-opentype'), /* IE6-IE8 */
+        //      url('./iconfont.ttf?t=1515059114217') format('truetype')
+        let urls = decl.value.split(/format\([\'\"][a-z-]+[\'\"]\),/)
 
-  //         // url('./iconfont.eot?t=1515059114217#iefix')
-  //         url = matchs[1]
+        urls.forEach(url => {
+          let matchs = url.match(ICONFONT_PATTERN)
+          if (!matchs) {
+            return
+          }
 
-  //         // Check local file
-  //         if (!util.checkLocalFile(url)) {
-  //           return
-  //         }
+          // url('./iconfont.eot?t=1515059114217#iefix')
+          url = matchs[1]
 
-  //         this.depends.push({
-  //           request: url,
-  //           requestType: RequestType.ICONFONT,
-  //           $decl: decl
-  //         })
-  //       })
-  //     })
-  //   }
-  //   let lazyResult = postcss([transformer]).process(this.source)
-  //   lazyResult.toString()
+          // Check local file
+          if (!util.checkLocalFile(url)) {
+            return
+          }
 
-  //   this.result = lazyResult['result']
-  // }
+          this.depends.push({
+            request: url,
+            requestType: RequestType.ICONFONT,
+            $decl: decl
+          })
+        })
+      })
+    }
+    let lazyResult = postcss([transformer]).process(this.source)
+    lazyResult.toString()
+
+    this.result = lazyResult['result']
+  }
 }
 
 // import wxss 保留引用，不被插件编译

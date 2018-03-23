@@ -7,7 +7,7 @@ const config: Config = {
   app: true,
   title: 'MinUI',
   cli: 'min',
-  filename: 'min.config.json',
+  filename: 'min.config.js',
   projectType: '', // in customConfig. include min.config.json and minConfig of package.json
   cwd: process.cwd(),
   prefix: 'wxc',
@@ -16,8 +16,8 @@ const config: Config = {
   pages: '{{src}}/pages',
   packages: 'packages', // wxc组件项目目录
   package: { // wxc组件
-    src: '{{src}}', // 源路径
-    dest: '{{dest}}', // 编译路径
+    src: 'src', // 源路径
+    dest: 'dist', // 编译路径
     default: 'index' // 默认文件
   },
   homePage: 'pages/home/index', // 默认首页

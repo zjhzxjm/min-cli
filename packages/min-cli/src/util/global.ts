@@ -230,7 +230,7 @@ export class Global {
    */
   private setConfig () {
     let file = path.join(config.cwd, config.filename)
-    let configData = fs.existsSync(file) ? fs.readJsonSync(file) : {}
+    let configData = fs.existsSync(file) ? require(file) : {}
     let { style: styleConfig = {} } = configData
 
     this.config = {

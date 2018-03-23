@@ -65,7 +65,7 @@ function getCustomConfig (cwd: string = systemConfig.cwd): { [key: string]: Cust
 
   // in min.config.json
   if (fs.existsSync(filePath)) {
-    customConfigFromFile = _.pick(fs.readJsonSync(filePath), CUSTOM_CONFIG_MEMBER) as CustomConfig
+    customConfigFromFile = _.pick(require(filePath), CUSTOM_CONFIG_MEMBER) as CustomConfig
   }
 
   // merge customConfigFromPkg and customConfigFromFile
@@ -142,7 +142,7 @@ export const config = {
   get prefixStr () {
     return filterPrefix(this.prefix)
   },
-  ...convertConfig(defaultConfig, customConfig),
+  ...convertConfig(systemConfig, customConfig),
   getPath (name: GetPathType, ...paths: string[]) {
     let names = name.split('.')
 
@@ -198,7 +198,7 @@ export const config = {
     _.merge(customConfig, customConfigFromPkg, customConfigFromFile)
 
     // 将 defaultConfig 和 customConfig 合并到 config
-    _.merge(this, convertConfig(defaultConfig, customConfig))
+    _.merge(this, convertConfig(systemConfig, customConfig))
 
     let filePath = getCustomConfigFilePath()
     fs.writeFileSync(filePath, JSON.stringify(customConfigFromFile, null, 2))
