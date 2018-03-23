@@ -33,10 +33,7 @@
 </template>
 
 <script>
-import sayHello from 'mixins/sayHello'
-
 export default min.Page({
-  mixins: [sayHello],
   onLoad () {
     console.log('onLoad in home')
   },

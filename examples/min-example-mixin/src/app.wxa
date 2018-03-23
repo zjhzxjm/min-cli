@@ -20,8 +20,6 @@
   import toast from './mixins/toast'
   import sayHello, {sayGood, sayBye} from "mixins/sayHello";
 
-  const sayTodo = require("./say-todo/index")
-
   // Initialize the configuration for min.
   min.init({
     global: true,
@@ -53,7 +51,7 @@
           'wxc-toast': '@minui/wxc-toast'
         }
       },
-      mixins: [loading, toast, sayHello, sayGood, sayBye, sayTodo]
+      mixins: [loading, toast, sayHello, sayGood, sayBye]
     },
     globalData: { },
     onLaunch () { },
