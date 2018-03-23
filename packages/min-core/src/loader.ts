@@ -33,6 +33,12 @@ export const loader = {
     if (name.indexOf(prefix) === 0) {
       return name
     }
+
+    // For example DefinePlugin
+    if (/plugin$/i.test(name)) {
+      name = name.replace(/plugin$/i, '').toLowerCase()
+    }
+
     return `${prefix}-${name}`
   },
 

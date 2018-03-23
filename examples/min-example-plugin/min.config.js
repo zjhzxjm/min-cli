@@ -14,23 +14,23 @@ module.exports = {
     }
   },
   plugins: {
-    autoprefixer: {
+    AutoprefixerPlugin: {
       config: {
         browsers: ['Android >= 2.3', 'Chrome > 20', 'iOS >= 6']
       }
     },
-    define: {
+    DefinePlugin: {
       config: {
         PRODUCTION: true,
         __dev__: true
       }
     },
-    filemin: {
+    FileminPlugin: {
       'config': {
 
       }
     },
-    imagemin: {
+    ImageminPlugin: {
       config: {
         jpg: {},
         png: {
@@ -38,17 +38,17 @@ module.exports = {
         }
       }
     },
-    filesync: {
+    FilesyncPlugin: {
       cwd: 'src/assets',
       from: ['**/*.jpg', '**/*.png'],
       to: '/images'
     },
-    uglifyjs: {
+    UglifyjsPlugin: {
       config: {
         warnings: false
       }
     },
-    unit2rpx: {
+    Unit2rpxPlugin: {
       config: {
         px: 2,
         rem: 1
