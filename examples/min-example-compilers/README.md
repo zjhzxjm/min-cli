@@ -1,4 +1,3 @@
-# min-examples-compilers
+# min-examples-compiler
 
-> MinUI-小程序
-
+> 在 Min 中使用 compiler 的示例项目

@@ -37,7 +37,7 @@
         backgroundTextStyle: 'dark',
         backgroundColor: '#efefef',
         navigationBarBackgroundColor: '#ffffff',
-        navigationBarTitleText: 'MinExampleMixins',
+        navigationBarTitleText: 'Min Mixin',
         navigationBarTextStyle: 'black'
       },
       networkTimeout: {

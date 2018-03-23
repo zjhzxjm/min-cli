@@ -4,7 +4,7 @@
 	"compileType": "miniprogram",
 	"libVersion": "1.7.1",
 	"appid": "wxbbb37d1f6d4712f2",
-	"projectname": "MinExampleMixin",
+	"projectname": "MinExampleLint",
 	"setting": {
 		"urlCheck": false,
 		"es6": false,

@@ -1,4 +1,3 @@
-# min-example-mixins
+# min-example-mixin
 
-> MinExampleMixins-小程序
-
+> 在 Min 中使用 mixin 的示例项目

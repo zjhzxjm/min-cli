@@ -1,6 +1,6 @@
 {
-  "name": "min-example-plugins",
-  "description": "MinUI-小程序",
+  "name": "min-example-plugin",
+  "description": "在 Min 中使用 plugin 的示例项目",
   "version": "1.0.0",
   "author": "Min Team",
   "license": "MIT",
@@ -13,29 +13,19 @@
     "@minui/wxc-dialog": "^1.0.8"
   },
   "devDependencies": {
-    "@mindev/min-compiler-babel": "^1.0.0",
-    "@mindev/min-compiler-less": "^1.0.0",
-    "@mindev/min-compiler-postcss": "^1.0.0",
-    "@mindev/min-lint-eslint": "^1.0.0",
-    "@mindev/min-plugin-autoprefixer": "^1.0.0",
-    "@mindev/min-plugin-define": "^1.0.0",
-    "@mindev/min-plugin-filemin": "^1.0.0",
-    "@mindev/min-plugin-filesync": "^1.0.0",
-    "@mindev/min-plugin-imagemin": "^1.0.0",
-    "@mindev/min-plugin-uglifyjs": "^1.0.0",
-    "@mindev/min-plugin-unit2rpx": "^1.0.0",
-    "babel-eslint": "^7.2.1",
+    "@mindev/min-compiler-babel": "^2.0.0",
+    "@mindev/min-plugin-autoprefixer": "^2.0.0",
+    "@mindev/min-plugin-define": "^2.0.0",
+    "@mindev/min-plugin-filemin": "^2.0.0",
+    "@mindev/min-plugin-filesync": "^2.0.0",
+    "@mindev/min-plugin-imagemin": "^2.0.0",
+    "@mindev/min-plugin-uglifyjs": "^2.0.0",
+    "@mindev/min-plugin-unit2rpx": "^2.0.0",
     "babel-plugin-syntax-export-extensions": "^6.13.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "babel-plugin-transform-export-extensions": "^6.22.0",
-    "babel-preset-env": "^1.6.1",
-    "eslint": "^3.18.0",
-    "eslint-config-standard": "^7.1.0",
-    "eslint-friendly-formatter": "^2.0.7",
-    "eslint-plugin-html": "^2.0.3",
-    "eslint-plugin-promise": "^3.5.0",
-    "eslint-plugin-standard": "^2.0.1"
+    "babel-preset-env": "^1.6.1"
   },
   "minConfig": {
     "projectType": "application"

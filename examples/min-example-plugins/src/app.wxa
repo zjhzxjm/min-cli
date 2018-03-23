@@ -21,7 +21,7 @@
         backgroundTextStyle: 'dark',
         backgroundColor: '#efefef',
         navigationBarBackgroundColor: '#ffffff',
-        navigationBarTitleText: 'MinUI',
+        navigationBarTitleText: 'Min Plugin',
         navigationBarTextStyle: 'black'
       },
       networkTimeout: {

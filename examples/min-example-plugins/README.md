@@ -1,4 +1,3 @@
-# min-examples-plugins
+# min-examples-plugin
 
-> MinUI-小程序
-
+> 在 Min 中使用 plugin 的示例项目

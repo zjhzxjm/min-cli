@@ -1,0 +1,24 @@
+<template>
+  <view>
+
+  </view>
+</template>
+
+<script lang="Babel">
+if (PRODUCTION) {
+  console.log('PRODUCTION')
+}
+
+if (__dev__) {
+  console.log('__dev__')
+}
+export default {
+  usingComponents: {
+    'wxc-test':
+  }
+}
+</script>
+
+<style>
+
+</style>
