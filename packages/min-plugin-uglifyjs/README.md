@@ -27,3 +27,7 @@ module.exports = {
 ## 参数说明
 
 [UglifyJS](https://github.com/mishoo/UglifyJS2)
+
+## Tip
+
+- min cli 2.x 版本开始支持

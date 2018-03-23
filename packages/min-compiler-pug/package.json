@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-compiler-pug",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "min compile pug",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -23,7 +23,7 @@
     "@types/pug": "^2.0.4"
   },
   "dependencies": {
-    "@mindev/min-core": "^1.0.0",
+    "@mindev/min-core": "^2.0.0",
     "pug": "^2.0.1",
     "lodash": "^4.17.4"
   },

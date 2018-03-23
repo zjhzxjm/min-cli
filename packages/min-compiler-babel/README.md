@@ -30,3 +30,7 @@ module.exports = {
 ## 参数说明
 
 [Babel](https://github.com/babel/babel)
+
+## Tip
+
+- min cli 2.x 版本开始支持

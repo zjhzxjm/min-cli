@@ -70,3 +70,7 @@ module.exports = {
 ```
 
 ## 参数说明
+
+## Tip
+
+- min cli 2.x 版本开始支持

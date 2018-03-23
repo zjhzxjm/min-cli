@@ -13,3 +13,7 @@ $ npm install @mindev/min-lint-eslint --save-dev
   eslint: true
 }
 ```
+
+## Tip
+
+- min cli 2.x 版本开始支持

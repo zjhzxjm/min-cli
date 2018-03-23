@@ -27,3 +27,7 @@ module.exports = {
 ## 参数说明
 
 [autoprefixer](https://github.com/postcss/autoprefixer#options)
+
+## Tip
+
+- min cli 2.x 版本开始支持

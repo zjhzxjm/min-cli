@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-plugin-autoprefixer",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "min plugin-autoprefixer",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -21,7 +21,7 @@
     "postcss"
   ],
   "dependencies": {
-    "@mindev/min-core": "^1.0.0",
+    "@mindev/min-core": "^2.0.0",
     "autoprefixer": "^7.1.2",
     "lodash": "^4.17.5",
     "postcss": "^5.2.5"

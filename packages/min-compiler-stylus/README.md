@@ -22,3 +22,7 @@ module.exports = {
 ## 参数说明
 
 [Stylus](http://www.zhangxinxu.com/jq/stylus/js.php)
+
+## Tip
+
+- min cli 2.x 版本开始支持

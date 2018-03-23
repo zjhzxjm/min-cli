@@ -51,3 +51,7 @@ module.exports = {
 
 [PostCSS Plugins](https://github.com/postcss/postcss/blob/master/docs/plugins.md)
 [PostCSS.parts](https://www.postcss.parts/)
+
+## Tip
+
+- min cli 2.x 版本开始支持

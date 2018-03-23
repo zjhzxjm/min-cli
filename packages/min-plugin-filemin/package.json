@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-plugin-filemin",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "min plugin-filemin",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -19,7 +19,7 @@
     "min"
   ],
   "dependencies": {
-    "@mindev/min-core": "^1.0.0",
+    "@mindev/min-core": "^2.0.0",
     "lodash": "^4.17.5",
     "pretty-data": "^0.40.0"
   },

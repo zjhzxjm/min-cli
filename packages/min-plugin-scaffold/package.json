@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-plugin-scaffold",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "min plugin-scaffold",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -20,7 +20,7 @@
     "scaffold"
   ],
   "dependencies": {
-    "@mindev/min-core": "^1.0.0",
+    "@mindev/min-core": "^2.0.0",
     "lodash": "^4.17.5"
   },
   "devDependencies": {},

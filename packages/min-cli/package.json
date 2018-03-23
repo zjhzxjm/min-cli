@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-cli",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-alpha.1",
   "description": "小程序组件化开发环境，提供 cli 支持",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -35,7 +35,7 @@
     "@types/recursive-readdir": "^1.2.28"
   },
   "dependencies": {
-    "@mindev/min-core": "^1.0.0",
+    "@mindev/min-core": "^2.0.0",
     "babel-core": "^6.25.0",
     "change-case": "^3.0.1",
     "chokidar": "^1.7.0",

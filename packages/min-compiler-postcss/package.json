@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-compiler-postcss",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "min compile postcss",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -21,7 +21,7 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "@mindev/min-core": "^1.0.0",
+    "@mindev/min-core": "^2.0.0",
     "postcss": "^5.2.5",
     "lodash": "^4.17.4"
   },

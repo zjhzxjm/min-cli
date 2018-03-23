@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-plugin-imagemin",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "min plugin-imagemin",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -20,7 +20,7 @@
     "imagemin"
   ],
   "dependencies": {
-    "@mindev/min-core": "^1.0.0",
+    "@mindev/min-core": "^2.0.0",
     "imagemin": "^5.3.1",
     "imagemin-mozjpeg": "^7.0.0",
     "imagemin-pngquant": "^5.0.1",

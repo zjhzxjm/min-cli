@@ -40,9 +40,9 @@ plugins=(
 
 examples=(
   'min-example-async-await'
-  'min-example-compilers'
-  'min-example-mixins'
-  'min-example-plugins'
+  'min-example-compiler'
+  'min-example-mixin'
+  'min-example-plugin'
 )
 
 if [ ! "$1" ] ;then  # npm run build

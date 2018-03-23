@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-compiler-babel",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "min compile babel",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -23,7 +23,7 @@
     "@types/babel-core": "^6.25.3"
   },
   "dependencies": {
-    "@mindev/min-core": "^1.0.0",
+    "@mindev/min-core": "^2.0.0",
     "babel-core": "^6.25.0",
     "lodash": "^4.17.4"
   },

@@ -1,13 +1,13 @@
 # Min
 
-> Min2.0 优化原生小程序支持 mixin、wx.api promise化、intercept 拦截器、似vue的computed、watch等
+> Min2.x 优化原生小程序支持 mixin、wx.api promise化、intercept 拦截器、似vue的computed、watch等
 
 ## 安装
 
 - **CLI工具**
 
 ``` bash
-$ npm i -g @mindev/min-cli@2.0.0-beta.1
+$ npm i -g @mindev/min-cli@2.0.0-alpha.1
 ```
 
 - **基础库**
@@ -279,6 +279,10 @@ min.intercept('request', {
   - computed
   - watch
 
+- **2.0.2**
+  - @minlib/min-vuex
+
 ## Tip
 
+- min cli 2.x 版本开始支持
 - promisify: true 支持 wx.api promise 化，前提是依赖 `@minlib/min-async-await`
