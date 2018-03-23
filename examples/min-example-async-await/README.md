@@ -1,3 +1,3 @@
-# min-example-async
+# min-example-async-await
 
-> MinExampleAsyncAwait-小程序
+> 在 Min 中使用 async/await 的示例项目

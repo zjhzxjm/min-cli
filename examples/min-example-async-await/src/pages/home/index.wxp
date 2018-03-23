@@ -2,11 +2,11 @@
   <view>
     <view class="index-hd">
       <image class="index-logo" src="https://s10.mogucdn.com/mlcdn/c45406/171122_5l92i48kb80j1fkha1fh1cd3h43i5_200x200.png"></image>
-      <view class="index-desc">MinUI-小程序</view>
+      <view class="index-desc">在 Min 中使用 async/await 的示例项目</view>
     </view>
 
     <view class="index-bd">
-      Hello World
+      {{message}}
     </view>
 
     <view class="index-ft">
@@ -17,11 +17,10 @@
 </template>
 
 <script>
-import min from '@minlib/min'
-import data from 'mixins/data'
-
-export default min.Page({
-  mixins: [data],
+export default {
+  data: {
+    message: 'Hello World'
+  },
   async sleep () {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -29,18 +28,39 @@ export default min.Page({
       }, 2000)
     })
   },
-  async onLoad() {
-    // sleep is async function, from current page
-    console.log('休眠2秒钟')
-    await this.sleep()
-    console.log('休眠结束')
 
-    // getData is mixin function, from src/mixins/data.js
-    console.log('正在获取数据')
+  async getData () {
+    return new Promise((resolve, reject) => {
+      // 模拟 request 请求数据
+      setTimeout(() => {
+        resolve({
+          message: 'hi min'
+        })
+      }, 2000)
+    })
+  },
+
+  async onShow() {
+    this.setData({
+      message: '休眠2秒钟'
+    })
+
+    await this.sleep()
+
+    this.setData({
+      message: '休眠结束'
+    })
+
+    this.setData({
+      message: '正在获取数据'
+    })
     let data = await this.getData()
-    console.log(`获取数据完成，${data.status}`)
+
+    this.setData({
+      message: `获取数据完成，${data.message}`
+    })
   }
-})
+}
 </script>
 
 <style>
