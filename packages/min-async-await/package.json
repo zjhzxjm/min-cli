@@ -1,6 +1,6 @@
 {
   "name": "@minlib/min-async-await",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "min async function support",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
@@ -16,6 +16,7 @@
     "prepublish": "npm run clean && npm run build"
   },
   "keywords": [
+    "min",
     "async",
     "await",
     "promise"
