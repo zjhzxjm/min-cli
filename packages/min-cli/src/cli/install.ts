@@ -2,6 +2,7 @@
 import { CLIExample } from '../class'
 import util, { config, exec, log, LogType } from '../util'
 import { NpmDest, BabelES6 } from '../qa'
+import core from '@mindev/min-core'
 
 export namespace InstallCommand {
   /**
@@ -103,7 +104,7 @@ export default {
       await installCommand.run()
 
     } catch (err) {
-      log.error(err)
+      core.util.error(err)
     }
   }
 }

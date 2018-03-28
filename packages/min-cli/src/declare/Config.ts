@@ -55,11 +55,11 @@ export interface Config extends CustomConfig {
     dest: string
   }
   alias: {
-    common: string // 公共
-    layout: string // 布局
-    assets: string // 资源
-    components: string // 组件
-    pages: string // 页面
+    // common: string // 公共
+    // layout: string // 布局
+    // assets: string // 资源
+    // components: string // 组件
+    // pages: string // 页面
     [key: string]: string
   }
   ext: { // 扩展名

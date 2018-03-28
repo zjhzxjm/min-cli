@@ -2,7 +2,8 @@ import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as _ from 'lodash'
 import { WxSFMScript, Request } from '../class'
-import { config, dom, log, LogType } from '../util'
+import { config, dom, log, LogType, xcxNext } from '../util'
+import core from '@mindev/min-core'
 
 interface SymbolExpression {
   name: string
@@ -298,14 +299,19 @@ export class Global {
         template: { code: templateCode }
       } = dom.getSFC(source)
 
-      // script模块
-      let wxSFMScript = new WxSFMScript(script.code, request, {
-        lang: script.lang
-      })
+      try {
+        // script模块
+        let wxSFMScript = new WxSFMScript(script.code, request, {
+          lang: script.lang
+        })
 
-      template = templateCode
-      globalMin = wxSFMScript.getGlobalMin()
-      appConfig = wxSFMScript.getConfig()
+        template = templateCode
+        globalMin = wxSFMScript.getGlobalMin()
+        appConfig = wxSFMScript.getConfig()
+      } catch (err) {
+        core.util.error(err)
+        xcxNext.add(request)
+      }
     }
 
     // 全局布局

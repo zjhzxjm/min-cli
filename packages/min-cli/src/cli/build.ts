@@ -5,6 +5,7 @@ import { CLIExample, Xcx, XcxNode } from '../class'
 import { ProjectType } from '../declare'
 import util, { Global, config, log } from '../util'
 import { NpmDest, BabelES6 } from '../qa'
+import core, { loader } from '@mindev/min-core'
 
 export namespace BuildCommand {
   /**
@@ -46,6 +47,8 @@ export class BuildCommand {
   async run () {
     // TODO 此处全局污染，待优化
     Global.isDebug = false
+
+    await loader.checkLoader(config)
 
     switch (config.projectType as ProjectType) {
       case ProjectType.Application:
@@ -90,9 +93,8 @@ export class BuildCommand {
         }
       }
     })
-    xcx.compile()
-
-    xcx.filesyncPlugin()
+    await xcx.compile()
+    await xcx.filesyncPlugin()
   }
 
   /**
@@ -110,7 +112,7 @@ export class BuildCommand {
     }
 
     if (pkgNames.length === 0) {
-      log.error(`Min Build，没有需要编译的组件`)
+      core.util.warn(`Min Build，没有需要编译的组件`)
       return
     }
 

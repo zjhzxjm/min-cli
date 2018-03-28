@@ -12,6 +12,7 @@ import { CLIExample } from '../class'
 import { ScaffoldType, ProjectType, NewType } from '../declare'
 import util, { config, defaultConfig, exec, log, LogType, filterPrefix, filterNpmScope } from '../util'
 import { NewCommand } from './new'
+import core from '@mindev/min-core'
 
 export namespace InitCommand {
   /**
@@ -367,7 +368,7 @@ export default {
       await initCommand.run()
 
     } catch (err) {
-      log.error(err)
+      core.util.error(err)
     }
   }
 }

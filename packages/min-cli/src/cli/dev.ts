@@ -1,6 +1,7 @@
 import * as chokidar from 'chokidar'
 import { CLIExample, Xcx, XcxNode } from '../class'
 import util, { Global, config } from '../util'
+import { loader } from '@mindev/min-core'
 
 export namespace DevCommand {
 
@@ -65,6 +66,8 @@ export class DevCommand {
     // TODO 此处全局污染，待优化
     Global.isDebug = !!pages && pages.length > 0
 
+    await loader.checkLoader(config)
+
     let xcx = new Xcx({
       isClear: clear,
       app: {
@@ -86,8 +89,8 @@ export class DevCommand {
         }
       }
     })
-    xcx.compile()
-    xcx.filesyncPlugin(watch)
+    await xcx.compile()
+    await xcx.filesyncPlugin(watch)
 
     if (watch) {
       this.watcher = xcx.watch()
