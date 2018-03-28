@@ -45,8 +45,8 @@
     globalMin: {
       config: {
         usingComponents: {
-          'layout-head': 'layout/head',
-          'layout-foot': 'layout/foot',
+          'layout-head': 'components/layout/head',
+          'layout-foot': 'components/layout/foot',
           'wxc-loading': '@minui/wxc-loading',
           'wxc-toast': '@minui/wxc-toast'
         }

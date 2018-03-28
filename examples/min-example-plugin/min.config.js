@@ -1,4 +1,7 @@
 module.exports = {
+  alias: {
+    components: 'src/components'
+  },
   compilers: {
     babel: {
       sourceMaps: 'inline',

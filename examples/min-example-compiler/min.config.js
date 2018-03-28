@@ -23,18 +23,7 @@ module.exports = {
     w: '100px'
   },
   compilers: {
-    babel: {
-      sourceMaps: 'inline',
-      presets: [
-        'env'
-      ],
-      plugins: [
-        'syntax-export-extensions',
-        'transform-class-properties',
-        'transform-decorators-legacy',
-        'transform-export-extensions'
-      ]
-    },
+    babel: true,
     typescript: {},
     less: {},
     postcss: {
@@ -47,5 +36,8 @@ module.exports = {
     sass: {},
     stylus: {},
     pug: {}
+  },
+  alias: {
+    components: './src/components'
   }
 }

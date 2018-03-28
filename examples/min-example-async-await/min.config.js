@@ -12,5 +12,8 @@ module.exports = {
         'transform-export-extensions'
       ]
     }
+  },
+  alias: {
+    components: './src/components'
   }
 }

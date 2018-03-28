@@ -14,7 +14,7 @@ if (__dev__) {
 }
 export default {
   usingComponents: {
-    'wxc-test':
+
   }
 }
 </script>

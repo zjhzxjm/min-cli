@@ -13,10 +13,6 @@
   import '@minlib/min-async-await'
   export default {
     config: {
-      usingComponents: {
-        'layout-head': 'layout/head',
-        'layout-foot': 'layout/foot'
-      },
       pages: [],
       window: {
         backgroundTextStyle: 'dark',
@@ -27,6 +23,14 @@
       },
       networkTimeout: {
         request: 10000
+      }
+    },
+    globalMin: {
+      config: {
+        usingComponents: {
+          'layout-head': 'components/layout/head',
+          'layout-foot': 'components/layout/foot'
+        }
       }
     },
     globalData: { },

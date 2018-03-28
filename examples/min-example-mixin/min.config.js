@@ -1,6 +1,7 @@
 module.exports = {
   alias: {
-    mixins: 'src/mixins'
+    mixins: 'src/mixins',
+    components: 'src/components'
   },
   compilers: {
     babel: {
