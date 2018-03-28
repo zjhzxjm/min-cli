@@ -2,18 +2,43 @@ import * as path from 'path'
 import * as _ from 'lodash'
 import { PluginHelper } from './plugin'
 import { CompilerHelper } from './compiler'
+import util from './util'
+
+import Compiler = CompilerHelper.Compiler
+import Plugin = PluginHelper.Plugin
+
+type Compilers = {
+  [lang: string]: Compiler
+}
+
+type CompilerConfig = object
+type CompilerConfigs = {
+  [lang: string]: CompilerConfig
+}
+
+type Plugins = {
+  [name: string]: Plugin
+}
+
+type PluginMap = {
+  [name: string]: PluginConfig
+}
+
+type PluginConfig = object | boolean | Function
+
+type PluginConfigs = string[] | PluginMap
 
 const Module = require('module')
 
 let relativeModules: {
   [key: string]: any
 } = {}
+
 let requiredModules: {
   [key: string]: object
 } = {}
-let loadedPlugins: {
-  [key: string]: PluginHelper.Plugin
-} = {}
+
+let loadedPlugins: Plugins = {}
 
 export const loader = {
   missingNpms: new Array(),
@@ -101,23 +126,21 @@ export const loader = {
     return $module
   },
 
-  loadCompilers (compilers: string[] | {[key: string]: object}) {
-    if (_.isArray(compilers)) {
-      for (let lang of compilers) {
-        this.loadCompiler(lang)
+  loadCompilers (compilerConfigs: CompilerConfigs): Compilers {
+    let compilers: Compilers = {}
+
+    for (let lang in compilerConfigs) {
+      let compiler = this.loadCompiler(lang)
+
+      if (compiler) {
+        compilers[lang] = compiler
       }
     }
-    else if (_.isObject(compilers)) {
-      for (let lang in compilers) {
-        this.loadCompiler(lang)
-      }
-    }
-    else {
-      console.warn(`Unknown compiler: ${compilers}`)
-    }
+
+    return compilers
   },
 
-  loadCompiler (lang: string): CompilerHelper.Compiler | null {
+  loadCompiler (lang: string): Compiler | null {
     if (this.noCompileLangs.indexOf(lang) > -1) {
       return (options: CompilerHelper.Options) => {
         return Promise.resolve(options)
@@ -125,37 +148,47 @@ export const loader = {
     }
 
     if (!lang) {
-      throw new Error(`未知编译语言`)
+      return null
     }
 
-    let compilerName = this.getCompilerName(lang)
-    let compiler = this.load(compilerName)
+    let pkgName = this.getCompilerName(lang)
+    let compiler = this.load(pkgName) || null
 
     if (!compiler) {
-      this.addMissingNpm(compilerName)
-      console.warn(`Missing compiler: ${compilerName}.`)
+      this.addMissingNpm(pkgName)
+      util.log(`找不到编译器：${lang}.`, 'warning')
     }
 
     return compiler
   },
 
-  loadPlugins (plugins: string[] | {[key: string]: object | boolean | Function}) {
-    if (_.isArray(plugins)) {
-      for (let plugin of plugins) {
-        this.loadPlugin(plugin)
+  loadPlugins (pluginConfigs: PluginConfigs): Plugin[] {
+    let plugins: Plugin[] = []
+    let pluginMap: PluginMap = {}
+
+    if (_.isArray(pluginConfigs)) {
+      debugger
+      pluginMap = _.fromPairs(pluginConfigs.map(plugin => {
+        return [plugin, true]
+      }))
+    }
+    else if (_.isObject(pluginConfigs)) {
+      pluginMap = pluginConfigs
+    }
+
+    for (let name in pluginMap) {
+      let plugin = this.loadPlugin(name, pluginMap[name])
+
+      if (!plugin) {
+        continue
       }
+
+      plugins.push(plugin)
     }
-    else if (_.isObject(plugins)) {
-      for (let key in plugins) {
-        this.loadPlugin(key, plugins[key])
-      }
-    }
-    else {
-      console.warn(`Unknown plugin name: ${plugins}`)
-    }
+    return plugins
   },
 
-  loadPlugin (name: string, config: object | boolean | Function = true, force = true): PluginHelper.Plugin | null {
+  loadPlugin (name: string, config: PluginConfig = true, force = true): Plugin | null {
     if (_.isFunction(config)) {
       config = config()
     }
@@ -169,51 +202,87 @@ export const loader = {
     }
 
     if (!name) {
-      throw new Error(`未知插件名称`)
+      return null
     }
 
-    let pluginName = this.getPluginName(name)
-    let plugin = loadedPlugins[pluginName] || null
+    let pkgName = this.getPluginName(name)
+    let plugin = loadedPlugins[pkgName] || null
 
     if (!force && plugin) {
       return plugin
     }
 
-    let PluginClass = this.load(pluginName)
+    let PluginClass = this.load(pkgName)
 
     if (!PluginClass) {
-      this.addMissingNpm(pluginName)
-      console.warn(`Missing plugin: ${pluginName}`)
+      this.addMissingNpm(pkgName)
+      util.log(`找不到插件：${name}.`, 'warning')
       return null
     }
-    else {
-      plugin = new PluginClass(config)
-      loadedPlugins[pluginName] = plugin
-    }
+
+    plugin = new PluginClass(config)
+    loadedPlugins[pkgName] = plugin
 
     return plugin
   },
 
   getPlugin (name: string): PluginHelper.Plugin | null {
-    name = this.getPluginName(name)
-    return loadedPlugins[name] || null
+    let pkgName = this.getPluginName(name)
+    return loadedPlugins[pkgName] || null
   },
 
-  getPlugins (type: PluginHelper.Type) {
-    let plugins: PluginHelper.Plugin[] = []
+  getPlugins (type: PluginHelper.Type): Plugin[] {
+    let plugins: Plugin[] = []
 
-    for (let name in loadedPlugins) {
-      plugins.push(loadedPlugins[name])
-    }
+    plugins = _
+      .values(loadedPlugins)
+      .filter(plugin => plugin.type === type)
+
     return plugins
   },
 
   addMissingNpm (name: string) {
-    this.missingNpms.push(name)
+    let { missingNpms } = this
+    if (missingNpms.indexOf(name) !== -1) {
+      return
+    }
+    missingNpms.push(name)
   },
 
-  getMissingNpms (): string[] {
-    return this.missingNpms
+  async tryInstall (pkgName: string) {
+    try {
+      await util.exec(`npm info ${pkgName}`, true)
+    }
+    catch (err) {
+      util.log(`不存在插件/编译器：${pkgName}, 请检测是否拼写错误.`, '错误')
+      throw err
+    }
+
+    try {
+      util.log(`正在尝试安装 ${pkgName}, 请稍等.`)
+      await util.exec(`npm install ${pkgName} --save-dev`)
+      util.log(`已完成安装 ${pkgName}.`, '完成')
+    }
+    catch (err) {
+      util.log(`安装插件/编译器失败：${pkgName}, 请尝试运行命令 "npm install ${pkgName} --save-dev" 进行安装.`, '错误')
+      throw err
+    }
+  },
+
+  async checkLoader (config: any) {
+    let { missingNpms } = this
+
+    this.loadCompilers(config.compilers)
+    this.loadPlugins(config.plugins)
+
+    if (missingNpms.length > 0) {
+      util.log('检测到缺少 Min 的插件/编译器, 正在尝试安装, 请稍等.')
+    }
+
+    for (let pkgName of missingNpms) {
+      await this.tryInstall(pkgName)
+    }
+    this.missingNpms = []
   },
 
   PluginHelper

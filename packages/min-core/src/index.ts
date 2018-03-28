@@ -1,4 +1,5 @@
-import * as util from './util'
+import * as _ from 'lodash'
+import util, { ExecResult } from './util'
 
 export { CompilerHelper } from './compiler'
 export { PluginHelper } from './plugin'
