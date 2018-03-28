@@ -34,12 +34,12 @@ const config: Config = {
     // }
   },
   alias: {
-    'common': '{{src}}/common', // 公共
-    'layout': '{{src}}/common/layout', // 布局
-    'assets': '{{src}}/common/assets', // 资源
-    'components': '{{src}}/common/components', // 组件
+    // 'common': '{{src}}/common', // 公共
+    // 'layout': '{{src}}/common/layout', // 布局
+    // 'assets': '{{src}}/common/assets', // 资源
+    // 'components': '{{src}}/common/components', // 组件
 
-    'pages': '{{pages}}' // 页面
+    // 'pages': '{{pages}}' // 页面
 
     // 默认由 util.config 实现
     // [scope]: '{{packages}}' // 组件库

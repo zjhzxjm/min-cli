@@ -1,9 +1,20 @@
 #!/usr/bin/env node
 
+const { argv } = process
+
+if (argv.length >= 3) {
+  let cmd = argv[2]
+  if (cmd === 'dev') {
+    process.env.NODE_ENV = 'development' // Set development environment
+  } else if (cmd === 'build') {
+    process.env.NODE_ENV = 'production' // Set production environment
+  }
+}
+
 import * as _ from 'lodash'
 import * as program from 'commander'
+import core from '@mindev/min-core'
 import commands from '../index'
-import { log } from '../util'
 
 const minPkg = require('../../package.json')
 
@@ -55,14 +66,14 @@ commands.forEach(command => {
       try {
         await command.action.apply(command, args)
       } catch (err) {
-        log.error(err)
+        core.util.error(err)
       }
     })
   }
 })
 
-if (process.argv.length === 2) {
+if (argv.length === 2) {
   program.outputHelp()
 }
 
-program.parse(process.argv)
+program.parse(argv)

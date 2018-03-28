@@ -41,6 +41,7 @@ plugins=(
 examples=(
   'min-example-async-await'
   'min-example-compiler'
+  'min-example-lint'
   'min-example-mixin'
   'min-example-plugin'
 )
