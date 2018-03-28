@@ -5,7 +5,7 @@
 ## 安装
 
 ``` bash
-$ npm i -g @mindev/min-cli@2.0.0-alpha.1
+$ npm i -g @mindev/min-cli@next
 ```
 
 ## 从1.x迁移到2.x
