@@ -198,7 +198,7 @@ export class WxSFM {
     let { extend = {} } = result
     content = extend.content || ''
 
+    await core.util.writeFile(this.dest, content)
     log.msg(LogType.WRITE, this.destRelative)
-    util.writeFile(this.dest, content)
   }
 }
