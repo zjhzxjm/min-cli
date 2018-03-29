@@ -137,6 +137,8 @@ export const loader = {
       }
     }
 
+    util.debug('loader.loadCompilers', util.keys(compilers))
+
     return compilers
   },
 
@@ -167,8 +169,8 @@ export const loader = {
     let pluginMap: PluginMap = {}
 
     if (_.isArray(pluginConfigs)) {
-      debugger
       pluginMap = _.fromPairs(pluginConfigs.map(plugin => {
+        // [[define, true], [filemin, true]]=> { define: true, filemin: true }
         return [plugin, true]
       }))
     }
@@ -185,6 +187,9 @@ export const loader = {
 
       plugins.push(plugin)
     }
+
+    util.debug('loader.loadPlugins', plugins.map(plugin => plugin.name))
+
     return plugins
   },
 

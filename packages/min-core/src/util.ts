@@ -21,7 +21,9 @@ colors.setTheme({
   '测试': 'red',
   '拷贝': 'yellow',
   '编译': 'blue',
-  '写入': 'green'
+  '写入': 'green',
+  'INFO': 'grey',
+  'DEBUG': 'bgRed'
 })
 
 const util = {
@@ -144,6 +146,14 @@ const util = {
     })
   },
 
+  debug (name: string, msg: string | Object, showTime = true) {
+    console.log()
+    this.log(`----------${name}----------`)
+    this.log(msg, 'debug', showTime)
+    this.log(`----------${name}----------`)
+    console.log()
+  },
+
   error (msg: string | Error, showTime = true) {
     // this.writeLog(msg, 'error')
     this.log(msg, 'error', showTime)
@@ -152,14 +162,14 @@ const util = {
     // }
   },
 
-  warn (msg: string, showTime = true) {
+  warn (msg: string | Object, showTime = true) {
     // this.writeLog(msg, 'warn')
     this.log(msg, 'warning', showTime)
   },
 
-  log (msg: string | Error, type: string = '信息', showTime = true) {
+  log (msg: string | Object | Error, type: string = 'INFO', showTime = true) {
     let dateTime = showTime ? colors.gray(`[${this.datetime()}] `) : ''
-    if (!(msg instanceof Error) && (this.isObject(msg) || this.isArray(msg))) {
+    if (!(msg instanceof Error) && this.isObject(msg)) {
       msg = JSON.stringify(msg)
     }
 
@@ -167,14 +177,14 @@ const util = {
       type = type.toUpperCase()
       if (type === 'ERROR') {
         if (msg instanceof Error) {
-          console.error(colors.red('[Error] ' + msg.stack))
+          console.error(colors.red('[ERROR] ' + msg.stack))
         }
         else {
-          console.error(colors.red('[Error] ' + msg))
+          console.error(dateTime + colors.red('[ERROR] ' + msg))
         }
       }
       else if (type === 'WARNING') {
-        console.error(colors.yellow('[WARNING] ' + msg))
+        console.error(dateTime + colors.yellow('[WARNING] ' + msg))
       }
       else {
         let fn = colors[type] ? colors[type] : colors['信息']

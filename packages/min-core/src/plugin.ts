@@ -87,12 +87,13 @@ export namespace PluginHelper {
 
   export interface BasePlugin {
     type: Type
+    name: string
     apply (options: Options): Promise<Options>
   }
 
   export class FilePlugin implements BasePlugin {
     type: PluginHelper.Type = PluginHelper.Type.File
-    constructor () {}
+    constructor (public name: string) {}
     apply (options: Options): Promise<Options> {
       throw new Error('Method not implemented.')
     }
@@ -100,7 +101,7 @@ export namespace PluginHelper {
 
   export class TextPlugin implements BasePlugin {
     type: PluginHelper.Type = PluginHelper.Type.Text
-    constructor () {}
+    constructor (public name: string) {}
     apply (options: Options): Promise<Options> {
       throw new Error('Method not implemented.')
     }
@@ -108,7 +109,7 @@ export namespace PluginHelper {
 
   export class SdkPlugin implements BasePlugin {
     type: PluginHelper.Type = PluginHelper.Type.Sdk
-    constructor () {}
+    constructor (public name: string) {}
     apply (options: Options): Promise<Options> {
       throw new Error('Method not implemented.')
     }
@@ -116,7 +117,7 @@ export namespace PluginHelper {
 
   export class AstPlugin implements BasePlugin {
     type: PluginHelper.Type = PluginHelper.Type.Ast
-    constructor () {}
+    constructor (public name: string) {}
     apply (options: Options): Promise<Options> {
       throw new Error('Method not implemented.')
     }
@@ -124,7 +125,7 @@ export namespace PluginHelper {
 
   export class ImagePlugin implements BasePlugin {
     type: PluginHelper.Type = PluginHelper.Type.Image
-    constructor () {}
+    constructor (public name: string) {}
     apply (options: Options): Promise<Options> {
       throw new Error('Method not implemented.')
     }
