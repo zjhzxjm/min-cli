@@ -28,7 +28,7 @@ export namespace AutoprefixerPlugin {
 export default class AutoprefixerPlugin extends PluginHelper.TextPlugin {
 
   constructor (public options: AutoprefixerPlugin.Options) {
-    super()
+    super('AutoprefixerPlugin')
 
     this.options = {
       ...DEFAULTS,

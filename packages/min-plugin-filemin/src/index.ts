@@ -23,7 +23,7 @@ export namespace FileminPlugin {
 export default class FileminPlugin extends PluginHelper.TextPlugin {
 
   constructor (public options: FileminPlugin.Options) {
-    super()
+    super('FileminPlugin')
 
     this.options = {
       ...DEFAULTS,

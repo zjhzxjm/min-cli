@@ -42,7 +42,7 @@ export namespace ImageminPlugin {
 export default class ImageminPlugin extends PluginHelper.ImagePlugin {
 
   constructor (public options: ImageminPlugin.Options) {
-    super()
+    super('ImageminPlugin')
 
     this.options = {
       ...DEFAULTS,

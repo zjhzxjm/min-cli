@@ -27,7 +27,7 @@ export namespace DefinePlugin {
 export default class DefinePlugin extends PluginHelper.AstPlugin {
 
   constructor (public options: DefinePlugin.Options) {
-    super()
+    super('DefinePlugin')
 
     this.options = {
       ...DEFAULTS,

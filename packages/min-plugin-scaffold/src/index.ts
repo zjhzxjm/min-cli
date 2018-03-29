@@ -22,7 +22,7 @@ export namespace ScaffoldPlugin {
 export default class ScaffoldPlugin extends PluginHelper.TextPlugin {
 
   constructor (public options: ScaffoldPlugin.Options) {
-    super()
+    super('ScaffoldPlugin')
 
     this.options = {
       ...DEFAULTS,

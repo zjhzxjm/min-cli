@@ -30,7 +30,7 @@ export namespace Unit2RpxPlugin {
 export default class Unit2RpxPlugin extends PluginHelper.TextPlugin {
 
   constructor (public options: Unit2RpxPlugin.Options) {
-    super()
+    super('Unit2RpxPlugin')
 
     this.options = {
       ...DEFAULTS,

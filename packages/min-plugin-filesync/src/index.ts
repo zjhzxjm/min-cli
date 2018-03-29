@@ -7,7 +7,7 @@ import filesync from './filesync'
 export default class FilesyncPlugin extends PluginHelper.FilePlugin {
 
   constructor (public options: FilesyncPlugin.Options) {
-    super()
+    super('FilesyncPlugin')
   }
 
   apply (options: PluginHelper.Options): Promise<PluginHelper.Options> {

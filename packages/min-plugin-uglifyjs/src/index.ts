@@ -30,7 +30,7 @@ export namespace UglifyjsPlugin {
 export default class UglifyjsPlugin extends PluginHelper.TextPlugin {
 
   constructor (public options: UglifyjsPlugin.Options) {
-    super()
+    super('UglifyjsPlugin')
 
     this.options = {
       ...DEFAULTS,
