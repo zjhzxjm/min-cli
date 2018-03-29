@@ -277,8 +277,13 @@ export const loader = {
   async checkLoader (config: any) {
     let { missingNpms } = this
 
+    util.timeStart('loadCompilers')
     this.loadCompilers(config.compilers)
+    util.timeEnd('loadCompilers')
+
+    util.timeStart('loadPlugins')
     this.loadPlugins(config.plugins)
+    util.timeEnd('loadPlugins')
 
     if (missingNpms.length > 0) {
       util.log('检测到缺少 Min 的插件/编译器, 正在尝试安装, 请稍等.')

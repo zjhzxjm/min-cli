@@ -173,6 +173,9 @@ export class XcxTraverse {
 
     // 触发 end 结束访问器
     this.trigger('end', undefined)
+
+    // clear
+    this.cached = {}
   }
 
   /**

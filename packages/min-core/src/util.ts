@@ -23,7 +23,8 @@ colors.setTheme({
   '编译': 'blue',
   '写入': 'green',
   'INFO': 'grey',
-  'DEBUG': 'bgRed'
+  'DEBUG': 'bgRed',
+  'TIME': 'bgMagenta'
 })
 
 const util = {
@@ -144,6 +145,15 @@ const util = {
     return format.replace(/([a-z])\1+/ig, (str) => {
       return formats[str].toString() || str
     })
+  },
+
+  timeStart (label: string) {
+    console.time(label)
+  },
+
+  timeEnd (label: string) {
+    this.log('', 'TIME')
+    console.timeEnd(label)
   },
 
   debug (name: string, msg: string | Object, showTime = true) {

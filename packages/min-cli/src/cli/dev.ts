@@ -1,7 +1,7 @@
 import * as chokidar from 'chokidar'
 import { CLIExample, Xcx, XcxNode } from '../class'
 import util, { Global, config } from '../util'
-import { loader } from '@mindev/min-core'
+import core, { loader } from '@mindev/min-core'
 
 export namespace DevCommand {
 
@@ -89,6 +89,8 @@ export class DevCommand {
         }
       }
     })
+
+    core.util.timeStart('Xcx.compile')
     await xcx.compile()
     await xcx.filesyncPlugin(watch)
 
@@ -97,8 +99,6 @@ export class DevCommand {
     } else {
       this.watcher = null
     }
-
-    return Promise.resolve()
   }
 
   /**

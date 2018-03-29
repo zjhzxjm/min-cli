@@ -212,6 +212,7 @@ export class Xcx {
       .on('ready', () => {
         if (!this.isWatched) {
           this.isWatched = true
+          core.util.timeEnd('Xcx.compile')
           log.msg(LogType.WATCH, '开始监听文件改动.')
         }
       })

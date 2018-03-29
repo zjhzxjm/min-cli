@@ -63,6 +63,8 @@ export class XcxNode {
    */
   useRequests: Request.Core[] = []
 
+  private status: string = 'prepare'
+
   /**
    * Creates an instance of XcxNode.
    * @param {Request} request
@@ -80,6 +82,8 @@ export class XcxNode {
       core.util.error(err)
       xcxNext.add(request)
     }
+
+    this.status = 'initialized'
   }
 
   /**
@@ -125,9 +129,10 @@ export class XcxNode {
    * @memberof XcxNode
    */
   compile () {
-    let { wxFile } = this
-    if (!wxFile) return
+    let { wxFile, status } = this
+    if (!wxFile || status === 'compiled') return
 
+    this.status = 'compiled'
     wxFile.updateDepends(this.useRequests)
     wxFile.save()
   }
