@@ -131,6 +131,7 @@ export class WxSFMScript extends WxSFM {
     this.initConfig()
     this.initNode()
     this.traverse()
+    this.addWXCDepends()
   }
 
   /**
@@ -324,8 +325,6 @@ export class WxSFMScript extends WxSFM {
     this.config = _.merge({}, this.config, {
       usingComponents
     })
-
-    this.addWXCDepends(this.config.usingComponents)
   }
 
   /**
@@ -581,20 +580,36 @@ export class WxSFMScript extends WxSFM {
     // )
 
     // 前提条件，需要将config字段写在js模块最前面
-    let dependWxcs = this.depends.filter(depend => {
-      return depend.requestType === RequestType.WXC && /^demo-/.test(depend.usingKey)
-    })
+    let { usingComponents = {} } = this.config
 
-    _.forEach(dependWxcs, (dependWxc: Depend.Wxc, index) => {
-      let name = dependWxc.usingKey
-      let file = `${dependWxc.request}${config.ext.wxc}`
+    _.forIn(usingComponents, (value, key) => {
+      if (!/^demo-/.test(key)) {
+        return
+      }
+
+      let file = `${value}${config.ext.wxc}`
       properties.push(
         t.objectProperty(
-          t.identifier(changeCase.camelCase(name)), // demoDefault
+          t.identifier(changeCase.camelCase(key)), // demoDefault
           t.stringLiteral(this.md2htmlFromFile(file)) // <template><wxc-hello></wxc-hello><template>
         )
       )
     })
+
+    // let dependWxcs = this.depends.filter(depend => {
+    //   return depend.requestType === RequestType.WXC && /^demo-/.test(depend.usingKey)
+    // })
+
+    // _.forEach(dependWxcs, (dependWxc: Depend.Wxc, index) => {
+    //   let name = dependWxc.usingKey
+    //   let file = `${dependWxc.request}${config.ext.wxc}`
+    //   properties.push(
+    //     t.objectProperty(
+    //       t.identifier(changeCase.camelCase(name)), // demoDefault
+    //       t.stringLiteral(this.md2htmlFromFile(file)) // <template><wxc-hello></wxc-hello><template>
+    //     )
+    //   )
+    // })
 
     let mdObjectProperty = t.objectProperty(
       t.stringLiteral('__code__'),
@@ -913,8 +928,6 @@ export class WxSFMScript extends WxSFM {
 
     this.config = _.merge({}, this.config, $config)
 
-    this.addWXCDepends(this.config.usingComponents)
-
     path.remove()
 
     // value.properties.forEach(prop => {
@@ -1027,21 +1040,18 @@ export class WxSFMScript extends WxSFM {
    * @param {WxSFMScript.UsingComponents} [usingComponents]
    * @memberof WxSFMScript
    */
-  private addWXCDepends (usingComponents?: WxSFMScript.UsingComponents) {
-    if (!usingComponents) return
+  private addWXCDepends () {
+    if (!this.isWxc && !this.isWxp) return
 
-    if (this.isWxc || this.isWxp) { // 组件 & 页面
+    let { usingComponents = {} } = this.config
 
-      // TODO There is duplication of dependency.
-
-      _.forIn(usingComponents, (value, key) => {
-        this.depends.push({ // 'wxc-loading' => '@scope/wxc-loading'
-          request: value,
-          requestType: RequestType.WXC,
-          usingKey: key
-        })
+    _.forIn(usingComponents, (value, key) => {
+      this.depends.push({ // 'wxc-loading' => '@scope/wxc-loading'
+        request: value,
+        requestType: RequestType.WXC,
+        usingKey: key
       })
-    }
+    })
   }
 
   private addNativeDepends ($node: t.StringLiteral) {
