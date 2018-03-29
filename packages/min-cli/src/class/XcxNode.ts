@@ -1,6 +1,7 @@
 import * as path from 'path'
 import { Request, WxFile, Depend } from '../class'
-import { log, xcxNodeCache, xcxNext, config, src2destRelative } from '../util'
+import { log, xcxCache, xcxNext, config, src2destRelative } from '../util'
+import core from '@mindev/min-core'
 
 export namespace XcxNode {
   export interface Options extends Request.Options {
@@ -31,14 +32,6 @@ export namespace XcxNode {
 export class XcxNode {
 
   /**
-   * 是否可用
-   *
-   * @type {boolean}
-   * @memberof XcxNode
-   */
-  isAvailable: boolean
-
-  /**
    * 请求地址
    *
    * @type {Request}
@@ -60,7 +53,7 @@ export class XcxNode {
    * @type {WxFile}
    * @memberof XcxNode
    */
-  wxFile: WxFile
+  wxFile: WxFile = null
 
   /**
    * 可用的请求列表
@@ -69,14 +62,6 @@ export class XcxNode {
    * @memberof XcxNode
    */
   useRequests: Request.Core[] = []
-
-  /**
-   * 缺失的请求列表
-   *
-   * @type {Request.Default[]}
-   * @memberof XcxNode
-   */
-  lackRequests: Request.Default[] = []
 
   /**
    * Creates an instance of XcxNode.
@@ -88,30 +73,16 @@ export class XcxNode {
     if (root) {
       root.children.push(this)
     }
-    this.request = request
+    xcxCache.add(request, this)
 
     try {
-      this.wxFile = new WxFile(this.request)
-      this.isAvailable = true
+      this.request = request
+      this.wxFile = new WxFile(request)
+      this.recursive()
     } catch (err) {
-      log.error(err)
-
-      // TODO
-      // Add log to app.js
+      core.util.error(err)
+      xcxNext.add(request)
     }
-
-    if (this.isAvailable) {
-      // 从下一次的编译里移除
-      xcxNext.removeLack(this.request.srcRelative)
-    } else {
-      // 将当前的请求地址记录到Next，用于下一次编译
-      xcxNext.addLack(this.request.srcRelative)
-      return
-    }
-
-    this.cached()
-    this.recursive()
-    this.lack()
   }
 
   /**
@@ -126,19 +97,24 @@ export class XcxNode {
     let { isMain, isForce, root } = options
 
     if (isMain && root) {
-      log.debug(`XcxNode.create 不能同时设定'option.parent' 和 'root'`)
+      core.util.warn(`XcxNode.create 不能同时设定'option.isMain' 和 'option.root'`)
     }
 
     let request = new Request(options)
 
     if (!request.src) {
       if (isMain) {
-        log.error(`找不到入口：${request.request}`)
+        core.util.error(`没有找到入口：${request.request}`)
+      } else if (root) {
+        core.util.error(`没有找到模块：${request.request} in ${root.request.srcRelative}`)
+      } else {
+        core.util.error(`没有找到文件：${request.request}`)
       }
       return null
     }
 
-    let xcxNode = xcxNodeCache.get(request.src)
+    let xcxNode = xcxCache.get(request.src)
+
     if (isForce || !xcxNode) {
       xcxNode = new XcxNode(request, root)
     }
@@ -152,20 +128,11 @@ export class XcxNode {
    * @memberof XcxNode
    */
   compile () {
-    if (!this.isAvailable) return
+    let { wxFile } = this
+    if (!wxFile) return
 
-    this.wxFile.updateDepends(this.useRequests)
-    this.wxFile.save()
-  }
-
-  /**
-   * 增加缓存
-   *
-   * @private
-   * @memberof XcxNode
-   */
-  private cached () {
-    xcxNodeCache.set(this.request.src, this)
+    wxFile.updateDepends(this.useRequests)
+    wxFile.save()
   }
 
   /**
@@ -175,9 +142,13 @@ export class XcxNode {
    * @memberof XcxNode
    */
   private recursive () {
-    if (!this.isAvailable) return
+    let { wxFile } = this
 
-    let depends = this.wxFile.getDepends()
+    if (!wxFile) {
+      return
+    }
+
+    let depends = wxFile.getDepends()
 
     for (let i = 0; i < depends.length; i++) {
       let depend = depends[i]
@@ -198,14 +169,7 @@ export class XcxNode {
         isThreeNpm: this.request.isThreeNpm
       })
 
-      if (!xcxNode) {
-        // 增加缺失的请求
-        this.lackRequests.push({
-          request,
-          requestType
-        })
-      } else if (xcxNode.isAvailable) {
-        // 添加可用的请求
+      if (xcxNode) {
         this.useRequests.push({
           request,
           requestType,
@@ -216,6 +180,8 @@ export class XcxNode {
           destRelative: xcxNode.request.destRelative,
           isThreeNpm: xcxNode.request.isThreeNpm
         })
+      } else {
+        xcxNext.add(this.request)
       }
     }
   }
@@ -250,25 +216,5 @@ export class XcxNode {
       isThreeNpm: true,
       isVirtual: true
     })
-  }
-
-  /**
-   * 处理缺失依赖列表
-   *
-   * @private
-   * @memberof XcxNode
-   */
-  private lack () {
-    if (this.lackRequests.length > 0) {
-      // 将当前的请求地址记录到Next，用于下一次编译
-      xcxNext.addLack(this.request.srcRelative)
-      // 打印缺失库的日志信息
-      this.lackRequests.forEach(lackRequest => {
-        log.error(`找不到模块：${lackRequest.request} in ${this.request.srcRelative}`)
-      })
-    } else {
-      // 从下一次的编译里移除
-      xcxNext.removeLack(this.request.srcRelative)
-    }
   }
 }

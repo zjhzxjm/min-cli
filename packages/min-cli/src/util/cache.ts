@@ -1,11 +1,20 @@
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import * as _ from 'lodash'
-import { XcxNode } from '../class'
+import { XcxNode, Request } from '../class'
 import { config } from '../util'
+import core from '@mindev/min-core'
+
+let XcxNodeCached: {
+  [key: string]: XcxNode
+} = {}
+
+let XcxNextCached: {
+  [key: string]: boolean
+} = {}
 
 /**
- * 转换相对地址
+ * Absolute path turns into relative path.
  *
  * @param {string} src
  * @returns
@@ -18,7 +27,7 @@ function src2relative (src: string) {
 }
 
 /**
- * 转换请求地址
+ * Convert the normal request path.
  *
  * @param {string} src
  * @returns
@@ -33,18 +42,20 @@ function path2request (src: string) {
  * @param {Object} target
  * @param {string[]} methods
  */
-function bindChnageRequestPath (target: Object, methods: string[]) {
-  methods.forEach(method => {
-    let fn = target[method]
-    if (!_.isFunction(fn)) return
-    target[method] = (src: string, ...args: any[]) => {
-      src = src2relative(src)
-      src = path2request(src)
-      args.unshift(src)
-      return fn.apply(target, args)
-    }
-  })
-}
+// function bindChnageRequestPath (target: Object, methods: string[]) {
+//   methods.forEach(method => {
+//     let fn = target[method]
+//     if (!_.isFunction(fn)) return
+//     target[method] = (src: string, ...args: any[]) => {
+//       if (_.isString(src)) {
+//         src = src2relative(src)
+//         src = path2request(src)
+//       }
+//       args.unshift(src)
+//       return fn.apply(target, args)
+//     }
+//   })
+// }
 
 /**
  * 找到 MD 文件父级的 wxp 页面路径
@@ -52,8 +63,8 @@ function bindChnageRequestPath (target: Object, methods: string[]) {
  * @param {string} file
  * @returns
  */
-function getMdRootWxpRequestPath (request: string) {
-  let srcRelative = path.normalize(request)
+function getMdRootWxpRequestPath (src: string) {
+  let srcRelative = path.relative(config.cwd, src)
   let extName = path.extname(srcRelative)
   let baseName = path.basename(srcRelative)
   let dirName = path.dirname(srcRelative)
@@ -87,109 +98,247 @@ function getMdRootWxpRequestPath (request: string) {
   return ''
 }
 
-export const xcxNodeCache = {
-  cached: {},
-  set (request: string, xcxNode: XcxNode): void {
-    this.cached[request] = xcxNode
+// export const xcxNodeCache = {
+//   cached: {},
+//   set (request: string, xcxNode: XcxNode): void {
+//     this.cached[request] = xcxNode
+//   },
+//   get (request: string): XcxNode | null {
+//     return this.cached[request] || null
+//   },
+//   getBeDepends (request: string): string[] {
+//     let beDepends: string[] = []
+//     // 将 请求路径转 换成 系统规范格式的相对路径
+//     let srcRelative = path.normalize(request)
+//     _.forIn(this.cached, (xcxNode: XcxNode, cacheKey: string) => {
+//       let isExsit = xcxNode.useRequests.some(useRequest => useRequest.srcRelative === srcRelative)
+//       if (isExsit) {
+//         beDepends.push(cacheKey)
+//       }
+//     })
+//     return beDepends
+//   },
+//   remove (request: string): void {
+//     if (this.check(request)) {
+//       delete this.cached[request]
+//     }
+//   },
+//   check (request: string): boolean {
+//     return this.get(request) !== null
+//   },
+//   clear () {
+//     this.cached = {}
+//   }
+// }
+
+export const xcxCache = {
+
+  get cached () {
+    return XcxNodeCached
   },
-  get (request: string): XcxNode | null {
-    return this.cached[request] || null
+
+  /**
+   * Add a node
+   *
+   * @param {string} src
+   * @param {XcxNode} xcxNode
+   */
+  add (src: string | Request, xcxNode: XcxNode): void {
+    let key = _.isString(src)
+      ? src
+      : src.src
+
+    XcxNodeCached[key] = xcxNode
   },
-  getBeDepends (request: string): string[] {
-    let beDepends: string[] = []
-    // 将 请求路径转 换成 系统规范格式的相对路径
-    let srcRelative = path.normalize(request)
-    _.forIn(this.cached, (xcxNode: XcxNode, cacheKey: string) => {
-      let isExsit = xcxNode.useRequests.some(useRequest => useRequest.srcRelative === srcRelative)
+
+  /**
+   * Get a node
+   *
+   * @param {string} src
+   * @returns {(XcxNode | null)}
+   */
+  get (src: string): XcxNode | null {
+    return XcxNodeCached[src] || null
+  },
+
+  /**
+   * Remove a node
+   *
+   * @param {string} src
+   */
+  remove (src: string): void {
+    delete XcxNodeCached[src]
+  },
+
+  /**
+   * Check that the node exists.
+   *
+   * @param {string} src
+   * @returns {boolean}
+   */
+  check (src: string): boolean {
+    return this.get(src) !== null
+  },
+
+  /**
+   * Clear all nodes
+   *
+   */
+  clear () {
+    XcxNodeCached = {}
+  },
+
+  /**
+   * Gets the dependent list.
+   *
+   * @param {string} src
+   * @returns {string[]}
+   */
+  getDependents (src: string): string[] {
+    let dependents: string[] = []
+
+    _.forIn(XcxNodeCached, (xcxNode: XcxNode, cacheKey: string) => {
+      let isExsit = xcxNode.useRequests.some(useRequest => useRequest.src === src)
       if (isExsit) {
-        beDepends.push(cacheKey)
+        dependents.push(cacheKey)
       }
     })
-    return beDepends
-  },
-  remove (request: string): void {
-    if (this.check(request)) {
-      delete this.cached[request]
-    }
-  },
-  check (request: string): boolean {
-    return this.get(request) !== null
-  },
-  clear () {
-    this.cached = {}
+    core.util.debug('xcxCache.getDependents', {
+      src,
+      dependents
+    })
+    return dependents
   }
 }
 
-bindChnageRequestPath(xcxNodeCache, ['set', 'get', 'getBeDepends', 'remove', 'check'])
+// bindChnageRequestPath(xcxCache, ['add', 'get', 'remove', 'getBeDepends'])
+
+// export const xcxNext = {
+//   /**
+//    * 缺少依赖的文件列表，在编译过程中发现有依赖缺失的，都会记录到这里
+//    */
+//   lack: {},
+//   /**
+//    * 缓冲区，临时放新增、修改、删除的文件，用完后要清空
+//    */
+//   buffer: {},
+//   addLack (request: string) {
+//     this.lack[request] = true
+//   },
+//   removeLack (request: string) {
+//     if (!this.checkLack(request)) {
+//       return
+//     }
+//     delete this.lack[request]
+//   },
+//   checkLack (request: string) {
+//     return !!this.lack[request]
+//   },
+//   watchNewFile (request: string) {
+//     if (path.extname(request) === config.ext.wxp) {
+//       this.buffer[request] = true
+//     }
+//   },
+//   watchChangeFile (request: string) {
+//     if (xcxNodeCache.check(request)) {
+//       this.buffer[request] = true
+//     }
+
+//     let mdRootWxpPath = getMdRootWxpRequestPath(request)
+//     if (mdRootWxpPath) {
+//       this.buffer[mdRootWxpPath] = true
+//     }
+//   },
+//   watchDeleteFile (request: string) {
+//     if (xcxNodeCache.check(request)) {
+//       xcxNodeCache.remove(request)
+
+//       // 上层依赖
+//       let beDepends = xcxNodeCache.getBeDepends(request)
+//       beDepends.forEach(request => this.buffer[request] = true)
+//     }
+
+//     let mdRootWxpPath = getMdRootWxpRequestPath(request)
+//     if (mdRootWxpPath) {
+//       this.buffer[mdRootWxpPath] = true
+//     }
+//   },
+//   reset () {
+//     this.buffer = {}
+//   },
+//   clear () {
+//     this.lack = {}
+//     this.buffer = {}
+//   },
+//   get (): string[] {
+//     let next = {
+//       ...this.lack,
+//       ...this.buffer
+//     }
+
+//     return _.keys(next)
+//   }
+// }
 
 export const xcxNext = {
-  /**
-   * 缺少依赖的文件列表，在编译过程中发现有依赖缺失的，都会记录到这里
-   */
-  lack: {},
-  /**
-   * 缓冲区，临时放新增、修改、删除的文件，用完后要清空
-   */
-  buffer: {},
-  addLack (request: string) {
-    this.lack[request] = true
+
+  get cached () {
+    return XcxNextCached
   },
-  removeLack (request: string) {
-    if (!this.checkLack(request)) {
+
+  get nexts (): string[] {
+    return _.keys(XcxNextCached)
+  },
+
+  get exists () {
+    return this.nexts.length > 0
+  },
+
+  add (src: string | Request) {
+    let key = _.isString(src)
+      ? src
+      : src.src
+
+    XcxNextCached[key] = true
+  },
+
+  newFile (src: string) {
+    let ext = path.extname(src)
+    if (ext !== config.ext.wxp && ext !== config.ext.wxa) {
       return
     }
-    delete this.lack[request]
+    this.add(src)
   },
-  checkLack (request: string) {
-    return !!this.lack[request]
-  },
-  watchNewFile (request: string) {
-    if (path.extname(request) === config.ext.wxp) {
-      this.buffer[request] = true
-    }
-  },
-  watchChangeFile (request: string) {
-    if (xcxNodeCache.check(request)) {
-      this.buffer[request] = true
+
+  changeFile (src: string) {
+    if (xcxCache.check(src)) {
+      this.add(src)
     }
 
-    let mdRootWxpPath = getMdRootWxpRequestPath(request)
+    let mdRootWxpPath = getMdRootWxpRequestPath(src)
     if (mdRootWxpPath) {
-      this.buffer[mdRootWxpPath] = true
+      this.add(mdRootWxpPath)
     }
   },
-  watchDeleteFile (request: string) {
-    if (xcxNodeCache.check(request)) {
-      xcxNodeCache.remove(request)
 
-      // 上层依赖
-      let beDepends = xcxNodeCache.getBeDepends(request)
-      beDepends.forEach(request => this.buffer[request] = true)
+  removeFile (src: string) {
+    if (xcxCache.check(src)) {
+      xcxCache.remove(src)
+      xcxCache.getDependents(src).forEach(this.add)
     }
 
-    let mdRootWxpPath = getMdRootWxpRequestPath(request)
+    let mdRootWxpPath = getMdRootWxpRequestPath(src)
     if (mdRootWxpPath) {
-      this.buffer[mdRootWxpPath] = true
+      this.add(mdRootWxpPath)
     }
   },
-  reset () {
-    this.buffer = {}
-  },
+
   clear () {
-    this.lack = {}
-    this.buffer = {}
-  },
-  get (): string[] {
-    let next = {
-      ...this.lack,
-      ...this.buffer
-    }
-
-    return _.keys(next)
+    XcxNextCached = {}
   }
 }
 
-bindChnageRequestPath(xcxNext, ['addLack', 'removeLack', 'checkLack', 'watchNewFile', 'watchChangeFile', 'watchDeleteFile'])
+// bindChnageRequestPath(xcxNext, ['add', 'newFile', 'changeFile', 'removeFile'])
 
 // let xcxAstCachePath = config.getPath('cache.xcxast')
 // fs.ensureDirSync(xcxAstCachePath)

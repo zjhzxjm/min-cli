@@ -4,8 +4,8 @@ import * as glob from 'glob'
 import * as _ from 'lodash'
 import * as chokidar from 'chokidar'
 import { XcxNode, XcxTraverse } from '../class'
-import { config, exec, log ,LogType, xcxNext, xcxNodeCache, Global } from '../util'
-import { loader, PluginHelper } from '@mindev/min-core'
+import { config, exec, log ,LogType, xcxNext, xcxCache, Global } from '../util'
+import core, { loader, PluginHelper } from '@mindev/min-core'
 
 export namespace Xcx {
 
@@ -114,28 +114,6 @@ export class Xcx {
     XcxTraverse.traverse(xcxNode, this.options.traverse)
   }
 
-  initCompiler (compilers: string[]) {
-    loader.loadCompilers(compilers)
-  }
-
-  initPlugin (plugins: string[]) {
-    loader.loadPlugins(plugins)
-  }
-
-  async checkLoader () {
-    this.initCompiler(config.compilers)
-    this.initPlugin(config.plugins)
-
-    let missingNpms = loader.getMissingNpms()
-    if (missingNpms.length) {
-      for (const pkgName of missingNpms) {
-        await exec('npm', ['install', pkgName, '-D'], true, {})
-      }
-      return false
-    }
-    return true
-  }
-
   async filesyncPlugin (watch = false) {
     if (this['_isInitFilesyncPlugin']) {
       return
@@ -161,11 +139,6 @@ export class Xcx {
    * @memberof Xcx
    */
   async compile (isFromWatch?: Boolean) {
-    let result = await this.checkLoader()
-    if (!result) {
-      return false
-    }
-
     log.newline()
     this.clear(isFromWatch)
     this.appCompile()
@@ -230,16 +203,16 @@ export class Xcx {
     })
 
     watcher
-      .on('add', this.watchAdd.bind(this))
-      .on('change', this.watchChange.bind(this))
-      .on('unlink', this.watchDelete.bind(this))
+      .on('add', this.newFile.bind(this))
+      .on('change', this.changeFile.bind(this))
+      .on('unlink', this.removeFile.bind(this))
       .on('error', (err) => {
         log.fatal(err)
       })
       .on('ready', () => {
         if (!this.isWatched) {
           this.isWatched = true
-          log.msg(LogType.WATCH, '开始监听文件改动。')
+          log.msg(LogType.WATCH, '开始监听文件改动.')
         }
       })
 
@@ -252,23 +225,25 @@ export class Xcx {
    * @memberof Xcx
    */
   next () {
-    let requests = xcxNext.get()
-    if (!requests.length) {
+    if (!xcxNext.exists) {
       return
     }
 
-    let xcxEntry: Xcx.Entry[] = requests.map(request => {
+    core.util.debug('xcxNext.nexts', xcxNext.nexts)
+
+    let xcxEntry: Xcx.Entry[] = xcxNext.nexts.map(src => {
       return {
-        request,
+        request: src,
         parent: config.cwd,
         isMain: true,
         isForce: true
       }
     })
 
+    xcxNext.clear()
     log.newline()
     this.transfromFromEntry(xcxEntry)
-    xcxNext.reset()
+    // core.util.log('正在监听文件改动.', '监听')
   }
 
   /**
@@ -393,11 +368,12 @@ export class Xcx {
    * 监听新增
    *
    * @private
-   * @param {string} file
+   * @param {string} filename
    * @memberof Xcx
    */
-  private watchAdd (file: string) {
-    xcxNext.watchNewFile(file)
+  private newFile (filename: string) {
+    let src = path.join(config.cwd, filename)
+    xcxNext.newFile(src)
     this.next()
   }
 
@@ -405,19 +381,22 @@ export class Xcx {
    * 监听变更
    *
    * @private
-   * @param {string} file
+   * @param {string} filename
    * @memberof Xcx
    */
-  private watchChange (file: string) {
-    let isApp = file === path.join(config.src, `app${config.ext.wxa}`)
-    let isMinConfig = file === config.filename
+  private changeFile (filename: string) {
+    let isApp = filename === path.join(config.src, `app${config.ext.wxa}`)
+    let isMinConfig = filename === config.filename
 
     if (isApp || isMinConfig) { // 重新编译
       this.compile(true)
-    } else {
-      xcxNext.watchChangeFile(file)
-      this.next()
+      // core.util.log('正在监听文件改动.', '监听')
+      return
     }
+
+    let src = path.join(config.cwd, filename)
+    xcxNext.changeFile(src)
+    this.next()
   }
 
   /**
@@ -427,15 +406,18 @@ export class Xcx {
    * @param {string} file
    * @memberof Xcx
    */
-  private watchDelete (file: string) {
-    let isMinConfig = file === config.filename
+  private removeFile (filename: string) {
+    let isMinConfig = filename === config.filename
 
     if (isMinConfig) { // 重新编译
       this.compile(true)
-    } else {
-      xcxNext.watchDeleteFile(file)
-      this.next()
+      // core.util.log('正在监听文件改动.', '监听')
+      return
     }
+
+    let src = path.join(config.cwd, filename)
+    xcxNext.removeFile(src)
+    this.next()
   }
 
   /**
@@ -446,37 +428,18 @@ export class Xcx {
    * @memberof Xcx
    */
   private clear (isFromWatch?: Boolean) {
-    this.clearCache()
-    if (isFromWatch) {
+    let { isClear } = this.options
+
+    if (!isClear) {
       return
     }
-    this.clearDest()
-  }
-
-  /**
-   * Clear cache
-   *
-   * @private
-   * @memberof Xcx
-   */
-  private clearCache () {
-    let { isClear } = this.options
-    if (!isClear) return
 
     Global.clear()
     xcxNext.clear()
-    xcxNodeCache.clear()
-  }
+    xcxCache.clear()
 
-  /**
-   * Clear dest dir
-   *
-   * @private
-   * @memberof Xcx
-   */
-  private clearDest () {
-    let { isClear } = this.options
-    if (!isClear) return
-    fs.emptyDirSync(config.getPath('dest'))
+    if (!isFromWatch) {
+      fs.emptyDirSync(config.getPath('dest'))
+    }
   }
 }
