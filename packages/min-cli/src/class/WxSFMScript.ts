@@ -231,7 +231,7 @@ export class WxSFMScript extends WxSFM {
    * @returns {string}
    * @memberof WxSFMScript
    */
-  generator (): string {
+  async generator (): Promise<string> {
     if (!this.node) {
       return ''
     }
@@ -252,24 +252,20 @@ export class WxSFMScript extends WxSFM {
       return result.code || ''
     }
 
-    let compilerConfig = config.compilers[lang] || {}
+    let compilerConfig = config.compilers[lang]
 
-    if (lang === 'babel') {
-      if (ext === config.ext.wxs) {
-        // TODO BUG
-        // wxs文件 或者 build编译情况下，关闭sourceMaps
-        compilerConfig = _.omit(compilerConfig, 'sourceMaps')
-      }
+    if (lang === 'babel' && ext === config.ext.wxs && _.isPlainObject(compilerConfig)) {
+      compilerConfig = _.omit(compilerConfig, 'sourceMaps')
     }
 
     let compiler = loader.loadCompiler(lang)
 
     if (!compiler) {
-      throw new Error(`未发现 ${lang} 的编译器，请安装@mindev/min-compiler-${lang}`)
+      throw new Error(`未发现相关 ${lang} 编译器配置，请检查min.config.js文件.`)
     }
 
     if (!compiler.sync) {
-      throw new Error(`未发现 ${lang} 的编译器的 sync 同步方法`)
+      throw new Error(`未找到 ${lang} 编译器提供的 sync 同步方法，Min 不支持此编译器 @mindev/min-compiler-${lang}.`)
     }
 
     let result = compiler.sync({
@@ -354,11 +350,11 @@ export class WxSFMScript extends WxSFM {
       let compiler = loader.loadCompiler(lang)
 
       if (!compiler) {
-        throw new Error(`未发现 ${lang} 的编译器，请安装@mindev/min-compiler-${lang}`)
+        throw new Error(`未发现相关 ${lang} 编译器配置，请检查min.config.js文件.`)
       }
 
       if (!compiler.sync) {
-        throw new Error(`未发现 ${lang} 的编译器的 sync 同步方法`)
+        throw new Error(`未找到 ${lang} 编译器提供的 sync 同步方法，Min 不支持此编译器 @mindev/min-compiler-${lang}.`)
       }
 
       let result = compiler.sync({
@@ -497,7 +493,7 @@ export class WxSFMScript extends WxSFM {
     let extKey = _.findKey(config.ext, (ext) => ext === this.request.ext) || ''
     let structure = config.structure[extKey]
     if (!structure) {
-      log.error('没找到构造器')
+      core.util.warn('没找到构造器')
       return
     }
     path.replaceWith(t.callExpression(

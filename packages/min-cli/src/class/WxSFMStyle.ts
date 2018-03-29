@@ -105,7 +105,7 @@ export class WxSFMStyle extends WxSFM {
     let compiler = loader.loadCompiler(lang)
 
     if (!compiler) {
-      throw new Error(`未发现 ${lang} 的编译器，请安装@mindev/min-compiler-${lang}`)
+      throw new Error(`未发现相关 ${lang} 编译器配置，请检查min.config.js文件.`)
     }
 
     source = this.appendVariables(source, lang)

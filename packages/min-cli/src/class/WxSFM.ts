@@ -1,8 +1,8 @@
 import * as path from 'path'
 import * as _ from 'lodash'
 import { Depend, Request } from '../class'
-import util, { log, LogType, config } from '../util'
-import { PluginHelper } from '@mindev/min-core'
+import util, { log, LogType, config, xcxNext } from '../util'
+import core, { PluginHelper } from '@mindev/min-core'
 
 export namespace WxSFM {
 
@@ -109,7 +109,7 @@ export class WxSFM {
   }
 
   // 生成
-  generator (): Promise<string> | string {
+  async generator (): Promise<string> {
     log.fatal('WxSFM.generator Method not implemented.')
     return ''
   }
@@ -122,12 +122,12 @@ export class WxSFM {
   // 保存
   save (): void {
     this.beforeSave()
-    let code = this.generator()
-    if (_.isString(code)) {
-      this.write(code)
-    } else {
-      code.then(this.write.bind(this))
-    }
+    this.generator()
+      .then(this.saveContent.bind(this))
+      .catch(err => {
+        core.util.error(err)
+        xcxNext.add(this.request)
+      })
     this.afterSave()
   }
 
@@ -181,23 +181,24 @@ export class WxSFM {
    * 将内容写入到 dest目标绝对路径
    *
    * @private
-   * @param {string} code
+   * @param {string} content
    * @memberof WxSFM
    */
-  private async write (code: string) {
+  private async saveContent (content: string) {
     let options: PluginHelper.Options = {
       cwd: config.cwd,
       filename: this.destRelative,
       extend: {
-        content: code
+        content
       }
     }
 
     let plugin = new PluginHelper(PluginHelper.Type.Text)
-    options = await plugin.apply(options)
-    code = options.extend.content || ''
+    let result = await plugin.apply(options)
+    let { extend = {} } = result
+    content = extend.content || ''
 
     log.msg(LogType.WRITE, this.destRelative)
-    util.writeFile(this.dest, code)
+    util.writeFile(this.dest, content)
   }
 }
