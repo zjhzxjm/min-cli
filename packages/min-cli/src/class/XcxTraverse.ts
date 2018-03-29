@@ -105,6 +105,8 @@ export namespace XcxTraverse {
  */
 export class XcxTraverse {
 
+  private cached: { [ key: string ]: boolean } = {}
+
   /**
    * pages 页面路径列表，与 app.json 中的 pages 字段的格式一致
    *
@@ -222,9 +224,17 @@ export class XcxTraverse {
    * @memberof XcxTraverse
    */
   private resolve (xcxNode: XcxNode) {
+    let { cached } = this
+    let { request } = xcxNode
+
+    if (cached[request.src]) {
+      return
+    }
+
+    cached[request.src] = true
+
     // 触发 enter 进入访问器
     this.trigger('enter', xcxNode)
-    let { request } = xcxNode
 
     switch (request.requestType) {
       case RequestType.WXA:

@@ -69,10 +69,7 @@ export class XcxNode {
    * @param {XcxNode} [root]
    * @memberof XcxNode
    */
-  constructor (request: Request, root?: XcxNode) {
-    if (root) {
-      root.children.push(this)
-    }
+  constructor (request: Request) {
     xcxCache.add(request, this)
 
     try {
@@ -116,7 +113,7 @@ export class XcxNode {
     let xcxNode = xcxCache.get(request.src)
 
     if (isForce || !xcxNode) {
-      xcxNode = new XcxNode(request, root)
+      xcxNode = new XcxNode(request)
     }
 
     return xcxNode
@@ -170,16 +167,8 @@ export class XcxNode {
       })
 
       if (xcxNode) {
-        this.useRequests.push({
-          request,
-          requestType,
-          src: xcxNode.request.src,
-          srcRelative: xcxNode.request.srcRelative,
-          ext: xcxNode.request.ext,
-          dest: xcxNode.request.dest,
-          destRelative: xcxNode.request.destRelative,
-          isThreeNpm: xcxNode.request.isThreeNpm
-        })
+        this.children.push(xcxNode)
+        this.useRequests.push(xcxNode.request)
       } else {
         xcxNext.add(this.request)
       }
