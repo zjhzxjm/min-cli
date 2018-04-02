@@ -221,7 +221,7 @@ export const loader = {
 
     if (!PluginClass) {
       this.addMissingNpm(pkgName)
-      util.log(`找不到插件：${name}.`, 'warning')
+      // util.warn(`找不到插件：${name}.`)
       return null
     }
 
@@ -265,7 +265,7 @@ export const loader = {
 
     try {
       util.log(`正在尝试安装 ${pkgName}, 请稍等.`)
-      await util.exec(`npm install ${pkgName} --save-dev`)
+      await util.exec(`npm install ${pkgName} --save-dev --production=false`)
       util.log(`已完成安装 ${pkgName}.`, '完成')
     }
     catch (err) {

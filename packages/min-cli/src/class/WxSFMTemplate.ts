@@ -225,7 +225,7 @@ export class WxSFMTemplate extends WxSFM {
     let compiler = loader.loadCompiler(lang)
 
     if (!compiler) {
-      throw new Error(`未发现相关 ${lang} 编译器配置，请检查min.config.js文件.`)
+      throw new Error(`未发现相关 ${lang} 编译器配置，请检查min.config.js文件或尝试运行命令 "npm install @mindev/min-compiler-${lang} --save-dev" 进行安装.`)
     }
 
     if (lang === 'pug') {

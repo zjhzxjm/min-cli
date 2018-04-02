@@ -198,11 +198,9 @@ export class Global {
       homePage = config.homePage
     }
 
-    if (_.indexOf(pages, homePage) !== -1) {
+    if (homePage && _.indexOf(pages, homePage) !== -1) {
       pages = pages.filter((page) => page !== homePage)
       pages.unshift(homePage)
-    } else {
-      log.error(`找不到默认首页：${homePage}`)
     }
 
     if (tabBarList.length > 0) {

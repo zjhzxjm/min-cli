@@ -22,6 +22,7 @@ const CUSTOM_CONFIG_MEMBER: string[] = [
   'compilers', // 编译器
   'plugins', // 插件
   'lint',
+  'homePage', // 默认首页
   'src', // 源代码的路径
   'packages', // 组件库的路径
   'dest',// 编译后的路径

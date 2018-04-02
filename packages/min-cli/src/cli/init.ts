@@ -207,7 +207,7 @@ export class InitCommand {
 
     // 提示使用
     log.newline()
-    log.msg(LogType.TIP, `项目创建完成，请在 "微信开发者工具" 中新建一个小程序项目，项目目录指向新建工程里的 ${dest}/ 文件夹。如此，组件就能在开发者工具中进行预览了`)
+    log.msg(LogType.TIP, `项目创建完成，请在 "微信开发者工具" 中新建一个小程序项目，项目目录指向新建工程根目录。`)
   }
 
   private async copyScaffold (): Promise<any> {
