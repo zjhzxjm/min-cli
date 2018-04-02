@@ -3,7 +3,7 @@
 	"description": "项目配置文件。",
 	"compileType": "miniprogram",
 	"libVersion": "1.7.1",
-	"appid": "wxbbb37d1f6d4712f2",
+	"appid": "wx1163151b9383ce2b",
 	"projectname": "MinExamplePlugin",
 	"setting": {
 		"urlCheck": false,

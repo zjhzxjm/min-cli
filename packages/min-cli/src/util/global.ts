@@ -10,6 +10,11 @@ interface SymbolExpression {
   exp: string
 }
 
+export interface SubPackage {
+  root: string
+  pages: string[]
+}
+
 const SymbolType: {
   [key: string]: SymbolExpression
 } = {
@@ -61,6 +66,8 @@ export namespace Global {
 
   export interface AppConfig {
     [key: string]: any
+    pages?: string[]
+    subPackages?: SubPackage[]
   }
 }
 
@@ -137,6 +144,22 @@ export class Global {
     return this.appConfig.pages || []
   }
 
+  static get appSubPackages (): SubPackage[] {
+    let { subPackages = [] } = this.appConfig
+    return subPackages.map(sPackage => {
+      if (_.isString(sPackage)) {
+        return {
+          root: sPackage,
+          pages: []
+        }
+      } else if (_.isPlainObject(sPackage)) {
+        return _.merge(sPackage, {
+          pages: []
+        })
+      }
+    })
+  }
+
   static get appTabBarList (): any[] {
     let { tabBar = { list: [] } } = this.appConfig
     let { list = [] } = tabBar
@@ -183,9 +206,29 @@ export class Global {
       return
     }
 
+    this._pages = _.cloneDeep(pages)
+
     let appConfig = _.cloneDeep(this.appConfig)
     let tabBarList = _.cloneDeep(this.appTabBarList)
     let homePage = ''
+
+    let subPackages = _.cloneDeep(this.appSubPackages)
+
+    subPackages.forEach(sPackage => {
+      let sPages = []
+      let sRoot = sPackage.root
+
+      sRoot += sRoot.lastIndexOf('/') === -1 ? '/' : ''
+      pages = pages.filter(page => {
+        if (page.indexOf(sRoot) === 0) {
+          sPages.push(path.relative(sRoot, page))
+          return false
+        }
+        return true
+      })
+
+      sPackage.pages = sPages
+    })
 
     if (this.isDebug) {
       homePage = pages[0]
@@ -207,7 +250,11 @@ export class Global {
       appConfig.tabBar.list = tabBarList
     }
 
-    this._pages = pages
+    if (subPackages.length > 0) {
+      appConfig.subPackages = subPackages
+    }
+
+    // this._pages = pages
     appConfig.pages = pages
     appConfig = _.omit(appConfig, 'usingComponents')
 

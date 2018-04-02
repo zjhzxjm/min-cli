@@ -143,6 +143,7 @@ export class Xcx {
     this.clear(isFromWatch)
     this.appCompile()
     this.pagesCompile()
+    this.subPackagesCompile()
     this.imagesCompile()
   }
 
@@ -324,6 +325,33 @@ export class Xcx {
         isGlob: true
       }]
     }
+
+    this.transfromFromEntry(xcxEntry)
+  }
+
+  private subPackagesCompile () {
+    let subPackages = Global.appSubPackages
+    let xcxEntry: Xcx.Entry[] = _.concat([], ...subPackages.map(sPackage => {
+      let { pages } = sPackage
+      if (!pages.length) {
+        return [
+          {
+            request: `${sPackage.root}/**/*${config.ext.wxp}`,
+            parent: config.getPath('src'),
+            isMain: true,
+            isGlob: true
+          }
+        ]
+      } else {
+        return pages.map(page => {
+          return {
+            request: `${sPackage.root}/${page}${config.ext.wxp}`,
+            parent: config.getPath('src'),
+            isMain: true
+          }
+        })
+      }
+    }))
 
     this.transfromFromEntry(xcxEntry)
   }

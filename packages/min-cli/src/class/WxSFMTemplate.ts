@@ -6,7 +6,7 @@ import { RequestType } from '../declare/RequestType'
 import core, { loader } from '@mindev/min-core'
 
 const htmlparser = require('htmlparser2')
-const PID_KEY = '_pid'
+// const PID_KEY = '_pid'
 
 export namespace WxSFMTemplate {
   export interface Options {
@@ -105,7 +105,7 @@ export class WxSFMTemplate extends WxSFM {
     let code = ''
     if (!this.dom) return code
 
-    this.setCustomTagPidAttr()
+    // this.setCustomTagPidAttr()
     this.addExampleMdDocTag()
     this.setExampleDemoSourceAttr()
 
@@ -350,13 +350,13 @@ export class WxSFMTemplate extends WxSFM {
    * @private
    * @memberof WxSFMTemplate
    */
-  private setCustomTagPidAttr () {
-    // set _pid
-    this.customElems.forEach((elem: any) => {
-      elem.attribs = elem.attribs || {}
-      elem.attribs[PID_KEY] = `{{${PID_KEY}}}`
-    })
-  }
+  // private setCustomTagPidAttr () {
+  //   // set _pid
+  //   this.customElems.forEach((elem: any) => {
+  //     elem.attribs = elem.attribs || {}
+  //     elem.attribs[PID_KEY] = `{{${PID_KEY}}}`
+  //   })
+  // }
 
   /**
    * 添加 用于输出展示 doc-intro 和 doc-api 的 example-md 标签
@@ -372,8 +372,8 @@ export class WxSFMTemplate extends WxSFM {
       type: 'tag',
       name: 'example-md',
       attribs: {
-        content: '{{__code__.readme}}',
-        [PID_KEY]: `{{${PID_KEY}}}`
+        content: '{{__code__.readme}}'
+        // [PID_KEY]: `{{${PID_KEY}}}`
       }
     }, null)
 
