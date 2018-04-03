@@ -322,9 +322,39 @@ export class WxSFMScript extends WxSFM {
     let { config } = globalMin
     let { usingComponents } = config
 
+    // The require path of the usingComponents is resolved.
+    let resolvePath = (requirePath: string): string => {
+      if (requirePath.charAt(0) !== '.') {
+        return requirePath
+      }
+
+      // For example: ../../ + '../components/wxc-loading'
+      return path.join(this.getRelativePathFromWxa(), requirePath)
+    }
+
+    usingComponents = _.forIn(_.cloneDeep(usingComponents), (value, key, object) => {
+      object[key] = resolvePath(value)
+    })
+
     this.config = _.merge({}, this.config, {
       usingComponents
     })
+  }
+
+  private getRelativePathFromWxa (): string {
+    if (this.isWxa) {
+      return ''
+    }
+
+    let { request: appRequest } = Global.layout.app
+    let { src: appFilePath } = appRequest
+    let { src: curFilePath } = this.request
+
+    // The relative path from the current file to the app file.
+    // For example:
+    // from ~/src/pages/home/index.wxp
+    // to   ~/src/app.wxa
+    return $path.relative($path.dirname(curFilePath), $path.dirname(appFilePath))
   }
 
   /**
@@ -875,18 +905,8 @@ export class WxSFMScript extends WxSFM {
     // The require path of the mixins is resolved.
     let resolvePath = (requirePath: string): t.StringLiteral => {
       if (requirePath.charAt(0) === '.') {
-        let { request: appRequest } = Global.layout.app
-        let { src: appFilePath } = appRequest
-        let { src: curFilePath } = this.request
-
-        // The relative path from the current file to the app file.
-        // For example:
-        // from ~/src/pages/home/index.wxp
-        // to   ~/src/app.wxa
-        let relativePath = $path.relative($path.dirname(curFilePath), $path.dirname(appFilePath))
-
-        // For example: ../../
-        requirePath = $path.join(relativePath, requirePath)
+        // For example: ../../ + './mixins/index.js'
+        requirePath = $path.join(this.getRelativePathFromWxa(), requirePath)
       }
       return t.stringLiteral(requirePath)
     }
