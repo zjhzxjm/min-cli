@@ -1,6 +1,5 @@
-import * as _ from 'lodash'
 import * as sass from 'node-sass'
-import { CompilerHelper } from '@mindev/min-core'
+import { util, CompilerHelper } from '@mindev/min-core'
 
 import Compiler = CompilerHelper.Compiler
 import Options = CompilerHelper.Options
@@ -25,7 +24,7 @@ const compiler: Compiler = (options: Options): Promise<Result> => {
         reject(err)
       }
       else {
-        _.merge(options, {
+        util.merge(options, {
           extend: {
             code: result.css.toString(),
             map: result.map,

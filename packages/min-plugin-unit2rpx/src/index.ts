@@ -1,7 +1,6 @@
-import * as _ from 'lodash'
 import * as postcss from 'postcss'
 import unit2Rpx from './unit2rpx'
-import { PluginHelper } from '@mindev/min-core'
+import { util, PluginHelper } from '@mindev/min-core'
 
 const DEFAULTS: Unit2RpxPlugin.Options = {
   config: {
@@ -44,11 +43,11 @@ export default class Unit2RpxPlugin extends PluginHelper.TextPlugin {
     let { content = '' } = extend
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(filter) && !filter.test(filename)) {
+    if (util.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(validate) && !validate(options)) {
+    if (util.isFunction(validate) && !validate(options)) {
       return p
     }
 
@@ -61,7 +60,7 @@ export default class Unit2RpxPlugin extends PluginHelper.TextPlugin {
     try {
       content = await unit2Rpx(content, config)
 
-      _.merge(options, { extend: { content } })
+      util.merge(options, { extend: { content } })
     }
     catch (err) {
       p = Promise.reject(err)

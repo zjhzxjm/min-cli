@@ -23,8 +23,7 @@
     "@mindev/min-core": "^2.0.0",
     "imagemin": "^5.3.1",
     "imagemin-mozjpeg": "^7.0.0",
-    "imagemin-pngquant": "^5.0.1",
-    "lodash": "^4.17.5"
+    "imagemin-pngquant": "^5.0.1"
   },
   "devDependencies": {},
   "author": "Min Team",

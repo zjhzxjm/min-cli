@@ -1,5 +1,4 @@
-import * as _ from 'lodash'
-import { PluginHelper } from '@mindev/min-core'
+import { util, PluginHelper } from '@mindev/min-core'
 
 const DEFAULTS: ScaffoldPlugin.Options = {
   config: {},
@@ -35,16 +34,16 @@ export default class ScaffoldPlugin extends PluginHelper.TextPlugin {
     let { filename, extend } = options
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(filter) && !filter.test(filename)) {
+    if (util.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(validate) && !validate(options)) {
+    if (util.isFunction(validate) && !validate(options)) {
       return p
     }
 
     try {
-      _.merge(options, { extend: { } })
+      util.merge(options, { extend: { } })
     }
     catch (err) {
       p = Promise.reject(err)

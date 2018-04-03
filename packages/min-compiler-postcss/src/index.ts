@@ -1,6 +1,5 @@
-import * as _ from 'lodash'
 import * as postcss from 'postcss'
-import { CompilerHelper } from '@mindev/min-core'
+import { util, CompilerHelper } from '@mindev/min-core'
 
 import Compiler = CompilerHelper.Compiler
 import Options = CompilerHelper.Options
@@ -33,9 +32,9 @@ const compiler: Compiler = async (options: Options): Promise<Result> => {
     }
 
     let dependencies = result.messages.filter(message => message.type === 'dependency')
-    let imports = dependencies.map((dependency: any) => dependency.file)
+    let imports = util.union(dependencies.map((dependency: any) => dependency.file))
 
-    _.merge(options, {
+    util.merge(options, {
       extend: {
         code: result.css,
         map: result.map,

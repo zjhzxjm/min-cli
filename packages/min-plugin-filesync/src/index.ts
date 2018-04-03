@@ -1,7 +1,6 @@
 import * as path from 'path'
-import * as _ from 'lodash'
 import * as chokidar from 'chokidar'
-import { PluginHelper } from '@mindev/min-core'
+import { util, PluginHelper } from '@mindev/min-core'
 import filesync from './filesync'
 
 export default class FilesyncPlugin extends PluginHelper.FilePlugin {
@@ -33,14 +32,14 @@ export default class FilesyncPlugin extends PluginHelper.FilePlugin {
 
     let options = this.options || {}
 
-    if (!_.isUndefined(options.from) && !_.isUndefined(options.to)) {
+    if (!util.isUndefined(options.from) && !util.isUndefined(options.to)) {
       config = [...config, options]
     }
-    else if (_.isArray(options)) {
+    else if (util.isArray(options)) {
       config = [...config, ...options]
     }
-    else if (_.isObject(options)) {
-      _.forIn(options, (value: FilesyncPlugin.Config, key: string) => {
+    else if (util.isObject(options)) {
+      util.forIn(options, (value: FilesyncPlugin.Config, key: string) => {
         config.push(value)
       })
     }

@@ -21,7 +21,6 @@
   ],
   "dependencies": {
     "@mindev/min-core": "^2.0.0",
-    "lodash": "^4.17.5",
     "uglify-js": "^3.3.14"
   },
   "devDependencies": {

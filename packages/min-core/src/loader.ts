@@ -1,5 +1,4 @@
 import * as path from 'path'
-import * as _ from 'lodash'
 import { PluginHelper } from './plugin'
 import { CompilerHelper } from './compiler'
 import util from './util'
@@ -168,13 +167,13 @@ export const loader = {
     let plugins: Plugin[] = []
     let pluginMap: PluginMap = {}
 
-    if (_.isArray(pluginConfigs)) {
-      pluginMap = _.fromPairs(pluginConfigs.map(plugin => {
+    if (util.isArray(pluginConfigs)) {
+      pluginMap = util.fromPairs(pluginConfigs.map(plugin => {
         // [[define, true], [filemin, true]]=> { define: true, filemin: true }
         return [plugin, true]
       }))
     }
-    else if (_.isObject(pluginConfigs)) {
+    else if (util.isObject(pluginConfigs)) {
       pluginMap = pluginConfigs
     }
 
@@ -194,15 +193,15 @@ export const loader = {
   },
 
   loadPlugin (name: string, config: PluginConfig = true, force = true): Plugin | null {
-    if (_.isFunction(config)) {
+    if (util.isFunction(config)) {
       config = config()
     }
 
-    if (_.isBoolean(config)) {
+    if (util.isBoolean(config)) {
       config = config === true ? {} : false
     }
 
-    if (!_.isObject(config)) {
+    if (!util.isObject(config)) {
       return null
     }
 
@@ -239,7 +238,7 @@ export const loader = {
   getPlugins (type: PluginHelper.Type): Plugin[] {
     let plugins: Plugin[] = []
 
-    plugins = _
+    plugins = util
       .values(loadedPlugins)
       .filter(plugin => plugin.type === type)
 

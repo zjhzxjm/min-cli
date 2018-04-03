@@ -1,7 +1,6 @@
-import * as _ from 'lodash'
 import * as postcss from 'postcss'
 import * as autoprefixer from 'autoprefixer'
-import { PluginHelper } from '@mindev/min-core'
+import { util, PluginHelper } from '@mindev/min-core'
 
 const DEFAULTS: AutoprefixerPlugin.Options = {
   config: {
@@ -42,11 +41,11 @@ export default class AutoprefixerPlugin extends PluginHelper.TextPlugin {
     let { content = '' } = extend
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(filter) && !filter.test(filename)) {
+    if (util.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(validate) && !validate(options)) {
+    if (util.isFunction(validate) && !validate(options)) {
       return p
     }
 
@@ -62,7 +61,7 @@ export default class AutoprefixerPlugin extends PluginHelper.TextPlugin {
       ])
       content = await processor.process(content).then(result => result.css)
 
-      _.merge(options, { extend: { content } })
+      util.merge(options, { extend: { content } })
     }
     catch (err) {
       p = Promise.reject(err)

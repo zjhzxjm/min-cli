@@ -21,8 +21,7 @@
   ],
   "devDependencies": {},
   "dependencies": {
-    "@mindev/min-core": "^2.0.0",
-    "lodash": "^4.17.4"
+    "@mindev/min-core": "^2.0.0"
   },
   "author": "Min Team",
   "license": "MIT"

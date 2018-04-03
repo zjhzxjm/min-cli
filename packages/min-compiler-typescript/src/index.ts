@@ -1,6 +1,5 @@
-import * as _ from 'lodash'
 import * as ts from 'typescript'
-import { CompilerHelper } from '@mindev/min-core'
+import { util, CompilerHelper } from '@mindev/min-core'
 
 import Compiler = CompilerHelper.Compiler
 import Options = CompilerHelper.Options
@@ -34,7 +33,7 @@ compiler.sync = (options: Options): Result => {
 
   let result = ts.transpileModule(code, config)
 
-  _.merge(options, {
+  util.merge(options, {
     extend: {
       code: result.outputText,
       map: result.sourceMapText

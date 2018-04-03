@@ -1,6 +1,5 @@
-import * as _ from 'lodash'
 import { transformFromAst } from 'babel-core'
-import { CompilerHelper } from '@mindev/min-core'
+import { util, CompilerHelper } from '@mindev/min-core'
 
 import Compiler = CompilerHelper.Compiler
 import Options = CompilerHelper.Options
@@ -35,7 +34,7 @@ compiler.sync = (options: Options): Result => {
   // 如果 config 为 false 只处理语法树转换
   let babelrc = config === false ? false : true
 
-  if (!_.isPlainObject(config)) {
+  if (!util.isPlainObject(config)) {
     config = {}
   }
 
@@ -46,9 +45,9 @@ compiler.sync = (options: Options): Result => {
     filename
   })
 
-  _.merge(options, {
+  util.merge(options, {
     extend: {
-      ..._.pick(result, ['ast', 'code', 'map'])
+      ...util.pick(result, ['ast', 'code', 'map'])
     }
   })
 

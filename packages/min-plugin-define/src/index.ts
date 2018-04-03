@@ -1,6 +1,5 @@
-import * as _ from 'lodash'
 import * as t from 'babel-types'
-import { PluginHelper } from '@mindev/min-core'
+import { util, PluginHelper } from '@mindev/min-core'
 
 const DEFAULTS: DefinePlugin.Options = {
   config: {
@@ -41,11 +40,11 @@ export default class DefinePlugin extends PluginHelper.AstPlugin {
     let { ast: node = null } = extend
     let p = Promise.resolve(options)
 
-    // if (_.isRegExp(filter) && !filter.test(filename)) {
+    // if (util.isRegExp(filter) && !filter.test(filename)) {
     //   return p
     // }
 
-    if (_.isFunction(validate) && !validate(options)) {
+    if (util.isFunction(validate) && !validate(options)) {
       return p
     }
 
@@ -64,7 +63,7 @@ export default class DefinePlugin extends PluginHelper.AstPlugin {
         }
       }
 
-      _.merge(options, { extend: { ast: node } })
+      util.merge(options, { extend: { ast: node } })
     }
     catch (err) {
       p = Promise.reject(err)

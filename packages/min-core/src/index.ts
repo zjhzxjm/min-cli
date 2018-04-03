@@ -4,4 +4,5 @@ import util, { ExecResult } from './util'
 export { CompilerHelper } from './compiler'
 export { PluginHelper } from './plugin'
 export { loader } from './loader'
+export { util }
 export default { util }

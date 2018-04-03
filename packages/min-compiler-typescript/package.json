@@ -24,8 +24,7 @@
   },
   "dependencies": {
     "@mindev/min-core": "^2.0.0",
-    "typescript": "^2.7.2",
-    "lodash": "^4.17.4"
+    "typescript": "^2.7.2"
   },
   "author": "Min Team",
   "license": "MIT"

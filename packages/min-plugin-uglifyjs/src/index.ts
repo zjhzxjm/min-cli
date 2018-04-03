@@ -1,6 +1,5 @@
-import * as _ from 'lodash'
 import * as uglify from 'uglify-js'
-import { PluginHelper } from '@mindev/min-core'
+import { util, PluginHelper } from '@mindev/min-core'
 
 import Plugin = PluginHelper.Plugin
 import PluginOptions = PluginHelper.Options
@@ -44,11 +43,11 @@ export default class UglifyjsPlugin extends PluginHelper.TextPlugin {
     let { content = '' } = extend
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(filter) && !filter.test(filename)) {
+    if (util.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(validate) && !validate(options)) {
+    if (util.isFunction(validate) && !validate(options)) {
       return p
     }
 
@@ -58,7 +57,7 @@ export default class UglifyjsPlugin extends PluginHelper.TextPlugin {
 
     // output('压缩', filename)
 
-    let config = _.cloneDeep($config)
+    let config = util.cloneDeep($config)
 
     let result: any = uglify.minify(content, config)
 
@@ -66,7 +65,7 @@ export default class UglifyjsPlugin extends PluginHelper.TextPlugin {
       p = Promise.reject(result.error)
     }
     else {
-      _.merge(options, { extend: { content: result.code } })
+      util.merge(options, { extend: { content: result.code } })
     }
 
     return p

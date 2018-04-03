@@ -1,5 +1,4 @@
-import * as _ from 'lodash'
-import { CompilerHelper } from '@mindev/min-core'
+import { util, CompilerHelper } from '@mindev/min-core'
 
 import Compiler = CompilerHelper.Compiler
 import Options = CompilerHelper.Options

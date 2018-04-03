@@ -1,5 +1,5 @@
-import * as _ from 'lodash'
 import loader from './loader'
+import util from './util'
 
 export class PluginHelper {
   plugins: PluginHelper.Plugin[] = []
@@ -7,8 +7,8 @@ export class PluginHelper {
   constructor (type: PluginHelper.Type, name?: string | string[]) {
     let names: string[] = []
 
-    if (!_.isUndefined(name)) {
-      names = _.isString(name) ? [name] : name
+    if (!util.isUndefined(name)) {
+      names = util.isString(name) ? [name] : name
     }
 
     names.forEach(name => {

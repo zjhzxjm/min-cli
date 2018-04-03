@@ -1,7 +1,6 @@
 import * as path from 'path'
-import * as _ from 'lodash'
 import * as less from 'less'
-import { CompilerHelper } from '@mindev/min-core'
+import { util, CompilerHelper } from '@mindev/min-core'
 
 import Compiler = CompilerHelper.Compiler
 import Options = CompilerHelper.Options
@@ -24,7 +23,7 @@ const compiler: Compiler = async (options: Options): Promise<Result> => {
     })
     let result = await less.render(code, config)
 
-    _.merge(options, {
+    util.merge(options, {
       extend: {
         code: result.css,
         map: result.map,

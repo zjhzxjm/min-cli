@@ -1,6 +1,5 @@
-import * as _ from 'lodash'
 import * as pug from 'pug'
-import { CompilerHelper } from '@mindev/min-core'
+import { util, CompilerHelper } from '@mindev/min-core'
 
 import Compiler = CompilerHelper.Compiler
 import Options = CompilerHelper.Options
@@ -32,10 +31,10 @@ compiler.sync = (options: Options): Result => {
     return options
   }
 
-  let templete = pug.compile(code, _.omit(config, ['data']))
+  let templete = pug.compile(code, util.omit(config, ['data']))
   let html = templete(config.data)
 
-  _.merge(options, {
+  util.merge(options, {
     extend: {
       code: html
     }

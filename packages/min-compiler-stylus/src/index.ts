@@ -1,7 +1,6 @@
 import * as path from 'path'
-import * as _ from 'lodash'
 import * as stylus from 'stylus'
-import { CompilerHelper } from '@mindev/min-core'
+import { util, CompilerHelper } from '@mindev/min-core'
 
 import Compiler = CompilerHelper.Compiler
 import Options = CompilerHelper.Options
@@ -22,14 +21,18 @@ const compiler: Compiler = (options: Options): Promise<Result> => {
   })
 
   return new Promise ((resolve, reject) => {
-    stylus.render(code, config, function (err, css) {
+    let renderer = stylus(code, config)
+    let imports = renderer.deps(opath.base)
+
+    renderer.render((err, css) => {
       if (err) {
         reject(err)
       }
       else {
-        _.merge(options, {
+        util.merge(options, {
           extend: {
-            code: css
+            code: css,
+            imports
           }
         })
         resolve(options)

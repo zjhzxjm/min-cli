@@ -1,6 +1,5 @@
-import * as _ from 'lodash'
 import { pd } from 'pretty-data'
-import { PluginHelper } from '@mindev/min-core'
+import { util, PluginHelper } from '@mindev/min-core'
 
 const DEFAULTS: FileminPlugin.Options = {
   config: {},
@@ -37,11 +36,11 @@ export default class FileminPlugin extends PluginHelper.TextPlugin {
     let { content = '' } = extend
     let p = Promise.resolve(options)
 
-    if (_.isRegExp(filter) && !filter.test(filename)) {
+    if (util.isRegExp(filter) && !filter.test(filename)) {
       return p
     }
 
-    if (_.isFunction(validate) && !validate(options)) {
+    if (util.isFunction(validate) && !validate(options)) {
       return p
     }
 
@@ -62,7 +61,7 @@ export default class FileminPlugin extends PluginHelper.TextPlugin {
         content = pd.jsonmin(content)
       }
 
-      _.merge(options, { extend: { content } })
+      util.merge(options, { extend: { content } })
     }
     catch (err) {
       p = Promise.reject(err)

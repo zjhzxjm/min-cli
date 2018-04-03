@@ -1,8 +1,7 @@
 import * as path from 'path'
 import * as fs from 'fs-extra'
 import * as minimatch from 'minimatch'
-import * as _ from 'lodash'
-import { PluginHelper } from '@mindev/min-core'
+import { util, PluginHelper } from '@mindev/min-core'
 import Config = FilesyncPlugin.Config
 
 export default async function filesync (cwd: string, dest: string, filename: string, status: string, config: Config) {
@@ -13,7 +12,7 @@ export default async function filesync (cwd: string, dest: string, filename: str
   // /a/b/d
   let todirname = path.join(dest, config.to || '')
 
-  if (_.isUndefined(config.from)) {
+  if (util.isUndefined(config.from)) {
     return
   }
 
@@ -26,29 +25,29 @@ export default async function filesync (cwd: string, dest: string, filename: str
   let filepart = path.relative(fromdirname, filepath)
 
   // RegExp filter
-  if (_.isRegExp(config.filter) && !config.filter.test(filepart)) {
+  if (util.isRegExp(config.filter) && !config.filter.test(filepart)) {
     return
   }
 
   // Function validate
-  if (_.isFunction(config.validate) && !config.validate(filepart)) {
+  if (util.isFunction(config.validate) && !config.validate(filepart)) {
     return
   }
 
   let ignores: string[] = []
-  if (!_.isUndefined(config.ignore)) {
-    ignores = _.isArray(config.ignore) ? config.ignore : [config.ignore]
+  if (!util.isUndefined(config.ignore)) {
+    ignores = util.isArray(config.ignore) ? config.ignore : [config.ignore]
   }
-  let froms = _.isArray(config.from) ? config.from : [config.from]
+  let froms = util.isArray(config.from) ? config.from : [config.from]
 
   for (const ignore of ignores) {
-    if (_.isString(ignore) && minimatch(filepart, ignore)) {
+    if (util.isString(ignore) && minimatch(filepart, ignore)) {
       return
     }
   }
 
   for (let from of froms) {
-    if (_.isString(from) && !minimatch(filepart, from)) {
+    if (util.isString(from) && !minimatch(filepart, from)) {
       continue
     }
     let src = filepath
