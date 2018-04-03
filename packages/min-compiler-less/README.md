@@ -26,3 +26,4 @@ module.exports = {
 ## Tip
 
 - min cli 2.x 版本开始支持
+- 不支持 alias 别名

@@ -23,12 +23,23 @@ const compiler: Compiler = async (options: Options): Promise<Result> => {
 
   try {
     let processor = postcss(plugins)
-    let result = await processor.process(code)
+    let result = await processor.process(code, {
+      from: filename
+    })
+
+    let warnings = result.warnings()
+    if (warnings.length > 0) {
+      return Promise.reject(warnings)
+    }
+
+    let dependencies = result.messages.filter(message => message.type === 'dependency')
+    let imports = dependencies.map((dependency: any) => dependency.file)
 
     _.merge(options, {
       extend: {
         code: result.css,
-        map: result.map
+        map: result.map,
+        imports
       }
     })
   }

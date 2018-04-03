@@ -55,3 +55,5 @@ module.exports = {
 ## Tip
 
 - min cli 2.x 版本开始支持
+- 支持 postcss ^5.2.5 版本的插件
+- 不支持 alias 别名
