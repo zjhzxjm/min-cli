@@ -275,13 +275,20 @@ export class Global {
    * @memberof Global
    */
   private setConfig () {
-    let file = path.join(config.cwd, config.filename)
-    let configData = fs.existsSync(file) ? require(file) : {}
+    let filePath = path.join(config.cwd, config.filename)
+    let configData = {
+      style: {}
+    }
+
+    if (fs.existsSync(filePath)) {
+      delete require.cache[filePath]
+      configData = require(filePath)
+    }
     let { style: styleConfig = {} } = configData
 
     this.config = {
       style: {
-        config: configData,
+        config: styleConfig,
         withAtSymbolVariables: this.generateStyleVariables(styleConfig, SymbolType['AT']),
         withDollarSymbolVariables: this.generateStyleVariables(styleConfig, SymbolType['Dollar']),
         noWithSymbolVariables: this.generateStyleVariables(styleConfig, SymbolType['None'])

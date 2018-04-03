@@ -289,10 +289,17 @@ export const loader = {
       util.log('检测到缺少 Min 的插件/编译器, 正在尝试安装, 请稍等.')
     }
 
-    for (let pkgName of missingNpms) {
-      await this.tryInstall(pkgName)
+    try {
+      for (let pkgName of missingNpms) {
+        await this.tryInstall(pkgName)
+      }
     }
-    this.missingNpms = []
+    catch (err) {
+      throw err
+    }
+    finally {
+      this.missingNpms = []
+    }
   },
 
   PluginHelper

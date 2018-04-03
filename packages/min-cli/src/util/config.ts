@@ -66,6 +66,7 @@ function getCustomConfig (cwd: string = systemConfig.cwd): { [key: string]: Cust
 
   // in min.config.json
   if (fs.existsSync(filePath)) {
+    delete require.cache[filePath]
     customConfigFromFile = _.pick(require(filePath), CUSTOM_CONFIG_MEMBER) as CustomConfig
   }
 
@@ -172,7 +173,7 @@ export const config = {
     exports.customConfigFromFile = $customConfigFromFile
 
     // 合并到配置中心
-    _.assign(this, convertConfig(defaultConfig, $customConfig), {
+    _.assign(this, convertConfig(systemConfig, $customConfig), {
       cwd
     })
   },

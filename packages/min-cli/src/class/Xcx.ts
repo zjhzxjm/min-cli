@@ -413,11 +413,13 @@ export class Xcx {
    * @param {string} filename
    * @memberof Xcx
    */
-  private changeFile (filename: string) {
+  private async changeFile (filename: string) {
     let isApp = filename === path.join(config.src, `app${config.ext.wxa}`)
     let isMinConfig = filename === config.filename
 
     if (isApp || isMinConfig) { // 重新编译
+      config.reload()
+      await loader.checkLoader(config)
       this.compile(true)
       // core.util.log('正在监听文件改动.', '监听')
       return
@@ -435,10 +437,12 @@ export class Xcx {
    * @param {string} file
    * @memberof Xcx
    */
-  private removeFile (filename: string) {
+  private async removeFile (filename: string) {
     let isMinConfig = filename === config.filename
 
     if (isMinConfig) { // 重新编译
+      config.reload()
+      await loader.checkLoader(config)
       this.compile(true)
       // core.util.log('正在监听文件改动.', '监听')
       return
