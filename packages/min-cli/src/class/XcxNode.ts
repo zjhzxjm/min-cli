@@ -173,7 +173,12 @@ export class XcxNode {
 
       if (xcxNode) {
         this.children.push(xcxNode)
-        this.useRequests.push(xcxNode.request)
+        // request 请求源不同，但是 request.path 输出目标相同
+        // request 和 requestType 使用当前依赖部分，其他如 requet.path 从源节点获取
+        this.useRequests.push(core.util.merge({}, xcxNode.request, {
+          request,
+          requestType
+        }))
       } else {
         xcxNext.add(this.request)
       }

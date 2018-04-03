@@ -189,7 +189,7 @@ const util = {
       type = type.toUpperCase()
       if (type === 'ERROR') {
         if (msg instanceof Error) {
-          console.error(colors.red('[ERROR] ' + msg.stack))
+          console.error(colors.red('[ERROR] ' + (msg.stack || msg.message)))
         }
         else {
           console.error(dateTime + colors.red('[ERROR] ' + msg))
