@@ -138,6 +138,19 @@ export class XcxNode {
   }
 
   /**
+   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   *
+   * @returns {string[]}
+   * @memberof XcxNode
+   */
+  getInternalDepends (): string[] {
+    let { wxFile } = this
+    if (!wxFile) return []
+
+    return wxFile.getInternalDepends()
+  }
+
+  /**
    * 递归依赖
    *
    * @private
@@ -145,10 +158,7 @@ export class XcxNode {
    */
   private recursive () {
     let { wxFile } = this
-
-    if (!wxFile) {
-      return
-    }
+    if (!wxFile) return
 
     let depends = wxFile.getDepends()
 

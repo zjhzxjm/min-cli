@@ -41,6 +41,15 @@ export class WxSFMStyle extends WxSFM {
   private depends: Depend[] = []
 
   /**
+   * 内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   *
+   * @private
+   * @type {string[]}
+   * @memberof WxSFMStyle
+   */
+  private internalDepends: string[] = []
+
+  /**
    * Creates an instance of WxSFMStyle.
    * @param {string} source
    * @param {Request} request
@@ -118,7 +127,10 @@ export class WxSFMStyle extends WxSFM {
         code: source
       }
     })
-    let { extend: { code = '' } = {} } = result
+    let { extend: { code = '', imports = [] } = {} } = result
+
+    this.internalDepends = imports
+
     return code
   }
 
@@ -188,6 +200,16 @@ export class WxSFMStyle extends WxSFM {
         }
       })
     })
+  }
+
+  /**
+   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   *
+   * @returns {string[]}
+   * @memberof WxSFMStyle
+   */
+  getInternalDepends (): string[] {
+    return this.internalDepends
   }
 
   private appendVariables (source: string, lang: string) {

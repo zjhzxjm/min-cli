@@ -1,7 +1,7 @@
 import { Depend, Request, WxFile, WxSFMTemplate, WxSFMScript, WxSFMStyle } from '../class'
 
 /**
- * 原生文件组合类
+ * 原生文件类
  *
  * @export
  * @class WxNFC
@@ -76,5 +76,15 @@ export class WxNFC implements WxFile.Core {
    */
   updateDepends (useRequests: Request.Core[]): void {
     this.sfm.updateDepends(useRequests)
+  }
+
+  /**
+   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   *
+   * @returns {string[]}
+   * @memberof WxSFC
+   */
+  getInternalDepends (): string[] {
+    return this.sfm.getInternalDepends()
   }
 }

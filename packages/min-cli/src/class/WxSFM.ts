@@ -165,6 +165,12 @@ export class WxSFM {
     log.fatal('WxSFM.updateRequest Method not implemented.')
   }
 
+  // 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+  getInternalDepends (): string[] {
+    // log.fatal('WxSFM.getInternalDepends Method not implemented.')
+    return []
+  }
+
   /**
    * 设置 dest目标绝对路径 和 destRelative目标相对路径
    *

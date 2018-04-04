@@ -1,4 +1,4 @@
-import { Depend, Request, WxNFC, WxSFC, CompileStatic } from '../class'
+import { Depend, Request, WxNFC, WxSFC, WxSRF } from '../class'
 import util, { log, eslint } from '../util'
 
 export namespace WxFile {
@@ -39,6 +39,14 @@ export namespace WxFile {
      * @memberof Core
      */
     updateDepends (useRequests: Request.Core[]): void
+
+    /**
+     * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+     *
+     * @returns {string[]}
+     * @memberof Core
+     */
+    getInternalDepends (): string[]
   }
 }
 
@@ -50,29 +58,29 @@ export namespace WxFile {
  * @implements {WxFile.Core}
  */
 export class WxFile implements WxFile.Core {
-  private core: WxFile.Core
+  private file: WxFile.Core
 
   /**
    * Creates an instance of WxFile.
    * @param {Request} request
    * @memberof WxFile
    */
-  constructor (request: Request) {
+  constructor (public request: Request) {
     let { ext, src, isSFC, isNFC, isStatic, isThreeNpm } = request
 
     if (isSFC) { // 单文件
 
       log.msg(log.type.BUILD, request.srcRelative)
-      this.core = new WxSFC(util.readFile(src), request)
+      this.file = new WxSFC(util.readFile(src), request)
 
     } else if (isNFC) { // 原生文件
 
       log.msg(log.type.BUILD, request.srcRelative)
-      this.core = new WxNFC(util.readFile(src), request)
+      this.file = new WxNFC(util.readFile(src), request)
 
     } else if (isStatic) { // 静态文件
 
-      this.core = new CompileStatic(request)
+      this.file = new WxSRF(request)
 
     } else {
       throw new Error(`创建【WxFile】失败，没有找到扩展名为 ${ext} 的编译类型`)
@@ -89,7 +97,7 @@ export class WxFile implements WxFile.Core {
    * @memberof WxFile
    */
   save (): void {
-    this.core.save()
+    this.file.save()
   }
 
   /**
@@ -98,7 +106,7 @@ export class WxFile implements WxFile.Core {
    * @memberof WxFile
    */
   remove (): void {
-    this.core.remove()
+    this.file.remove()
   }
 
   /**
@@ -108,7 +116,7 @@ export class WxFile implements WxFile.Core {
    * @memberof WxFile
    */
   getDepends (): Depend[] {
-    return this.core.getDepends()
+    return this.file.getDepends()
   }
 
   /**
@@ -118,6 +126,16 @@ export class WxFile implements WxFile.Core {
    * @memberof WxFile
    */
   updateDepends (useRequests: Request.Core[]): void {
-    this.core.updateDepends(useRequests)
+    this.file.updateDepends(useRequests)
+  }
+
+  /**
+   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   *
+   * @returns {string[]}
+   * @memberof Core
+   */
+  getInternalDepends (): string[] {
+    return this.file.getInternalDepends()
   }
 }

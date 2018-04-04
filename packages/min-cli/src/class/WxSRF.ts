@@ -2,18 +2,18 @@ import { Depend, Request, WxFile } from '../class'
 import util, { config, log, LogType } from '../util'
 
 /**
- * 编译静态文件
+ * 静态资源文件 StaticResourcesFile
  *
  * @export
- * @class CompileStatic
+ * @class WxSRF
  * @implements {WxFile.Core}
  */
-export class CompileStatic implements WxFile.Core {
+export class WxSRF implements WxFile.Core {
 
   /**
-   * Creates an instance of CompileStatic.
+   * Creates an instance of WxSRF.
    * @param {Request} request
-   * @memberof CompileStatic
+   * @memberof WxSRF
    */
   constructor (public request: Request) {
 
@@ -22,7 +22,7 @@ export class CompileStatic implements WxFile.Core {
   /**
    * 保存文件
    *
-   * @memberof CompileStatic
+   * @memberof WxSRF
    */
   save () {
     if (this.request.isJson) {
@@ -41,7 +41,7 @@ export class CompileStatic implements WxFile.Core {
   /**
    * 移除文件
    *
-   * @memberof CompileStatic
+   * @memberof WxSRF
    */
   remove () {
     log.msg(LogType.DELETE, this.request.destRelative)
@@ -52,7 +52,7 @@ export class CompileStatic implements WxFile.Core {
    * 获取依赖列表
    *
    * @returns {Depend[]}
-   * @memberof CompileStatic
+   * @memberof WxSRF
    */
   getDepends (): Depend[] {
     return []
@@ -62,9 +62,19 @@ export class CompileStatic implements WxFile.Core {
    * 更新依赖列表
    *
    * @param {Request.Core[]} useRequests 可用的请求列表
-   * @memberof CompileStatic
+   * @memberof WxSRF
    */
   updateDepends (useRequests: Request.Core[]): void {
     //
+  }
+
+  /**
+   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   *
+   * @returns {string[]}
+   * @memberof WxSFC
+   */
+  getInternalDepends (): string[] {
+    return []
   }
 }

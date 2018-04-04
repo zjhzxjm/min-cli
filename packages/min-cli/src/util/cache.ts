@@ -189,12 +189,12 @@ export const xcxCache = {
   },
 
   /**
-   * Gets the dependent list.
+   * Gets the be dependent list.
    *
    * @param {string} src
    * @returns {string[]}
    */
-  getDependents (src: string): string[] {
+  getBeDependents (src: string): string[] {
     let dependents: string[] = []
 
     _.forIn(XcxNodeCached, (xcxNode: XcxNode, cacheKey: string) => {
@@ -203,10 +203,36 @@ export const xcxCache = {
         dependents.push(cacheKey)
       }
     })
+
     core.util.debug('xcxCache.getDependents', {
       src,
       dependents
     })
+
+    return dependents
+  },
+
+  /**
+   * Gets the be internal dependent list.
+   *
+   * @returns {string}
+   */
+  getBeInternalDependents (src: string): string[] {
+    let dependents: string[] = []
+
+    _.forIn(XcxNodeCached, (xcxNode: XcxNode, cacheKey: string) => {
+      let internalDepends: string[] = xcxNode.getInternalDepends()
+      let isExsit = internalDepends.some(depend => depend === src)
+      if (isExsit) {
+        dependents.push(cacheKey)
+      }
+    })
+
+    core.util.debug('xcxCache.InternalDependents', {
+      src,
+      dependents
+    })
+
     return dependents
   }
 }
@@ -315,6 +341,8 @@ export const xcxNext = {
       this.add(src)
     }
 
+    xcxCache.getBeInternalDependents(src).forEach(this.add)
+
     let mdRootWxpPath = getMdRootWxpRequestPath(src)
     if (mdRootWxpPath) {
       this.add(mdRootWxpPath)
@@ -324,8 +352,10 @@ export const xcxNext = {
   removeFile (src: string) {
     if (xcxCache.check(src)) {
       xcxCache.remove(src)
-      xcxCache.getDependents(src).forEach(this.add)
+      xcxCache.getBeDependents(src).forEach(this.add)
     }
+
+    xcxCache.getBeInternalDependents(src).forEach(this.add)
 
     let mdRootWxpPath = getMdRootWxpRequestPath(src)
     if (mdRootWxpPath) {

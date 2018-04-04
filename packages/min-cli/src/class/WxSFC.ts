@@ -1,5 +1,6 @@
 import { Depend, Request, WxFile, WxSFMScript, WxSFMStyle, WxSFMTemplate } from '../class'
 import { dom } from '../util'
+import core from '@mindev/min-core'
 
 /**
  * 单文件组合类
@@ -92,5 +93,15 @@ export class WxSFC implements WxFile.Core {
    */
   updateDepends (useRequests: Request.Core[]): void {
     this.sfms.forEach(sfm => sfm.updateDepends(useRequests))
+  }
+
+  /**
+   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   *
+   * @returns {string[]}
+   * @memberof WxSFC
+   */
+  getInternalDepends (): string[] {
+    return Array.prototype.concat.apply([], this.sfms.map(sfm => sfm.getInternalDepends()))
   }
 }
