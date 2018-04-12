@@ -1,0 +1,6 @@
+export * from './props'
+export * from './data'
+export * from './methods'
+export * from './computed'
+export * from './watch'
+export * from './lifecycle'
