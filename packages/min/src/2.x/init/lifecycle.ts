@@ -1,6 +1,6 @@
 import Watcher from '../observer/watcher'
 import $global from '../global'
-import { noop, APP_EVENT, PAGE_EVENT, COMPONENT_EVENT } from '../util'
+import { noop, APP_EVENT, PAGE_EVENT, COMPONENT_EVENT, parsePath, isPlainObject } from '../util'
 
 export function initAppLifecycle (ctx: App.Context, wxAppConfig: App.Config) {
   const { $options } = ctx
@@ -58,39 +58,6 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
     }
   })
 
-  function updateDirtyData (ctx: Page.Context) {
-    let { $wxPage, $dirty } = ctx
-    let dirtyData = {}
-
-    if (!$dirty.length) {
-      return
-    }
-
-    $dirty.concat(Object.keys(ctx._computedWatchers || {})).forEach(key => {
-      dirtyData[key] = ctx[key]
-    })
-    $dirty.length = 0
-
-    $wxPage.setData(dirtyData)
-  }
-
-  function createRenderWatcher (ctx: Page.Context) {
-    let init = false
-    new Watcher(ctx, function () {
-      if (!init) {
-        for (let k in ctx._data) {
-          // initialize getter dep
-          /* tslint:disable */
-          ctx._data[k]
-        }
-        // BUG 导致二次数据赋值无法触发watcher
-        init = false
-      }
-
-      updateDirtyData(ctx)
-    }, noop, null, true)
-  }
-
   // Proxy onLoad
   wxPageConfig.onLoad = function () {
     const { onLoad } = $options
@@ -102,7 +69,9 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
     ctx.$wxPage = $wxPage
     $wxPage.$page = ctx
 
-    createRenderWatcher(ctx)
+    createRenderWatcher(ctx, dirtyData => {
+      $wxPage.setData(dirtyData)
+    })
 
     if (typeof onLoad !== 'function') {
       return
@@ -157,22 +126,6 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
     }
   })
 
-  function updateDirtyData (ctx: Component.Context) {
-    let { $wxComponent, $dirty } = ctx
-    let dirtyData = {}
-
-    if (!$dirty.length) {
-      return
-    }
-
-    $dirty.concat(Object.keys(ctx._computedWatchers || {})).forEach(key => {
-      dirtyData[key] = ctx[key]
-    })
-    $dirty.length = 0
-
-    $wxComponent.setData(dirtyData)
-  }
-
   function getWxPage (wxComponent: any) {
     const { __wxWebviewId__ } = wxComponent
     const pages = getCurrentPages()
@@ -182,26 +135,6 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
       }
     }
     return null
-  }
-
-  function createRenderWatcher (ctx: Component.Context) {
-    let init = false
-    new Watcher(ctx, function () {
-      if (!init) {
-        for (let k in ctx._data) {
-          /* tslint:disable */
-          ctx._data[k] // initialize getter dep
-        }
-        for (let k in ctx._properties) {
-          /* tslint:disable */
-          ctx._properties[k] // initialize getter dep
-        }
-        // BUG 导致二次数据赋值无法触发watcher
-        init = false
-      }
-
-      updateDirtyData(ctx)
-    }, noop, null, true)
   }
 
   // Proxy created
@@ -217,7 +150,9 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
     ctx.$root = $wxPage ? $wxPage.$page : null
     ctx.$wxRoot = $wxPage
 
-    createRenderWatcher(ctx)
+    createRenderWatcher(ctx, dirtyData => {
+      $wxComponent.setData(dirtyData)
+    })
 
     if (typeof created !== 'function') {
       return
@@ -250,4 +185,94 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
       ctx.$wxRoot = null
     }
   }
+}
+
+function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Object) => void) {
+  let { $options } = ctx
+  let cached = {}
+
+  function deleteDirty (value, exp) {
+    // @ts-ignore
+    let { __ob__ } = value || {}
+
+    if (__ob__) {
+      delete __ob__.renderDirty
+    }
+
+    if (isPlainObject(value)) {
+      Object.keys(value).forEach(key => deleteDirty(value[key], `${exp}[${key}]`))
+    }
+    else if (Array.isArray(value)) {
+      value.forEach((item, index) => deleteDirty(item, `${exp}[${index}]`))
+    }
+    else {
+      cached[exp] = value
+    }
+  }
+
+  function getDirtyData (value, exp) {
+    let dirtyData = {}
+    if (isPlainObject(value) || Array.isArray(value)) {
+      // @ts-ignore
+      let { __ob__ } = value
+
+      if (__ob__.renderDirty) { // 数据结构已改变
+        dirtyData[exp] = value
+
+        let regexp = new RegExp('^' + exp + '(\\.|\\[)')
+        Object.keys(cached).forEach(key => {
+          if (key === exp || regexp.test(key)) {
+            delete cached[key]
+          }
+        })
+        deleteDirty(value, exp)
+      }
+      else {
+        let dirtyDatas = []
+        if (isPlainObject(value)) {
+          dirtyDatas = Object.keys(value).map(key => {
+            return getDirtyData(value[key], `${exp}[${key}]`)
+          })
+        }
+        else {
+          dirtyDatas = value.map((item, index) => {
+            return getDirtyData(item, `${exp}[${index}]`)
+          })
+        }
+
+        dirtyDatas.forEach(data => Object.assign(dirtyData, data))
+      }
+    }
+    else if (value === undefined || value !== cached[exp]) { // 简单数据类型
+      dirtyData[exp] = value
+      cached[exp] = value
+    }
+    return dirtyData
+  }
+
+  let renderWatcher = new Watcher(ctx, () => {
+    let dirtyData = {}
+    let { _renderDatas = [] } = $options
+
+    _renderDatas
+    .map(exp => {
+      let getter = parsePath(exp) || noop
+      let value = getter.call(ctx, ctx)
+      return getDirtyData(value, exp)
+    })
+    .forEach(data => Object.assign(dirtyData, data))
+
+    if (Object.keys(dirtyData).length > 0) {
+      console.group('setData')
+      console.log(JSON.parse(JSON.stringify(dirtyData)))
+      console.groupEnd()
+
+      console.group('dirtyCached')
+      console.log(JSON.parse(JSON.stringify(cached)))
+      console.groupEnd()
+      watchDirtyFn(dirtyData)
+    }
+  }, noop, null, true)
+
+  return renderWatcher
 }

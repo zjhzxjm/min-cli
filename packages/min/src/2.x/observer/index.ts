@@ -35,11 +35,14 @@ export class Observer {
   value: any
   dep: Dep
   vmCount: number // number of vms that has this object as root $data
+  renderDirty?: boolean
 
   constructor (value: any) {
     this.value = value
     this.dep = new Dep()
     this.vmCount = 0
+    this.renderDirty = true
+
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
       const augment = hasProto
@@ -180,6 +183,10 @@ export function defineReactive (
       else {
         val = newVal
       }
+
+      // @ts-ignore
+      obj.__ob__.renderDirty = true
+
       childOb = !shallow && observe(newVal)
       dep.notify()
     }

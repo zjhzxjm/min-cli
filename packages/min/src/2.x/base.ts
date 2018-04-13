@@ -8,7 +8,6 @@ export default class MinBase {
   $wxApp?: any = null
   $wxConfig: Weapp.Config = Object.create(null)
 
-  $dirty: string[] = []
   $data: Weapp.Data = Object.create(null)
   $globalData: App.GlobalData = Object.create(null)
   $options: Weapp.Options = null

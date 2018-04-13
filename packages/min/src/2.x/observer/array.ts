@@ -38,6 +38,12 @@ methodsToPatch.forEach(function (method) {
         break
     }
     if (inserted) ob.observeArray(inserted)
+
+    if (method !== 'push') { // 当method为push时，不影响原有的数据结构
+      // @ts-ignore
+      ob.renderDirty = true
+    }
+
     // notify change
     ob.dep.notify()
     return result
