@@ -9,7 +9,7 @@ export const sharedPropertyDefinition = {
   set: noop
 }
 
-export function initData (ctx: Weapp.Context, weappConfig: Weapp.Config) {
+export function initData (ctx: Weapp.Context) {
   const { $options } = ctx
   let { data = {} } = $options
 
@@ -59,7 +59,7 @@ export function initData (ctx: Weapp.Context, weappConfig: Weapp.Config) {
   // observe data
   observe(data, true /* asRootData */)
 
-  weappConfig.data = data
+  // weappConfig.data = data
 }
 
 export function initGlobalData (ctx: App.Context, weappConfig: App.Config) {

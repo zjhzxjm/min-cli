@@ -4,7 +4,7 @@ import Dep from '../observer/dep'
 import { warn, noop } from '../util'
 import { sharedPropertyDefinition } from './data'
 
-export function initComputed (ctx: Weapp.Context, weappConfig: Weapp.Config) {
+export function initComputed (ctx: Weapp.Context) {
   const { $options } = ctx
   const { computed = {} } = $options
   const watchers = ctx._computedWatchers = Object.create(null)
@@ -36,7 +36,7 @@ export function initComputed (ctx: Weapp.Context, weappConfig: Weapp.Config) {
     // at instantiation here.
     if (!(key in ctx)) {
       defineComputed(ctx, key, userDef)
-      weappConfig.data[key] = ctx[key]
+      // weappConfig.data[key] = ctx[key]
     }
     else if (process.env.NODE_ENV !== 'production') {
       if (key in ctx.$data) {

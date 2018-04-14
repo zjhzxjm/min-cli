@@ -62,6 +62,17 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
   // Get Data、Properties、Computed
   // Set WxConfig.data = {...}
 
+  createRenderWatcher(ctx, (dirtyData, isInit) => {
+    let { $wxPage } = ctx
+
+    if (isInit) {
+      wxPageConfig.data = dirtyData
+    }
+    else if ($wxPage) {
+      $wxPage.setData(dirtyData)
+    }
+  })
+
   // Proxy onLoad
   wxPageConfig.onLoad = function () {
     const { onLoad } = $options
@@ -72,10 +83,6 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
     ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
     ctx.$wxPage = $wxPage
     $wxPage.$page = ctx
-
-    createRenderWatcher(ctx, dirtyData => {
-      $wxPage.setData(dirtyData)
-    })
 
     if (typeof onLoad !== 'function') {
       return
@@ -130,6 +137,16 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
     }
   })
 
+  createRenderWatcher(ctx, (dirtyData, isInit) => {
+    let { $wxComponent } = ctx
+    if (isInit) {
+      wxCompConfig.data = dirtyData
+    }
+    else if ($wxComponent) {
+      $wxComponent.setData(dirtyData)
+    }
+  })
+
   function getWxPage (wxComponent: any) {
     const { __wxWebviewId__ } = wxComponent
     const pages = getCurrentPages()
@@ -153,10 +170,6 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
     ctx.$wxComponent = $wxComponent
     ctx.$root = $wxPage ? $wxPage.$page : null
     ctx.$wxRoot = $wxPage
-
-    createRenderWatcher(ctx, dirtyData => {
-      $wxComponent.setData(dirtyData)
-    })
 
     if (typeof created !== 'function') {
       return
@@ -191,10 +204,10 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
   }
 }
 
-function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Object) => void) {
+function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Object, isInit: Boolean) => void) {
   let { $options } = ctx
   let cached = {}
-  let init = false
+  let isInit = true
 
   function deleteDirty (value, exp) {
     // @ts-ignore
@@ -267,23 +280,16 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
     })
     .forEach(data => Object.assign(dirtyData, data))
 
-    if (!init) {
-      console.group('InitData')
-      console.log(JSON.parse(JSON.stringify(dirtyData)))
-      console.groupEnd()
-    }
+    console.group('DirtyData')
+    console.log(JSON.parse(JSON.stringify(dirtyData)))
+    console.groupEnd()
 
-    if (init && Object.keys(dirtyData).length > 0) {
-      console.group('setData')
-      console.log(JSON.parse(JSON.stringify(dirtyData)))
-      console.groupEnd()
+    // console.group('dirtyCached')
+    // console.log(JSON.parse(JSON.stringify(cached)))
+    // console.groupEnd()
+    watchDirtyFn(dirtyData, isInit)
 
-      // console.group('dirtyCached')
-      // console.log(JSON.parse(JSON.stringify(cached)))
-      // console.groupEnd()
-      watchDirtyFn(dirtyData)
-    }
-    init = true
+    isInit = false
   }, noop, null, true)
 
   return renderWatcher
