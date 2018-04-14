@@ -1,4 +1,4 @@
-import { defineReactive, toggleObserving } from '../observer'
+import { defineReactive, toggleObserving, observe } from '../observer'
 import { warn, hyphenate, isReservedAttribute, isPlainObject, noop } from '../util'
 import { proxy } from './data'
 
@@ -52,13 +52,17 @@ export function initProps (ctx: Component.Context, wxConfig: Component.Config) {
       }
     }
 
-    defineReactive(_properties, key, value)
+    _properties[key] = value
+    // defineReactive(_properties, key, value)
 
     // instantiation here.
     if (!(key in ctx)) {
       proxy(ctx, `_properties`, key)
     }
   })
+
+  // observe properties
+  observe(_properties, true /* asRootData */)
 
   wxConfig.properties = properties
 }

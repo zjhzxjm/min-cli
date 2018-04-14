@@ -58,6 +58,10 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
     }
   })
 
+  // Create Render Watcher
+  // Get Data、Properties、Computed
+  // Set WxConfig.data = {...}
+
   // Proxy onLoad
   wxPageConfig.onLoad = function () {
     const { onLoad } = $options
@@ -190,6 +194,7 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
 function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Object) => void) {
   let { $options } = ctx
   let cached = {}
+  let init = false
 
   function deleteDirty (value, exp) {
     // @ts-ignore
@@ -200,7 +205,7 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
     }
 
     if (isPlainObject(value)) {
-      Object.keys(value).forEach(key => deleteDirty(value[key], `${exp}[${key}]`))
+      Object.keys(value).forEach(key => deleteDirty(value[key], `${exp}.${key}`))
     }
     else if (Array.isArray(value)) {
       value.forEach((item, index) => deleteDirty(item, `${exp}[${index}]`))
@@ -231,7 +236,7 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
         let dirtyDatas = []
         if (isPlainObject(value)) {
           dirtyDatas = Object.keys(value).map(key => {
-            return getDirtyData(value[key], `${exp}[${key}]`)
+            return getDirtyData(value[key], `${exp}.${key}`)
           })
         }
         else {
@@ -243,7 +248,7 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
         dirtyDatas.forEach(data => Object.assign(dirtyData, data))
       }
     }
-    else if (value === undefined || value !== cached[exp]) { // 简单数据类型
+    else if (value !== cached[exp]) { // 简单数据类型
       dirtyData[exp] = value
       cached[exp] = value
     }
@@ -262,16 +267,23 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
     })
     .forEach(data => Object.assign(dirtyData, data))
 
-    if (Object.keys(dirtyData).length > 0) {
+    if (!init) {
+      console.group('InitData')
+      console.log(JSON.parse(JSON.stringify(dirtyData)))
+      console.groupEnd()
+    }
+
+    if (init && Object.keys(dirtyData).length > 0) {
       console.group('setData')
       console.log(JSON.parse(JSON.stringify(dirtyData)))
       console.groupEnd()
 
-      console.group('dirtyCached')
-      console.log(JSON.parse(JSON.stringify(cached)))
-      console.groupEnd()
+      // console.group('dirtyCached')
+      // console.log(JSON.parse(JSON.stringify(cached)))
+      // console.groupEnd()
       watchDirtyFn(dirtyData)
     }
+    init = true
   }, noop, null, true)
 
   return renderWatcher
