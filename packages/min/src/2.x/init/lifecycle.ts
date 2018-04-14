@@ -272,6 +272,12 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
     let dirtyData = {}
     let { _renderDatas = [] } = $options
 
+    if (isInit) {
+      _renderDatas = _renderDatas.map(exp => {
+        return exp.split(/\.|\[/)[0]
+      })
+    }
+
     _renderDatas
     .map(exp => {
       let getter = parsePath(exp) || noop
