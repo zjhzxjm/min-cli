@@ -69,7 +69,12 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
       wxPageConfig.data = dirtyData
     }
     else if ($wxPage) {
-      $wxPage.setData(dirtyData)
+      try {
+        $wxPage.setData(dirtyData)
+      }
+      catch (err) {
+        console.error(err)
+      }
     }
   })
 
@@ -143,7 +148,12 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
       wxCompConfig.data = dirtyData
     }
     else if ($wxComponent) {
-      $wxComponent.setData(dirtyData)
+      try {
+        $wxComponent.setData(dirtyData)
+      }
+      catch (err) {
+        console.error(err)
+      }
     }
   })
 
@@ -209,7 +219,13 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
   let cached = {}
   let isInit = true
 
-  function deleteDirty (value, exp) {
+  function getExpReg (exp: string) {
+    exp = exp.replace(/(\.|\[|\])/g,'\\$1')
+
+    return new RegExp(`^${exp}(\\.|\\[)`)
+  }
+
+  function pushCache (exp, value) {
     // @ts-ignore
     let { __ob__ } = value || {}
 
@@ -218,17 +234,30 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
     }
 
     if (isPlainObject(value)) {
-      Object.keys(value).forEach(key => deleteDirty(value[key], `${exp}.${key}`))
+      Object.keys(value).forEach(key => pushCache(`${exp}.${key}`, value[key]))
     }
     else if (Array.isArray(value)) {
-      value.forEach((item, index) => deleteDirty(item, `${exp}[${index}]`))
+      value.forEach((item, index) => pushCache(`${exp}[${index}]`, item))
     }
     else {
       cached[exp] = value
     }
   }
 
-  function getDirtyData (value, exp) {
+  function removeCache (exp) {
+    // a.b => /^a\.b(\.|\[)/
+    // a[b] => /^a\[b\](\.|\[)/
+    let regexp = getExpReg(exp)
+
+    // a.b.c 、a.b[0]
+    Object.keys(cached).forEach(key => {
+      if (key === exp || regexp.test(key)) {
+        delete cached[key]
+      }
+    })
+  }
+
+  function getDirtyData (exp, value) {
     let dirtyData = {}
     if (isPlainObject(value) || Array.isArray(value)) {
       // @ts-ignore
@@ -237,24 +266,25 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
       if (__ob__.renderDirty) { // 数据结构已改变
         dirtyData[exp] = value
 
-        let regexp = new RegExp('^' + exp + '(\\.|\\[)')
-        Object.keys(cached).forEach(key => {
-          if (key === exp || regexp.test(key)) {
-            delete cached[key]
-          }
-        })
-        deleteDirty(value, exp)
+        // exp => a.b
+        // remove [a.b.c, a.b[0]] from cached
+        removeCache(exp)
+
+        // exp => a.b
+        // value => { c: { d: 1 } }
+        // cached => a.b.c.d = 1
+        pushCache(exp, value)
       }
       else {
         let dirtyDatas = []
         if (isPlainObject(value)) {
           dirtyDatas = Object.keys(value).map(key => {
-            return getDirtyData(value[key], `${exp}.${key}`)
+            return getDirtyData(`${exp}.${key}`, value[key])
           })
         }
         else {
           dirtyDatas = value.map((item, index) => {
-            return getDirtyData(item, `${exp}[${index}]`)
+            return getDirtyData(`${exp}[${index}]`, item)
           })
         }
 
@@ -263,28 +293,34 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
     }
     else if (value !== cached[exp]) { // 简单数据类型
       dirtyData[exp] = value
-      cached[exp] = value
+      pushCache(exp, value)
     }
     return dirtyData
   }
 
   let renderWatcher = new Watcher(ctx, () => {
     let dirtyData = {}
-    let { _renderDatas = [] } = $options
+    let { _renderExps: renderExps = [] } = $options
 
     if (isInit) {
-      _renderDatas = _renderDatas.map(exp => {
-        return exp.split(/\.|\[/)[0]
+      renderExps
+      .forEach(exp => {
+        let getter = parsePath(exp, true) || noop
+        let value = getter.call(ctx, ctx, dirtyData)
+        pushCache(exp, value)
       })
     }
-
-    _renderDatas
-    .map(exp => {
-      let getter = parsePath(exp) || noop
-      let value = getter.call(ctx, ctx)
-      return getDirtyData(value, exp)
-    })
-    .forEach(data => Object.assign(dirtyData, data))
+    else {
+      console.time('time')
+      renderExps
+      .map(exp => {
+        let getter = parsePath(exp, true) || noop
+        let value = getter.call(ctx, ctx)
+        return getDirtyData(exp, value)
+      })
+      .forEach(res => Object.assign(dirtyData, res))
+      console.timeEnd('time')
+    }
 
     console.group('DirtyData')
     console.log(JSON.parse(JSON.stringify(dirtyData)))
@@ -293,7 +329,10 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
     // console.group('dirtyCached')
     // console.log(JSON.parse(JSON.stringify(cached)))
     // console.groupEnd()
-    watchDirtyFn(dirtyData, isInit)
+
+    if (Object.keys(dirtyData).length > 0) {
+      watchDirtyFn(dirtyData, isInit)
+    }
 
     isInit = false
   }, noop, null, true)

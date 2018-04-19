@@ -62,7 +62,7 @@ export function initData (ctx: Weapp.Context) {
   // weappConfig.data = data
 }
 
-export function initGlobalData (ctx: App.Context, weappConfig: App.Config) {
+export function initGlobalData (ctx: App.Context, appConfig: App.Config) {
   const { $options } = ctx
   let { globalData = {} } = $options
 
@@ -103,7 +103,7 @@ export function initGlobalData (ctx: App.Context, weappConfig: App.Config) {
   // observe data
   observe(globalData, true /* asRootData */)
 
-  weappConfig.globalData = globalData
+  appConfig.globalData = globalData
 }
 
 export function proxy (target: Object, sourceKey: string, key: string) {

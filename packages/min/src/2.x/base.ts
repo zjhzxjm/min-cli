@@ -98,6 +98,10 @@ export default class MinBase {
       $options.data = {}
     }
 
+    if (!$wxConfig.data) {
+      $wxConfig.data = {}
+    }
+
     initData(this)
     initMethods(this, $wxConfig)
     initWatch(this)
