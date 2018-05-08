@@ -418,11 +418,15 @@ export class WxSFMScript extends WxSFM {
     }
 
     let babelConfig = lang === 'babel' ? config.compilers['babel'] : {}
+    let { plugins = [] } = babelConfig
+
+    // Support for extension operators.
+    plugins = plugins.filter((plugin: string) => plugin.indexOf('transform-object-rest-spread') !== -1)
 
     let result = babel.transform(source, {
       ast: true,
       babelrc: false,
-      ...babelConfig
+      plugins
     })
 
     let { ast = t.emptyStatement() } = result
@@ -853,6 +857,8 @@ export class WxSFMScript extends WxSFM {
   private createMixinsDeclaration (path: NodePath<t.Program>) {
     if (!this.isWxp) return
 
+    let { node: { body } } = path
+
     // For import Declaration
     // Example:
     // 1. import mixin from 'mixins/xxx'
@@ -952,8 +958,6 @@ export class WxSFMScript extends WxSFM {
       }
       return t.stringLiteral(requirePath)
     }
-
-    let { node: { body } } = path
 
     let { globalMin } = Global.layout.app
     let { mixins, requestDeclaration } = globalMin
