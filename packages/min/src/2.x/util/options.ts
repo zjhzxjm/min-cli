@@ -3,7 +3,7 @@ import config from '../config'
 import { warn } from './debug'
 import { nativeWatch } from '../shared'
 import { set } from '../observer'
-
+import { APP_EVENT, PAGE_EVENT, COMPONENT_EVENT } from './const'
 import {
   extend,
   hasOwn,
@@ -132,22 +132,24 @@ strats.data = function (
 /**
  * Hooks and props are merged as arrays.
  */
-// function mergeHook (
-//   parentVal?: Array<Function>,
-//   childVal?: Function | Array<Function>
-// ): Array<Function> {
-//   return childVal
-//     ? parentVal
-//       ? parentVal.concat(childVal)
-//       : Array.isArray(childVal)
-//         ? childVal
-//         : [childVal]
-//     : parentVal
-// }
+function mergeHook (
+  parentVal?: Array<Function>,
+  childVal?: Function | Array<Function>
+): Array<Function> {
+  return childVal
+    ? parentVal
+      ? parentVal.concat(childVal)
+      : Array.isArray(childVal)
+        ? childVal
+        : [childVal]
+    : parentVal
+}
 
-// LIFECYCLE_HOOKS.forEach(hook => {
-//   strats[hook] = mergeHook
-// })
+const LIFECYCLE_HOOKS = [...APP_EVENT, ...PAGE_EVENT, ...COMPONENT_EVENT]
+
+LIFECYCLE_HOOKS.forEach(hook => {
+  strats[hook] = mergeHook
+})
 
 /**
  * Assets

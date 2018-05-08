@@ -26,7 +26,7 @@ export function initMethods (ctx: Weapp.Context, weappConfig: Weapp.Config) {
       return
     }
 
-    mountMethods[option] = function () {
+    mountMethods[option] = function proxyMethod () {
       return fn.apply(ctx, arguments)
     }
   })
@@ -55,7 +55,7 @@ export function initMethods (ctx: Weapp.Context, weappConfig: Weapp.Config) {
       }
     }
 
-    mountMethods[method] = function () {
+    mountMethods[method] = function proxyMethod () {
       const fn = methods[method] || noop
 
       if (typeof fn !== 'function') {

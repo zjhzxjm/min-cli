@@ -1,40 +1,32 @@
 import Watcher from '../observer/watcher'
 import $global from '../global'
+import { handleError } from '../util'
 import { noop, APP_EVENT, PAGE_EVENT, COMPONENT_EVENT, parsePath, isPlainObject } from '../util'
 
 export function initAppLifecycle (ctx: App.Context, wxAppConfig: App.Config) {
   const { $options } = ctx
 
   // Proxy lifecycle
-  Object.keys($options).forEach(option => {
-    const fn = $options[option]
+  Object.keys($options).forEach(hook => {
 
-    if (APP_EVENT.indexOf(option) === -1 || option === 'onLaunch') {
+    if (APP_EVENT.indexOf(hook) === -1 || hook === 'onLaunch') {
       return
     }
 
-    if (typeof fn !== 'function') {
-      return
-    }
-
-    wxAppConfig[option] = function () {
-      fn.apply(ctx, arguments)
+    // Proxy each lifecycle
+    wxAppConfig[hook] = function proxyLifecycleHook () {
+      callHook(ctx, hook, arguments)
     }
   })
 
   // Proxy onLaunch
-  wxAppConfig.onLaunch = function () {
-    const { onLaunch } = $options
+  wxAppConfig.onLaunch = function proxyLifecycleHook () {
     const $wxApp = this
 
     ctx.$wxApp = $wxApp
     $wxApp.$app = ctx
 
-    if (typeof onLaunch !== 'function') {
-      return
-    }
-
-    return onLaunch.apply(ctx, arguments)
+    callHook(ctx, 'onLaunch', arguments)
   }
 }
 
@@ -42,19 +34,15 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
   const { $options } = ctx
 
   // Proxy lifecycle
-  Object.keys($options).forEach(option => {
-    let fn = $options[option]
+  Object.keys($options).forEach(hook => {
 
-    if (PAGE_EVENT.indexOf(option) === -1 || option === 'onLoad' || option === 'onUnload') {
+    if (PAGE_EVENT.indexOf(hook) === -1 || hook === 'onLoad' || hook === 'onUnload') {
       return
     }
 
-    if (typeof fn !== 'function') {
-      return
-    }
-
-    wxPageConfig[option] = function () {
-      fn.apply(ctx, arguments)
+    // Proxy each lifecycle
+    wxPageConfig[hook] = function proxyLifecycleHook () {
+      callHook(ctx, hook, arguments)
     }
   })
 
@@ -79,8 +67,7 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
   })
 
   // Proxy onLoad
-  wxPageConfig.onLoad = function () {
-    const { onLoad } = $options
+  wxPageConfig.onLoad = function proxyLifecycleHook () {
     const { $app } = $global
     const $wxPage = this
 
@@ -88,22 +75,13 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
     ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
     ctx.$wxPage = $wxPage
     $wxPage.$page = ctx
-
-    if (typeof onLoad !== 'function') {
-      return
-    }
-
-    return onLoad.apply(ctx, arguments)
+    callHook(ctx, 'onLoad', arguments)
   }
 
   // Proxy onUnload
-  wxPageConfig.onUnload = function () {
-    const { onUnload } = $options
-
+  wxPageConfig.onUnload = function proxyLifecycleHook () {
     try {
-      if (typeof onUnload === 'function') {
-        return onUnload.apply(ctx, arguments)
-      }
+      callHook(ctx, 'onUnload', arguments)
     }
     catch (err) {
       throw err
@@ -126,19 +104,15 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
   const { $options } = ctx
 
   // Proxy lifecycle
-  Object.keys($options).forEach(option => {
-    let fn = $options[option]
+  Object.keys($options).forEach(hook => {
 
-    if (COMPONENT_EVENT.indexOf(option) === -1 || option === 'created' || option === 'detached') {
+    if (COMPONENT_EVENT.indexOf(hook) === -1 || hook === 'created' || hook === 'detached') {
       return
     }
 
-    if (typeof fn !== 'function') {
-      return
-    }
-
-    wxCompConfig[option] = function () {
-      fn.apply(ctx, arguments)
+    // Proxy each lifecycle
+    wxCompConfig[hook] = function proxyLifecycleHook () {
+      callHook(ctx, hook, arguments)
     }
   })
 
@@ -169,8 +143,7 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
   }
 
   // Proxy created
-  wxCompConfig.created = function () {
-    const { created } = $options
+  wxCompConfig.created = function proxyLifecycleHook () {
     const { $app } = $global
     const $wxComponent = this
     const $wxPage = getWxPage($wxComponent)
@@ -180,21 +153,13 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
     ctx.$wxComponent = $wxComponent
     ctx.$root = $wxPage ? $wxPage.$page : null
     ctx.$wxRoot = $wxPage
-
-    if (typeof created !== 'function') {
-      return
-    }
-
-    return created.apply(ctx, arguments)
+    callHook(ctx, 'created', arguments)
   }
 
   // Proxy detached
-  wxCompConfig.detached = function () {
+  wxCompConfig.detached = function proxyLifecycleHook () {
     try {
-      const { detached } = $options
-      if (typeof detached === 'function') {
-        return detached.apply(ctx, arguments)
-      }
+      callHook(ctx, 'detached', arguments)
     }
     catch (err) {
       throw err
@@ -338,4 +303,18 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
   }, noop, null, true)
 
   return renderWatcher
+}
+
+export function callHook (ctx: Weapp.Context | App.Context, hook: string, args: IArguments) {
+  const handlers = ctx.$options[hook]
+  if (handlers) {
+    for (let i = 0; i < handlers.length; i++) {
+      try {
+        handlers[i].apply(ctx, args)
+      }
+      catch (e) {
+        handleError(e, ctx, `${hook} hook`)
+      }
+    }
+  }
 }
