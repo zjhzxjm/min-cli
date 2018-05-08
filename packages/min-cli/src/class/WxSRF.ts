@@ -69,12 +69,12 @@ export class WxSRF implements WxFile.Core {
   }
 
   /**
-   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   * 获取隐式引用，例如 less 预编译语言的代码里 import 了外部文件、单文件模块的 src 外部文件
    *
    * @returns {string[]}
    * @memberof WxSFC
    */
-  getInternalDepends (): string[] {
+  getImplicitReferences (): string[] {
     return []
   }
 }

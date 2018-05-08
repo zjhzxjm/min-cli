@@ -21,6 +21,14 @@ export namespace WxSFM {
      * @memberof Options
      */
     destExt: string
+
+    /**
+     * 当前模块所在的引用路径
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    referenceSrc?: string
   }
 }
 
@@ -35,18 +43,29 @@ export class WxSFM {
   protected dest: string
   protected destRelative: string
   protected destExt: string
+  protected dependParent: string
+
+  /**
+   * 隐式引用，例如 less 预编译语言的代码里 import 了外部文件、单文件模块的 src 外部文件
+   *
+   * @private
+   * @type {string[]}
+   * @memberof WxSFMStyle
+   */
+  private implicitReferences: string[] = []
 
   /**
    * Creates an instance of WxSFM.
    * @param {string} source
    * @param {Request} request
-   * @param {WxSFM.Options} options
+   * @param {WxSFM.Options} baseOptions
    * @memberof WxSFM
    */
-  constructor (source: string, public request: Request, options: WxSFM.Options) {
+  constructor (source: string, public request: Request, public baseOptions: WxSFM.Options) {
     this.source = (source || '').trim()
-    this.destExt = options.destExt
+    this.destExt = baseOptions.destExt
     this.initDest()
+    this.initReference()
   }
 
   /**
@@ -165,22 +184,18 @@ export class WxSFM {
     log.fatal('WxSFM.updateRequest Method not implemented.')
   }
 
-  // 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
-  getInternalDepends (): string[] {
-    // log.fatal('WxSFM.getInternalDepends Method not implemented.')
-    return []
+  // 获取隐式引用，例如 less 预编译语言的代码里 import 了外部文件、单文件模块的 src 外部文件
+  getImplicitReferences (): string[] {
+    return this.implicitReferences
   }
 
-  /**
-   * 设置 dest目标绝对路径 和 destRelative目标相对路径
-   *
-   * @private
-   * @memberof WxSFM
-   */
-  private initDest () {
-    let dester = this.getDester(this.destExt)
-    this.dest = dester.dest
-    this.destRelative = dester.destRelative
+  // 添加隐式引用
+  addImplicitReferences (value: string | string[]): void {
+    if (core.util.isArray(value)) {
+      this.implicitReferences = this.implicitReferences.concat(value)
+    } else {
+      this.implicitReferences.push(value)
+    }
   }
 
   /**
@@ -190,7 +205,7 @@ export class WxSFM {
    * @param {string} content
    * @memberof WxSFM
    */
-  private async saveContent (content: string) {
+  async saveContent (content: string) {
     let options: PluginHelper.Options = {
       cwd: config.cwd,
       filename: this.destRelative,
@@ -206,5 +221,27 @@ export class WxSFM {
 
     await core.util.writeFile(this.dest, content)
     log.msg(LogType.WRITE, this.destRelative)
+  }
+
+  /**
+   * 设置 dest目标绝对路径 和 destRelative目标相对路径
+   *
+   * @private
+   * @memberof WxSFM
+   */
+  private initDest () {
+    let dester = this.getDester(this.destExt)
+    this.dest = dester.dest
+    this.destRelative = dester.destRelative
+  }
+
+  private initReference () {
+    let { referenceSrc } = this.baseOptions
+
+    this.dependParent = referenceSrc || this.request.src
+
+    if (referenceSrc) {
+      this.addImplicitReferences(referenceSrc)
+    }
   }
 }

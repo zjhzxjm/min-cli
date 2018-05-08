@@ -36,7 +36,15 @@ export namespace WxSFMScript {
      * @type {string}
      * @memberof Options
      */
-    lang: string
+    lang: string,
+
+    /**
+     * 当前模块所在的引用路径
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    referenceSrc?: string
   }
 
   /**
@@ -83,6 +91,8 @@ export class WxSFMScript extends WxSFM {
    */
   private node: t.Node
 
+  private _MinPageProperties?: Array<t.ObjectProperty | t.ObjectMethod | t.SpreadProperty>
+
   /**
    * 是否包含 export default
    *
@@ -125,7 +135,8 @@ export class WxSFMScript extends WxSFM {
    */
   constructor (source: string, request: Request, public options: WxSFMScript.Options) {
     super(source, request, {
-      destExt: request.ext === config.ext.wxs ? config.ext.wxs : config.ext.js
+      destExt: request.ext === config.ext.wxs ? config.ext.wxs : config.ext.js,
+      referenceSrc: options.referenceSrc
     })
 
     this.initConfig()
@@ -165,6 +176,14 @@ export class WxSFMScript extends WxSFM {
     _.merge(usingComponents, _.cloneDeep(usingComponents2))
 
     return this.globalMin
+  }
+
+  addRenderExps (renderExps: string[]) {
+    let { _MinPageProperties: properties } = this
+    if (!properties) {
+      return
+    }
+    this.addRenderExpsProperty(properties, renderExps)
   }
 
   /**
@@ -248,6 +267,7 @@ export class WxSFMScript extends WxSFM {
       let result = babel.transformFromAst(this.node, this.source, {
         ast: false,
         babelrc: false,
+        sourceMaps: 'inline',
         filename: this.request.src
       })
       return result.code || ''
@@ -397,9 +417,12 @@ export class WxSFMScript extends WxSFM {
       source = result.extend.code
     }
 
+    let babelConfig = lang === 'babel' ? config.compilers['babel'] : {}
+
     let result = babel.transform(source, {
       ast: true,
-      babelrc: false
+      babelrc: false,
+      ...babelConfig
     })
 
     let { ast = t.emptyStatement() } = result
@@ -433,7 +456,7 @@ export class WxSFMScript extends WxSFM {
       },
       CallExpression: (path) => {
         this.visitDepend(path)
-        this.createMixinsProperties(path)
+        this.visitMinPage(path)
       },
       ExportDefaultDeclaration: (path) => {
         // this.hasExportDefault = true
@@ -733,15 +756,7 @@ export class WxSFMScript extends WxSFM {
     }
   }
 
-  /**
-   * Create or attach the mixins properties.
-   * For WXP
-   *
-   * @private
-   * @param {NodePath<t.CallExpression>} path
-   * @memberof WxSFMScript
-   */
-  private createMixinsProperties (path: NodePath<t.CallExpression>) {
+  private visitMinPage (path: NodePath<t.CallExpression>) {
     if (!this.isWxp) return
 
     let { node: { callee, arguments: args } } = path
@@ -756,13 +771,27 @@ export class WxSFMScript extends WxSFM {
 
     let caller = `${object.name}.${property.name}`
     // The mixins function is valid only in min.Page.
-    if (caller !== 'min.Page') return
+    if (caller !== 'min.page') return
 
     let arg = args[0]
     // The first argument must be the ObjectExpression.
     if (!t.isObjectExpression(arg)) return
 
     let { properties } = arg
+
+    this.addMixinsProperty(properties)
+    this._MinPageProperties = properties
+  }
+
+  /**
+   * Create or attach the mixins properties.
+   * For WXP
+   *
+   * @private
+   * @param {t.ObjectExpression} arg
+   * @memberof WxSFMScript
+   */
+  private addMixinsProperty (properties: Array<t.ObjectProperty | t.ObjectMethod | t.SpreadProperty>) {
 
     // Get the mixins properties.
     let prop = properties.find(prop => {
@@ -798,6 +827,19 @@ export class WxSFMScript extends WxSFM {
       prop = t.objectProperty(t.identifier(MIXINS_KEY), arrExp)
       properties.push(prop)
     }
+  }
+
+  private addRenderExpsProperty (properties: Array<t.ObjectProperty | t.ObjectMethod | t.SpreadProperty>, renderExps: string[]) {
+    // Create an arrayExpression.
+    // For example：['a', 'a.b', 'a[1]']
+    let arrExp = t.arrayExpression(renderExps.map(exp => {
+      return t.stringLiteral(exp)
+    }))
+
+    // Create a _renderExps attribute.
+    // For example：_renderExps: ['a', 'a.b', 'a[1]']
+    let prop = t.objectProperty(t.identifier('_renderExps'), arrExp)
+    properties.push(prop)
   }
 
   /**
@@ -1067,6 +1109,7 @@ export class WxSFMScript extends WxSFM {
 
     _.forIn(usingComponents, (value, key) => {
       this.depends.push({ // 'wxc-loading' => '@scope/wxc-loading'
+        parent: this.dependParent,
         request: value,
         requestType: RequestType.WXC,
         usingKey: key
@@ -1081,12 +1124,14 @@ export class WxSFMScript extends WxSFM {
 
     if (isJsonExt) {
       this.depends.push({
+        parent: this.dependParent,
         request,
         requestType: RequestType.JSON,
         $node
       })
     } else if (isWxsExt) {
       this.depends.push({
+        parent: this.dependParent,
         request,
         requestType: RequestType.WXS,
         $node
@@ -1094,6 +1139,7 @@ export class WxSFMScript extends WxSFM {
     } else {
       let isVirtual = !!config.resolveVirtual[request]
       this.depends.push({
+        parent: this.dependParent,
         request,
         requestType: RequestType.SCRIPT,
         $node,

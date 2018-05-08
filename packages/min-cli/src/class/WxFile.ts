@@ -41,12 +41,12 @@ export namespace WxFile {
     updateDepends (useRequests: Request.Core[]): void
 
     /**
-     * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+     * 获取隐式引用，例如 less 预编译语言的代码里 import 了外部文件、单文件模块的 src 外部文件
      *
      * @returns {string[]}
      * @memberof Core
      */
-    getInternalDepends (): string[]
+    getImplicitReferences (): string[]
   }
 }
 
@@ -130,12 +130,12 @@ export class WxFile implements WxFile.Core {
   }
 
   /**
-   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   * 获取隐式引用，例如 less 预编译语言的代码里 import 了外部文件、单文件模块的 src 外部文件
    *
    * @returns {string[]}
    * @memberof Core
    */
-  getInternalDepends (): string[] {
-    return this.file.getInternalDepends()
+  getImplicitReferences (): string[] {
+    return this.file.getImplicitReferences()
   }
 }

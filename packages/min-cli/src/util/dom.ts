@@ -1,4 +1,8 @@
+import * as fs from 'fs-extra'
+import * as path from 'path'
+import { Request } from '../class'
 import { getInnerHTML } from '../util'
+import { RequestType } from '../declare'
 const { DomHandler, Parser, DomUtils } = require('htmlparser2')
 
 /**
@@ -25,24 +29,66 @@ function make (source: string) {
  * @param {string} tagName
  * @returns
  */
-function getSFM (parent: any, tagName: string) {
-  let elem = DomUtils.getElementsByTagName(tagName, parent, true, [])[0]
-  let code = ''
-  let lang = ''
+function getSFM (parentElem: any, tagName: string, parentFile?: string) {
+  let elem = DomUtils.getElementsByTagName(tagName, parentElem, true, [])[0]
 
-  if (elem) {
-    // code = htmlparser.DomUtils.getInnerHTML(elem)
-    code = getInnerHTML(elem)
-    lang = elem.attribs.lang
-
-    if (typeof lang !== 'undefined') {
-      lang = lang.toLowerCase()
+  if (!elem) {
+    return {
+      src: undefined,
+      lang: undefined,
+      code: ''
     }
   }
-  return {
-    code,
-    lang
+
+  return getModule(elem, parentFile)
+}
+
+function getSFMs (parentElem: any, tagName: string, parentFile?: string) {
+  let elems = DomUtils.getElementsByTagName(tagName, parentElem, true, []) as any[]
+
+  let sfms = elems.map(elem => getModule(elem, parentFile))
+
+  if (sfms.length === 0) {
+    sfms = [{
+      src: undefined,
+      lang: undefined,
+      code: ''
+    }]
   }
+
+  return sfms
+}
+
+function getModule (elem: any, parentFile?: string) {
+  let { src = undefined, lang = undefined } = elem.attribs || {}
+  let code = ''
+
+  if (src) {
+    let request = new Request({
+      request: src,
+      parent: parentFile
+    })
+
+    if (!request.src) {
+      throw new Error(`找不到文件${src}, in ${parentFile}`)
+    } else {
+      src = request.src
+      code = fs.readFileSync(request.src, 'utf-8')
+    }
+
+    if (typeof lang === 'undefined') {
+      lang = path.extname(request.src).replace(/^\./, '') || undefined
+    }
+  } else {
+    src = undefined
+    code = getInnerHTML(elem)
+  }
+
+  if (typeof lang !== 'undefined') {
+    lang = lang.toLowerCase()
+  }
+
+  return { src, lang, code }
 }
 
 /**
@@ -51,17 +97,18 @@ function getSFM (parent: any, tagName: string) {
  * @param {string} source
  * @returns
  */
-function getSFC (source: string) {
+function getSFC (source: string, parentFile?: string) {
   let elem = make(source)
   return {
-    template: getSFM(elem, 'template'),
-    style: getSFM(elem, 'style'),
-    script: getSFM(elem, 'script')
+    template: getSFM(elem, 'template', parentFile),
+    styles: getSFMs(elem, 'style', parentFile),
+    script: getSFM(elem, 'script', parentFile)
   }
 }
 
 export const dom = {
   make,
   getSFM,
+  getSFMs,
   getSFC
 }

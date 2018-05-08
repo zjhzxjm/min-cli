@@ -20,6 +20,14 @@ export namespace WxSFMTemplate {
     lang: string
 
     /**
+     * 当前模块所在的引用路径
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    referenceSrc?: string
+
+    /**
      * 引用组件
      *
      * @type {{ [key: string]: string }}
@@ -89,7 +97,8 @@ export class WxSFMTemplate extends WxSFM {
    */
   constructor (source: string, request: Request, public options: WxSFMTemplate.Options) {
     super(source, request, {
-      destExt: config.ext.wxml
+      destExt: config.ext.wxml,
+      referenceSrc: options.referenceSrc
     })
     this.initDom()
     this.initDepends()
@@ -245,11 +254,7 @@ export class WxSFMTemplate extends WxSFM {
         }
       })
 
-      let {
-        extend: {
-          code = ''
-        } = {}
-      } = result
+      let { extend: { code = '' } = {} } = result
 
       source = code
     }
@@ -292,6 +297,12 @@ export class WxSFMTemplate extends WxSFM {
       if (!src) {
         return
       }
+
+      // Check local file
+      if (!util.checkLocalFile(src)) {
+        return
+      }
+
       let extName = path.extname(src)
       switch (extName) {
         case config.ext.png:
@@ -332,12 +343,8 @@ export class WxSFMTemplate extends WxSFM {
       return
     }
 
-    // Ignore {{}}
-    if (/\{\{/.test(src)) {
-      return
-    }
-
     this.depends.push({
+      parent: this.dependParent,
       request: src,
       requestType,
       $elem: elem

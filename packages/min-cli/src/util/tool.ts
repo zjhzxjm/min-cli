@@ -265,7 +265,15 @@ export function checkLocalFile (url: string) {
     return false
   }
 
-  if (/^(https?\:|\:\/\/)/.test(url)) {
+  // http:xx
+  // https:xx
+  // //xx
+  if (/^(https?\:|\/\/)/.test(url)) {
+    return false
+  }
+
+  // Ignore {{}}
+  if (/\{\{/.test(url)) {
     return false
   }
 

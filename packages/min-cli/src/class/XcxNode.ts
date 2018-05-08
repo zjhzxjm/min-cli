@@ -138,16 +138,16 @@ export class XcxNode {
   }
 
   /**
-   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   * 获取隐式引用，例如 less 预编译语言的代码里 import 了外部文件、单文件模块的 src 外部文件
    *
    * @returns {string[]}
    * @memberof XcxNode
    */
-  getInternalDepends (): string[] {
+  getImplicitReferences (): string[] {
     let { wxFile } = this
     if (!wxFile) return []
 
-    return wxFile.getInternalDepends()
+    return wxFile.getImplicitReferences()
   }
 
   /**
@@ -164,7 +164,7 @@ export class XcxNode {
 
     for (let i = 0; i < depends.length; i++) {
       let depend = depends[i]
-      let { request, requestType, isVirtual } = depend
+      let { request, requestType, parent, isVirtual } = depend
 
       if (isVirtual) {
         this.resolveVirtual(depend)
@@ -175,7 +175,7 @@ export class XcxNode {
       let xcxNode = XcxNode.create({
         request,
         requestType,
-        parent: this.request.src,
+        parent: parent || this.request.src,
         isMain: false,
         root: this,
         isThreeNpm: this.request.isThreeNpm

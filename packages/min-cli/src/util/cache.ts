@@ -221,7 +221,7 @@ export const xcxCache = {
     let dependents: string[] = []
 
     _.forIn(XcxNodeCached, (xcxNode: XcxNode, cacheKey: string) => {
-      let internalDepends: string[] = xcxNode.getInternalDepends()
+      let internalDepends: string[] = xcxNode.getImplicitReferences()
       let isExsit = internalDepends.some(depend => depend === src)
       if (isExsit) {
         dependents.push(cacheKey)

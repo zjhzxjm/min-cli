@@ -1,5 +1,5 @@
 import { Depend, Request, WxFile, WxSFMScript, WxSFMStyle, WxSFMTemplate } from '../class'
-import { dom } from '../util'
+import { dom, getRenderExps, xcxNext } from '../util'
 import core from '@mindev/min-core'
 
 /**
@@ -14,7 +14,7 @@ export class WxSFC implements WxFile.Core {
    * 单文件组合，与.js、.json、.wxml、.wxss组件成一体 (单文件组件、单文件页面、单文件应用)
    */
   template: WxSFMTemplate
-  style: WxSFMStyle
+  styles: WxSFMStyle[]
   script: WxSFMScript
 
   /**
@@ -23,14 +23,15 @@ export class WxSFC implements WxFile.Core {
    * @param {Request} request
    * @memberof WxSFC
    */
-  constructor (public source: string, request: Request) {
+  constructor (public source: string, public request: Request) {
     let {
-      script, template, style
-    } = dom.getSFC(this.source)
+      script, template, styles
+    } = dom.getSFC(this.source, request.src)
 
     // SCRIPT
     this.script = new WxSFMScript(script.code, request, {
-      lang: script.lang
+      lang: script.lang,
+      referenceSrc: script.src
     })
 
     let usingComponents = this.script.getUsingComponents()
@@ -38,12 +39,20 @@ export class WxSFC implements WxFile.Core {
     // TEMPLATE
     this.template = new WxSFMTemplate(template.code, request, {
       lang: template.lang,
+      referenceSrc: template.src,
       usingComponents
     })
 
+    let renderExps = getRenderExps(this.template.dom)
+    this.script.addRenderExps(renderExps)
+    // console.log('>>>>>>>>>>>>>>>>>>>>', request.srcRelative, renderExps)
+
     // STYLE
-    this.style = new WxSFMStyle(style.code, request, {
-      lang: style.lang
+    this.styles = styles.map(style => {
+      return new WxSFMStyle(style.code, request, {
+        lang: style.lang,
+        referenceSrc: style.src
+      })
     })
   }
 
@@ -54,7 +63,7 @@ export class WxSFC implements WxFile.Core {
    * @memberof WxSFC
    */
   get sfms () {
-    return [this.template, this.style, this.script]
+    return [this.template, ...this.styles, this.script]
   }
 
   /**
@@ -63,7 +72,29 @@ export class WxSFC implements WxFile.Core {
    * @memberof WxSFC
    */
   save () {
-    this.sfms.forEach(sfm => sfm.save())
+    this.template.save()
+    this.script.save()
+
+    if (this.styles.length > 0) {
+      let generators = this.styles.map(style => style.generator())
+
+      Promise
+        .all(generators)
+        .then((values) => {
+          let content = values.join('\n')
+          let style = this.styles[0]
+
+          style.beforeSave()
+          style.saveContent(content)
+          style.afterSave()
+        })
+        .catch(err => {
+          core.util.error(err)
+          xcxNext.add(this.request)
+        })
+    }
+
+    // this.sfms.forEach(sfm => sfm.save())
   }
 
   /**
@@ -96,12 +127,12 @@ export class WxSFC implements WxFile.Core {
   }
 
   /**
-   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
+   * 获取隐式引用，例如 less 预编译语言的代码里 import 了外部文件、单文件模块的 src 外部文件
    *
    * @returns {string[]}
    * @memberof WxSFC
    */
-  getInternalDepends (): string[] {
-    return Array.prototype.concat.apply([], this.sfms.map(sfm => sfm.getInternalDepends()))
+  getImplicitReferences (): string[] {
+    return Array.prototype.concat.apply([], this.sfms.map(sfm => sfm.getImplicitReferences()))
   }
 }

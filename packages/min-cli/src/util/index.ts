@@ -22,6 +22,7 @@ export { eslint } from './lint'
 export { log, LogType, LogLevel } from './log'
 
 export { md } from './md'
+export * from './renderExps'
 
 export { resolveDep, src2destRelative } from './resolveDep'
 

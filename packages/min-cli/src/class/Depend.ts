@@ -12,17 +12,21 @@ export type Depend = Depend.Template | Depend.TemplateImage | Depend.Wxs | Depen
 
 export namespace Depend {
 
-  export interface Template extends Request.Default {
+  export interface Default extends Request.Default {
+    parent: string
+  }
+
+  export interface Template extends Default {
     requestType: RequestType.TEMPLATE,
     $elem: any // for htmlparse2
   }
 
-  export interface TemplateImage extends Request.Default {
+  export interface TemplateImage extends Default {
     requestType: RequestType.IMAGE,
     $elem: any // for htmlparse2
   }
 
-  export interface Wxs extends Request.Default {
+  export interface Wxs extends Default {
     requestType: RequestType.WXS,
     $elem?: any // for htmlparse2
     $node?: t.StringLiteral // for babel
@@ -33,9 +37,9 @@ export namespace Depend {
    *
    * @export
    * @interface Script
-   * @extends {Request.Default}
+   * @extends {Default}
    */
-  export interface Script extends Request.Default {
+  export interface Script extends Default {
     requestType: RequestType.SCRIPT
     $node: t.StringLiteral // for babel
   }
@@ -45,9 +49,9 @@ export namespace Depend {
    *
    * @export
    * @interface Json
-   * @extends {Request.Default}
+   * @extends {Default}
    */
-  export interface Json extends Request.Default {
+  export interface Json extends Default {
     requestType: RequestType.JSON,
     $node: t.StringLiteral // for babel
   }
@@ -57,14 +61,14 @@ export namespace Depend {
    *
    * @export
    * @interface Style
-   * @extends {Request.Default}
+   * @extends {Default}
    */
-  export interface Style extends Request.Default {
+  export interface Style extends Default {
     requestType: RequestType.STYLE
     $atRule: postcss.AtRule // for postcss
   }
 
-  export interface StyleIconFont extends Request.Default {
+  export interface StyleIconFont extends Default {
     requestType: RequestType.ICONFONT,
     $decl: postcss.Declaration // for postcss
   }
@@ -74,9 +78,9 @@ export namespace Depend {
    *
    * @export
    * @interface Wxc
-   * @extends {Request.Default}
+   * @extends {Default}
    */
-  export interface Wxc extends Request.Default {
+  export interface Wxc extends Default {
     requestType: RequestType.WXC
     usingKey: string // for wxc
   }
@@ -86,9 +90,9 @@ export namespace Depend {
    *
    * @export
    * @interface Wxp
-   * @extends {Request.Default}
+   * @extends {Default}
    */
-  export interface Wxp extends Request.Default {
+  export interface Wxp extends Default {
     requestType: RequestType.WXP
     usingKey: string // for wxp
   }

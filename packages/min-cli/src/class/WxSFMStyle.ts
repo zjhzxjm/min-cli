@@ -9,7 +9,22 @@ import core, { loader, CompilerHelper } from '@mindev/min-core'
 export namespace WxSFMStyle {
 
   export interface Options {
+
+    /**
+     * 预编译语言
+     *
+     * @type {string}
+     * @memberof Options
+     */
     lang: string
+
+    /**
+     * 当前模块所在的引用路径
+     *
+     * @type {string}
+     * @memberof Options
+     */
+    referenceSrc?: string
   }
 }
 
@@ -41,15 +56,6 @@ export class WxSFMStyle extends WxSFM {
   private depends: Depend[] = []
 
   /**
-   * 内部依赖，例如 less 预编译语言的代码里 import 了外部文件
-   *
-   * @private
-   * @type {string[]}
-   * @memberof WxSFMStyle
-   */
-  private internalDepends: string[] = []
-
-  /**
    * Creates an instance of WxSFMStyle.
    * @param {string} source
    * @param {Request} request
@@ -58,7 +64,8 @@ export class WxSFMStyle extends WxSFM {
    */
   constructor (source: string, request: Request, public options: WxSFMStyle.Options) {
     super(source, request, {
-      destExt: config.ext.wxss
+      destExt: config.ext.wxss,
+      referenceSrc: options.referenceSrc
     })
 
     this.initDepends()
@@ -121,7 +128,7 @@ export class WxSFMStyle extends WxSFM {
 
     let result = await compiler({
       cwd: config.cwd,
-      filename: this.request.src,
+      filename: this.options.referenceSrc || this.request.src,
       config: compilerConfig,
       extend: {
         code: source
@@ -129,7 +136,7 @@ export class WxSFMStyle extends WxSFM {
     })
     let { extend: { code = '', imports = [] } = {} } = result
 
-    this.internalDepends = imports
+    this.addImplicitReferences(imports)
 
     return code
   }
@@ -202,16 +209,6 @@ export class WxSFMStyle extends WxSFM {
     })
   }
 
-  /**
-   * 获取内部依赖，例如 less 预编译语言的代码里 import 了外部文件
-   *
-   * @returns {string[]}
-   * @memberof WxSFMStyle
-   */
-  getInternalDepends (): string[] {
-    return this.internalDepends
-  }
-
   private appendVariables (source: string, lang: string) {
     let {
       config: {
@@ -271,6 +268,7 @@ export class WxSFMStyle extends WxSFM {
         }
         // ① 收集所有的依赖，用于后续的依赖加载和路径更新
         this.depends.push({
+          parent: this.dependParent,
           request: rule.params.replace(/^('|")(.*)('|")$/g, (match, quotn, filename) => filename),
           requestType: RequestType.STYLE,
           $atRule: rule
@@ -312,6 +310,7 @@ export class WxSFMStyle extends WxSFM {
           }
 
           this.depends.push({
+            parent: this.dependParent,
             request: url,
             requestType: RequestType.ICONFONT,
             $decl: decl
