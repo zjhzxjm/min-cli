@@ -263,7 +263,11 @@ export class WxSFMScript extends WxSFM {
       lang = 'typescript'
     }
 
-    if (isThreeNpm || lang === 'js' || lang === 'typescript') {
+    if (lang === 'js') {
+      lang = 'babel'
+    }
+
+    if (isThreeNpm || lang === 'typescript') {
       let result = babel.transformFromAst(this.node, this.source, {
         ast: false,
         babelrc: false,
@@ -374,7 +378,11 @@ export class WxSFMScript extends WxSFM {
     // For example:
     // from ~/src/pages/home/index.wxp
     // to   ~/src/app.wxa
-    return $path.relative($path.dirname(curFilePath), $path.dirname(appFilePath))
+
+    let from = $path.dirname(this.options.referenceSrc || curFilePath)
+    let to = $path.dirname(appFilePath)
+
+    return $path.relative(from, to)
   }
 
   /**
