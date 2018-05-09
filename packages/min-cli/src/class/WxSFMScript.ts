@@ -769,7 +769,7 @@ export class WxSFMScript extends WxSFM {
   }
 
   private visitMinPage (path: NodePath<t.CallExpression>) {
-    if (!this.isWxp) return
+    if (!this.isWxp && !this.isWxc) return
 
     let { node: { callee, arguments: args } } = path
     if (!t.isMemberExpression(callee)) return
@@ -783,7 +783,7 @@ export class WxSFMScript extends WxSFM {
 
     let caller = `${object.name}.${property.name}`
     // The mixins function is valid only in min.Page.
-    if (caller !== 'min.page') return
+    if (caller !== 'min.page' && caller !== 'min.component') return
 
     let arg = args[0]
     // The first argument must be the ObjectExpression.
@@ -791,7 +791,10 @@ export class WxSFMScript extends WxSFM {
 
     let { properties } = arg
 
-    this.addMixinsProperty(properties)
+    if (this.isWxp) {
+      this.addMixinsProperty(properties)
+    }
+
     this._MinPageProperties = properties
   }
 
