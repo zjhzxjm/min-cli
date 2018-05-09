@@ -10,8 +10,15 @@ class MinApp implements App.Context {
   $globalData: App.GlobalData = Object.create(null)
   _globalData: App.GlobalData = Object.create(null)
 
+  $store?: Store
+
   constructor (options: App.Options) {
     this.$options = options
+
+    if (options.store) {
+      this.$store = options.store
+    }
+
     this.$init()
   }
 
@@ -36,7 +43,7 @@ class MinApp implements App.Context {
   }
 }
 
-export default function app (options: App.Options) {
+export default function minApp (options: App.Options) {
   let app = new MinApp(options)
   $global.$app = app
 

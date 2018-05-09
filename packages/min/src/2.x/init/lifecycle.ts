@@ -75,6 +75,7 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
     ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
     ctx.$wxPage = $wxPage
     $wxPage.$page = ctx
+    callHook(ctx, 'beforeCreate', arguments)
     callHook(ctx, 'onLoad', arguments)
   }
 
@@ -153,6 +154,7 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
     ctx.$wxComponent = $wxComponent
     ctx.$root = $wxPage ? $wxPage.$page : null
     ctx.$wxRoot = $wxPage
+    callHook(ctx, 'beforeCreate', arguments)
     callHook(ctx, 'created', arguments)
   }
 

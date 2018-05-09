@@ -1,8 +1,8 @@
-import MinBase from './base'
-import { nextTick, warn, mergeOptions } from './util'
+import Min from './min'
+import { warn } from './util'
 import { initProps, initComponentLifecycle } from './init'
 
-class MinComponent extends MinBase implements Component.Context {
+class MinComponent extends Min implements Component.Context {
 
   $root?: Page.Context = null// in Current Page
   $wxRoot?: any = null // in Current Page
@@ -44,12 +44,10 @@ class MinComponent extends MinBase implements Component.Context {
   }
 }
 
-function component (options: Component.Options) {
+export default function minComponent (options: Component.Options) {
   let com = new MinComponent(options)
   return Component(com.$wxConfig)
 }
-
-export default component
 
 // 1. 将 props => {key: value} 得到类似 data 的对象
 // 2. 将 原有的 props => Config.props
