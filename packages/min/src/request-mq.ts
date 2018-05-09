@@ -2,7 +2,7 @@ export default {
   map: {},
   mq: [],
   running: [],
-  MAX_REQUEST: 5,
+  MAX_REQUEST: 10,
 
   push (options) {
     options.t = +new Date()

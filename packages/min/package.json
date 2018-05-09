@@ -2,7 +2,7 @@
   "name": "@minlib/min",
   "version": "2.0.0",
   "description": "Min2.0 优化原生小程序支持 mixin、wx.api promise化、intercept 拦截器、似vue的computed、watch等",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "typings": "types/index.d.ts",
   "repository": {
     "type": "git",
@@ -11,6 +11,7 @@
   "scripts": {
     "clean": "rm -rf ./{dist,lib,types}",
     "build": "../../node_modules/.bin/tsc",
+    "dist": "./node_modules/.bin/webpack-cli --config ./webpack.config.js --watch",
     "watch": "../../node_modules/.bin/tsc -w",
     "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
     "prepublish": "npm run clean && npm run build"
@@ -22,6 +23,12 @@
   ],
   "author": "Min Team",
   "license": "MIT",
-  "devDependencies": {},
-  "dependencies": {}
+  "devDependencies": {
+    "ts-loader": "^4.2.0",
+    "webpack": "^4.5.0",
+    "webpack-cli": "^2.0.14"
+  },
+  "dependencies": {
+    "tslib": "^1.9.0"
+  }
 }

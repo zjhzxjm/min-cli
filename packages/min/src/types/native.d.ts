@@ -9,6 +9,16 @@ declare const App: (appConfig: any) => void;
 declare const Page: (pageConfig: any) => void;
 
 /**
+ * WeChat mini program native constructor Component.
+*/
+declare const Component: (pageConfig: any) => void;
+
+/**
+ * WeChat mini program native method.
+*/
+declare const getCurrentPages: () => any[]
+
+/**
  * WeChat mini program native API
 */
 declare const wx: {

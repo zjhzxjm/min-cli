@@ -7,7 +7,8 @@
     "outDir": "./lib",
     "removeComments": true,
     "noImplicitUseStrict": true,
-    "strict": false
+    "strict": false,
+    "sourceMap": true
   },
   "include": [
     "src/**/*.ts"

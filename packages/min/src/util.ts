@@ -12,7 +12,7 @@ export const filterWxApiOptions = (wxApiName, wxApiOptions): string => {
 
   return wxApiOptions
 }
-
+// @ts-ignore
 export const mixMethods = (config: Config) => {
   let { methods = {} } = config
 
