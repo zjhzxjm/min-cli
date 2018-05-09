@@ -126,31 +126,15 @@ export class NewCommand {
       time: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
     }
 
-    switch (config.projectType) {
-      case ProjectType.Component: // 组件库
+    switch (answers.newType) {
+      case NewType.Package:
         {
-          switch (answers.newType) {
-            case NewType.Package:
-              {
-                // 新建组件
-                await this.newPackage(newData)
-              }
-              break
-
-            case NewType.Page:
-              {
-                // 新建页面
-                await this.newPage(newData)
-              }
-              break
-
-            default:
-              return Promise.reject('Min New 失败：未知项目类型，无法继续创建')
-          }
+          // 新建组件
+          await this.newPackage(newData)
         }
         break
 
-      case ProjectType.Application: // 小程序应用
+      case NewType.Page:
         {
           // 新建页面
           await this.newPage(newData)
@@ -169,6 +153,8 @@ export class NewCommand {
    */
   private async newPackage (newData: NewData) {
     let { pkgName, pkgNameSuffix } = newData
+    let isComponentProjectType = config.projectType === ProjectType.Component
+
     // 内存编辑器
     const store = memFs.create()
     const fsEditor = editor.create(store)
@@ -177,17 +163,11 @@ export class NewCommand {
     let destPackagePath = util.getDestPackagePath(pkgName)
 
     // page 目标地址
-    let destPagePath = util.getDestPagePath(pkgNameSuffix)
+    let destExamplePath = util.getDestPagePath(pkgNameSuffix)
 
     // 验证 package 目标地址
     if (fs.existsSync(destPackagePath)) {
       log.output(LogType.ERROR, `创建失败，因为组件 "${pkgName}" 已经存在`, destPackagePath)
-      return undefined
-    }
-
-    // 验证 page 目标地址
-    if (fs.existsSync(destPagePath)) {
-      log.output(LogType.ERROR, `创建失败，因为页面 "${pkgNameSuffix}" 已经存在`, destPagePath)
       return undefined
     }
 
@@ -204,37 +184,56 @@ export class NewCommand {
       }
     )
 
-    // 创建并写入 package/.npmignore 文件
-    // fsEditor.write(
-    //   util.getDestPackagePath(pkgName, '.npmignore'),
-    //   'test\n*.log\n'
-    // )
+    if (isComponentProjectType) {
 
-    // 将 example 脚手架模板路径下的文件拷贝到 page 目标路径下
-    fsEditor.copyTpl(
-      util.getScaffoldPath(ScaffoldType.Example),
-      destPagePath,
-      newData
-    )
+      // 验证 page 目标地址
+      if (fs.existsSync(destExamplePath)) {
+        log.output(LogType.ERROR, `创建失败，因为页面 "${pkgNameSuffix}" 已经存在`, destExamplePath)
+        return undefined
+      }
+
+      // 将 example 脚手架模板路径下的文件拷贝到 page 目标路径下
+      fsEditor.copyTpl(
+        util.getScaffoldPath(ScaffoldType.Example),
+        destExamplePath,
+        newData
+      )
+    }
+
+    function printNewComponentLog () {
+      log.newline()
+      log.output(LogType.CREATE, `组件 "${pkgName}"`, destPackagePath)
+
+      // 输入拷贝 或 新增 的日志信息
+      glob.sync('**', {
+        cwd: destPackagePath
+      }).forEach(file => log.msg(LogType.COPY, file))
+
+      log.msg(LogType.COMPLETE, `组件 "${pkgName}" 创建完成`)
+    }
+
+    function printNewExampleLog () {
+      if (!isComponentProjectType) {
+        return
+      }
+
+      log.newline()
+      log.output(LogType.CREATE, `示例页面 "${pkgNameSuffix}"`, destExamplePath)
+
+      // 输入拷贝 或 新增 的日志信息
+      glob.sync('**', {
+        cwd: destExamplePath
+      }).forEach(file => log.msg(LogType.COPY, file))
+
+      log.msg(LogType.COMPLETE, `示例页面 "${pkgNameSuffix}" 创建完成`)
+    }
 
     return new Promise((resolve, reject) => {
       // 提交编辑器信息
       fsEditor.commit(() => {
-        log.newline()
-        log.output(LogType.CREATE, `组件 "${pkgName}"`, destPackagePath)
-        // 输入拷贝 或 新增 的日志信息
-        glob.sync('**', {
-          cwd: destPackagePath
-        }).forEach(file => log.msg(LogType.COPY, file))
-        log.msg(LogType.COMPLETE, `组件 "${pkgName}" 创建完成`)
 
-        log.newline()
-        log.output(LogType.CREATE, `示例页面 "${pkgNameSuffix}"`, destPagePath)
-        // 输入拷贝 或 新增 的日志信息
-        glob.sync('**', {
-          cwd: destPagePath
-        }).forEach(file => log.msg(LogType.COPY, file))
-        log.msg(LogType.COMPLETE, `示例页面 "${pkgNameSuffix}" 创建完成`)
+        printNewComponentLog()
+        printNewExampleLog()
 
         resolve()
       })
@@ -293,9 +292,17 @@ export class NewCommand {
    * @param {NewAnswers} answers
    */
   private async updateHomeMenu (answers: NewAnswers) {
+
+    // Component project type.
+    if (config.projectType !== ProjectType.Component) {
+      return
+    }
+
+    // New package
     if (answers.newType !== NewType.Package) {
       return
     }
+
     let { pkgName = '', title = '' } = answers
     let homeConfigPath = config.getPath('pages', 'home', 'config.json')
     if (!fs.existsSync(homeConfigPath)) {
@@ -330,17 +337,16 @@ export class NewCommand {
     log.msg(LogType.INFO, '编译中, 请耐心等待...')
 
     // let pages: string[] = []
+    // switch (answers.newType) {
+    //   case NewType.Package:
+    //     let pkgNameSuffix = util.getRealPageName(answers.pkgName || '')
+    //     pages = util.pageName2Pages(`home,${pkgNameSuffix}`)
+    //     break
 
-    switch (answers.newType) {
-      case NewType.Package:
-        // let pkgNameSuffix = util.getRealPageName(answers.pkgName || '')
-        // pages = util.pageName2Pages(`home,${pkgNameSuffix}`)
-        break
-
-      case NewType.Page:
-        // pages = util.pageName2Pages(answers.pageName)
-        break
-    }
+    //   case NewType.Page:
+    //     pages = util.pageName2Pages(answers.pageName)
+    //     break
+    // }
 
     let devCommand = new DevCommand({
       // pages,
@@ -391,26 +397,20 @@ export default {
   name: 'new [name]',
   alias: '',
   usage: '[name] [-t | --title <title>]',
-  description: '新建组件或页面',
+  description: 'Create a new component or page.',
   options: [
-    ['-t, --title <title>', '设置标题']
+    ['-t, --title <title>', 'Set the title']
     // ['-f, --force', '强制创建覆盖已有的组件和示例'],
     // ['-p, --plugin', '创建插件，她与组件一致，但她具备插件调用能力']
   ],
   on: {
     '--help': () => {
       new CLIExample('new')
-      .group('新建组件')
-      .rule('loading')
+        .group('New component')
+        .rule('loading', 'Create a new loading component.')
 
-      // .group('创建组件并且设置标题')
-      // .rule('loading --title 加载中')
-
-      // .group('覆盖已有的组件')
-      // .rule('loading --force')
-
-      // .group('创建插件')
-      // .rule('loading --plugin')
+        .group('New page')
+        .rule('home', 'Create a new home page.')
     }
   },
   async action (name: string = '', options: NewCommand.Options) {
@@ -434,107 +434,135 @@ function getAnswers (options: NewCommand.Options): Promise<NewAnswers> {
   let { name = '', title = '', newType = '' } = options
   let { projectType, prefix, prefixStr } = config
 
-  const CREATE_QUESTIONS: Question[] = [
-    {
-      type: 'list',
-      message: '请选择新建类型',
-      name: 'newType',
-      choices: () => {
-        return [{
-          name: '新建组件',
-          value: NewType.Package
-        }, {
-          name: '新建页面',
-          value: NewType.Page
-        }]
-      },
-      when (answers: any) {
-        // for 组件库
-        return !newType && projectType === ProjectType.Component
-      }
-    }, {
-      type: 'input',
-      message: '请设置新组件的英文名称',
-      name: 'pkgName',
-      filter (input: string) {
-        input = input.trim()
-        return util.getRealPkgName(input)
-      },
-      validate (input: string, answers: any) {
-        if (input === '') {
-          return '请输入名称'
-        } else if (input === prefixStr) {
-          return `格式不正确，例如输入'loading' 或 '${prefixStr}loading'`
-        } else if (/^-/.test(input)) {
-          return '格式不正确，不能以“-”开始'
-        } else if (/-$/.test(input)) {
-          return '格式不正确，不能以“-”结束'
-        } else if (/[^a-z-]+/.test(input)) {
-          return `格式不正确，只能是小写字母，支持“-”分隔`
-        }
-        return true
-      },
-      when (answers: any) {
-        let $newType = answers.newType || newType
-        // for new package
-        return $newType === NewType.Package && (!name || name === '-' || name === prefix || name === prefixStr)
-      }
-    }, {
-      type: 'input',
-      message: '请设置新组件的中文标题',
-      name: 'title',
-      filter (input: string) {
-        return input.trim()
-      },
-      validate (input: string, answers: any) {
-        if (input === '') {
-          return '请输入标题'
-        }
-        return true
-      },
-      when (answers: any) {
-        let $newType = answers.newType || newType
-        // for new package
-        return $newType === NewType.Package && !title
-      }
-    }, {
-      type: 'input',
-      message: '请设置新页面的英文名称',
-      name: 'pageName',
-      filter (input: string) {
-        return input.trim()
-      },
-      validate (input: string, answers: any) {
-        if (input === '') {
-          return '请输入名称'
-        }
-        return true
-      },
-      when (answers: any) {
-        let $newType = answers.newType || newType
-        // for new page
-        return ($newType === NewType.Page || projectType === ProjectType.Application) && !name
-      }
-    }, {
-      type: 'input',
-      message: '请设置新页面的中文标题',
-      name: 'title',
-      filter (input: string) {
-        return input.trim()
-      },
-      validate (input: string, answers: any) {
-        if (input === '') {
-          return '请输入标题'
-        }
-        return true
-      },
-      when (answers: any) {
-        let $newType = answers.newType || newType
-        // for new page
-        return ($newType === NewType.Page || projectType === ProjectType.Application) && !title
-      }
+  const selectNewType = {
+    type: 'list',
+    message: 'Select the new type.',
+    name: 'newType',
+    choices: () => {
+      return [{
+        name: 'New component',
+        value: NewType.Package
+      }, {
+        name: 'New page',
+        value: NewType.Page
+      }]
+    },
+    when (answers: any) {
+      // for 组件库
+      return !newType
     }
-  ]
+  }
 
-  return prompt(CREATE_QUESTIONS)
+  const enterPackageName = {
+    type: 'input',
+    message: 'Component name',
+    name: 'pkgName',
+    filter (input: string) {
+      input = input.trim()
+      return util.getRealPkgName(input)
+    },
+    validate (input: string, answers: any) {
+      if (input === '') {
+        return 'Please enter name.'
+      } else if (input === prefixStr) {
+        return `Incorrect format, such as input "loading" or "${prefixStr}loading".`
+      } else if (/^-/.test(input)) {
+        return 'The format is incorrect and cannot begin with "-".'
+      } else if (/-$/.test(input)) {
+        return 'The format is incorrect and cannot end with "-".'
+      } else if (/[^a-z-]+/.test(input)) {
+        return `The format is not correct, can only be lowercase letter, multiple words use "-" to separate.`
+      }
+      return true
+    },
+    when (answers: any) {
+      // New package
+      let isNewPackage = (answers.newType || newType) === NewType.Package
+
+      // An illegal name.
+      let isIllegalName = !name || name === '-' || name === prefix || name === prefixStr
+
+      return isNewPackage && isIllegalName
+    }
+  }
+
+  const enterPackageTitle = {
+    type: 'input',
+    message: 'Component title',
+    name: 'title',
+    filter (input: string) {
+      return input.trim()
+    },
+    validate (input: string, answers: any) {
+      if (input === '') {
+        return 'Please enter the title'
+      }
+      return true
+    },
+    when (answers: any) {
+      // New package
+      let isNewPackage = (answers.newType || newType) === NewType.Package
+
+      // An illegal title.
+      let isIllegalTitle = !title
+
+      return isNewPackage && isIllegalTitle
+    }
+  }
+
+  const enterPageName = {
+    type: 'input',
+    message: 'Page name',
+    name: 'pageName',
+    filter (input: string) {
+      return input.trim()
+    },
+    validate (input: string, answers: any) {
+      if (input === '') {
+        return 'Please enter name'
+      }
+      return true
+    },
+    when (answers: any) {
+      // New page
+      let isNewPage = (answers.newType || newType) === NewType.Page
+
+      // An illegal name.
+      let isIllegalName = !name
+
+      return isNewPage && isIllegalName
+    }
+  }
+
+  const enterPageTitle = {
+    type: 'input',
+    message: 'Page title',
+    name: 'title',
+    filter (input: string) {
+      return input.trim()
+    },
+    validate (input: string, answers: any) {
+      if (input === '') {
+        return 'Please enter the title'
+      }
+      return true
+    },
+    when (answers: any) {
+      // New page
+      let isNewPage = (answers.newType || newType) === NewType.Page
+
+      // An illegal title.
+      let isIllegalTitle = !title
+
+      return isNewPage && isIllegalTitle
+    }
+  }
+
+  return prompt([
+    selectNewType,
+    enterPackageName,
+    enterPackageTitle,
+    enterPageName,
+    enterPageTitle
+  ])
 }

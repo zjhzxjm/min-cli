@@ -772,18 +772,20 @@ export class WxSFMScript extends WxSFM {
     if (!this.isWxp && !this.isWxc) return
 
     let { node: { callee, arguments: args } } = path
-    if (!t.isMemberExpression(callee)) return
+    if (!t.isIdentifier(callee)) return
     if (!args || args.length === 0) return
 
     // For Example：
     // object.name is min
     // property.name is Page
-    let { object, property } = callee
-    if (!t.isIdentifier(object) || !t.isIdentifier(property)) return
+    // let { object, property } = callee
+    // if (!t.isIdentifier(object) || !t.isIdentifier(property)) return
 
-    let caller = `${object.name}.${property.name}`
+    // let caller = `${object.name}.${property.name}`
     // The mixins function is valid only in min.Page.
-    if (caller !== 'min.page' && caller !== 'min.component') return
+
+    let caller = callee.name
+    if (caller !== 'Page' && caller !== 'Component') return
 
     let arg = args[0]
     // The first argument must be the ObjectExpression.
