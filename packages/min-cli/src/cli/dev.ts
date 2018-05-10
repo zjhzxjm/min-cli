@@ -57,7 +57,7 @@ export namespace DevCommand {
 export class DevCommand {
   private watcher: chokidar.FSWatcher | null
 
-  constructor (public options: DevCommand.Options) {
+  constructor (public options: DevCommand.Options = {}) {
   }
 
   async run () {

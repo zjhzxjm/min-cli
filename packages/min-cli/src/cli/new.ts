@@ -7,79 +7,76 @@ import * as editor from 'mem-fs-editor'
 import * as changeCase from 'change-case'
 import * as _ from 'lodash'
 import { prompt, Question, Answers } from 'inquirer'
+import core from '@mindev/min-core'
 import { CLIExample } from '../class'
 import { NewType, ProjectType, ScaffoldType } from '../declare'
 import util, { config, log, LogType, filterNpmScope } from '../util'
 import { DevCommand } from './dev'
 
-export namespace NewCommand {
-  /**
-   * 选项
-   *
-   * @export
-   * @interface Options
-   */
-  export interface Options {
-    /**
-     * 新建类型，新建组件或页面
-     *
-     * @type {NewType}
-     * @memberof Options
-     */
-    newType?: NewType
+export default {
+  name: 'new [name]',
+  alias: '',
+  usage: '[name] [-t | --type <type>]',
+  description: 'Create a new component or page.',
+  options: [
+    ['-t, --type <type>', 'New type, c is the component; p is the page.']
+  ],
+  on: {
+    '--help': () => {
+      new CLIExample('new')
+        .group('New component')
+        .rule('loading', 'Create a new loading component.')
 
-    /**
-     * 名称，组件或页面的文件名称，比如“loading”
-     */
-    name?: string
+        .group('New page')
+        .rule('home', 'Create a new home page.')
+    }
+  },
+  async action (rawName: string = '', cliOptions: NewCommand.CLIOptions) {
 
-    /**
-     * 标题，组件或页面的title名称，比如“加载中”
-     *
-     * @type {String}
-     * @memberof Options
-     */
-    title?: string
+    let projectTypes = [ProjectType.Application, ProjectType.Component].map(item => item.toString())
 
-    /**
-     * 创建后是否继续编译
-     *
-     * @type {boolean}
-     * @memberof Options
-     */
-    newAfterContinueBuild?: boolean
+    if (projectTypes.indexOf(config.projectType) === -1) {
+      core.util.error('The current directory is not a project created by Min, so you cannot continue to create components or pages.', false)
+      return
+    }
 
-    // /**
-    //  * 基于组件，她具备插件的能力
-    //  *
-    //  * @type {boolean}
-    //  * @memberof Options
-    //  */
-    // plugin: boolean
+    let type: NewType
+
+    if (['c', 'component'].indexOf(cliOptions.type) !== -1) {
+      type = NewType.Package
+    } else if (['p', 'page'].indexOf(cliOptions.type) !== -1) {
+      type = NewType.Page
+    } else if (cliOptions.type) {
+      core.util.error('option `-t, --type <type> argument incorrect，Please run `min new -h` for help.', false)
+      return
+    }
+
+    let options: NewCommand.Options = {
+      type,
+      rawName,
+      completeContinueBuild: true
+    }
+
+    let command = new NewCommand(options)
+    await command.run()
   }
 }
 
-/**
- * 新建类
- *
- * @export
- * @class NewCommand
- */
 export class NewCommand {
   constructor (public options: NewCommand.Options) {
   }
 
   async run () {
-    let { name = '', title, newType, newAfterContinueBuild } = this.options
+    let { rawName = '', title, type, completeContinueBuild } = this.options
 
     // 获取 answers
     let answers: NewAnswers = await getAnswers(this.options)
 
     // 字段做容错处理
     let defaults: NewAnswers = {
-      newType,
-      pkgName: util.getRealPkgName(name),
-      pageName: name,
+      type,
+      pkgName: util.getRealPkgName(rawName),
+      pageName: rawName,
       title
     }
 
@@ -92,7 +89,7 @@ export class NewCommand {
     await this.updateHomeMenu(answers)
 
     // 创建组件或页面后，继续编译页面
-    if (newAfterContinueBuild) {
+    if (completeContinueBuild) {
       await this.buildPage(answers)
     }
   }
@@ -107,26 +104,29 @@ export class NewCommand {
 
     let pkgNameSuffix = util.getRealPageName(pkgName) // loading
     let date = new Date()
+    let time = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
 
     // 模板变量
     let newData: NewData = {
+      // common
+      title, // 组件名称
+      time,
+
+      // component
       npmScopeStr: filterNpmScope(config.npm.scope),
-      version: '1.0.0',
+      version: '1.0.0', // 组件版本
+      description: `${title} - 小程序组件`, // 组件描述
       pkgName, // wxc-loading
       pkgNameToPascalCase: changeCase.pascalCase(pkgName), // WxcLoading
       pkgNameSuffix, // loading
       pkgNameSuffixToPascalCase: changeCase.pascalCase(pkgNameSuffix), // Loading
 
+      // page and example
       pageName, // home
-      pageNameToPascalCase: changeCase.pascalCase(pageName), // Home
-
-      title, // 组件名称
-      description: `${title} - 小程序组件`, // 组件描述
-      isPlugin: answers.plugin,
-      time: date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()
+      pageNameToPascalCase: changeCase.pascalCase(pageName) // Home
     }
 
-    switch (answers.newType) {
+    switch (answers.type) {
       case NewType.Package:
         {
           // 新建组件
@@ -178,9 +178,7 @@ export class NewCommand {
       newData,
       null,
       {
-        globOptions: {
-          dot: true
-        }
+        globOptions: { dot: true }
       }
     )
 
@@ -299,7 +297,7 @@ export class NewCommand {
     }
 
     // New package
-    if (answers.newType !== NewType.Package) {
+    if (answers.type !== NewType.Package) {
       return
     }
 
@@ -330,97 +328,56 @@ export class NewCommand {
    * @param {NewAnswers} answers
    */
   private async buildPage (answers: NewAnswers) {
-
-    // 执行 min build 构建
     log.newline()
     log.msg(LogType.RUN, '命令：min build')
     log.msg(LogType.INFO, '编译中, 请耐心等待...')
 
-    // let pages: string[] = []
-    // switch (answers.newType) {
-    //   case NewType.Package:
-    //     let pkgNameSuffix = util.getRealPageName(answers.pkgName || '')
-    //     pages = util.pageName2Pages(`home,${pkgNameSuffix}`)
-    //     break
-
-    //   case NewType.Page:
-    //     pages = util.pageName2Pages(answers.pageName)
-    //     break
-    // }
-
-    let devCommand = new DevCommand({
-      // pages,
-      // watch: false,
-      // clear: false
-    })
+    let devCommand = new DevCommand()
     await devCommand.run()
   }
 }
 
-/**
- * 交互式问答
- *
- * @interface NewAnswers
- * @extends {Answers}
- */
-interface NewAnswers extends Answers {
-  newType?: NewType
-  pkgName?: string
-  pageName?: string
-  title?: string
-}
+export namespace NewCommand {
 
-/**
- * 脚手架模板数据
- *
- * @interface NewData
- */
-interface NewData {
-  npmScopeStr: string
-  version: string
-  pkgName: string
-  pkgNameToPascalCase: string
-  pkgNameSuffix: string
-  pkgNameSuffixToPascalCase: string
-  pageName: string
-  pageNameToPascalCase: string
-  title: string
-  description: string
-  isPlugin: boolean
-  time: string
-}
+  export interface Options {
+    /**
+     * 新建类型，新建组件或页面
+     *
+     * @type {NewType}
+     * @memberof Options
+     */
+    type?: NewType
 
-/**
- * Commander 命令行配置
- */
-export default {
-  name: 'new [name]',
-  alias: '',
-  usage: '[name] [-t | --title <title>]',
-  description: 'Create a new component or page.',
-  options: [
-    ['-t, --title <title>', 'Set the title']
-    // ['-f, --force', '强制创建覆盖已有的组件和示例'],
-    // ['-p, --plugin', '创建插件，她与组件一致，但她具备插件调用能力']
-  ],
-  on: {
-    '--help': () => {
-      new CLIExample('new')
-        .group('New component')
-        .rule('loading', 'Create a new loading component.')
+    /**
+     * 名称，组件或页面的文件名称，比如“loading”
+     */
+    rawName?: string
 
-        .group('New page')
-        .rule('home', 'Create a new home page.')
-    }
-  },
-  async action (name: string = '', options: NewCommand.Options) {
-    _.merge(options, {
-      name,
-      newAfterContinueBuild: true
-    })
+    /**
+     * 标题，组件或页面的title名称，比如“加载中”
+     *
+     * @type {String}
+     * @memberof Options
+     */
+    title?: string
 
-    let newCommand = new NewCommand(options)
-    await newCommand.run()
+    /**
+     * 创建后是否继续编译
+     *
+     * @type {boolean}
+     * @memberof Options
+     */
+    completeContinueBuild?: boolean
+  }
+
+  export interface CLIOptions {
+    /**
+     * 新建类型，a表示应用，c表示组件库
+     *
+     * @type {string}
+     * @memberof CLIOptions
+     */
+    type: string
   }
 }
 
@@ -431,13 +388,13 @@ export default {
  * @returns {Promise<NewAnswers>}
  */
 function getAnswers (options: NewCommand.Options): Promise<NewAnswers> {
-  let { name = '', title = '', newType = '' } = options
+  let { rawName = '', title = '', type = '' } = options
   let { projectType, prefix, prefixStr } = config
 
-  const selectNewType = {
+  const selectType = {
     type: 'list',
     message: 'Select the new type.',
-    name: 'newType',
+    name: 'type',
     choices: () => {
       return [{
         name: 'New component',
@@ -448,8 +405,7 @@ function getAnswers (options: NewCommand.Options): Promise<NewAnswers> {
       }]
     },
     when (answers: any) {
-      // for 组件库
-      return !newType
+      return !type
     }
   }
 
@@ -477,10 +433,10 @@ function getAnswers (options: NewCommand.Options): Promise<NewAnswers> {
     },
     when (answers: any) {
       // New package
-      let isNewPackage = (answers.newType || newType) === NewType.Package
+      let isNewPackage = (answers.type || type) === NewType.Package
 
       // An illegal name.
-      let isIllegalName = !name || name === '-' || name === prefix || name === prefixStr
+      let isIllegalName = !rawName || rawName === '-' || rawName === prefix || rawName === prefixStr
 
       return isNewPackage && isIllegalName
     }
@@ -501,7 +457,7 @@ function getAnswers (options: NewCommand.Options): Promise<NewAnswers> {
     },
     when (answers: any) {
       // New package
-      let isNewPackage = (answers.newType || newType) === NewType.Package
+      let isNewPackage = (answers.type || type) === NewType.Package
 
       // An illegal title.
       let isIllegalTitle = !title
@@ -525,10 +481,10 @@ function getAnswers (options: NewCommand.Options): Promise<NewAnswers> {
     },
     when (answers: any) {
       // New page
-      let isNewPage = (answers.newType || newType) === NewType.Page
+      let isNewPage = (answers.type || type) === NewType.Page
 
       // An illegal name.
-      let isIllegalName = !name
+      let isIllegalName = !rawName
 
       return isNewPage && isIllegalName
     }
@@ -549,7 +505,7 @@ function getAnswers (options: NewCommand.Options): Promise<NewAnswers> {
     },
     when (answers: any) {
       // New page
-      let isNewPage = (answers.newType || newType) === NewType.Page
+      let isNewPage = (answers.type || type) === NewType.Page
 
       // An illegal title.
       let isIllegalTitle = !title
@@ -559,10 +515,42 @@ function getAnswers (options: NewCommand.Options): Promise<NewAnswers> {
   }
 
   return prompt([
-    selectNewType,
+    selectType,
     enterPackageName,
     enterPackageTitle,
     enterPageName,
     enterPageTitle
   ])
+}
+
+/**
+ * 交互式问答
+ *
+ * @interface NewAnswers
+ * @extends {Answers}
+ */
+interface NewAnswers extends Answers {
+  type?: NewType
+  pkgName?: string
+  pageName?: string
+  title?: string
+}
+
+/**
+ * 脚手架模板数据
+ *
+ * @interface NewData
+ */
+interface NewData {
+  npmScopeStr: string
+  version: string
+  pkgName: string
+  pkgNameToPascalCase: string
+  pkgNameSuffix: string
+  pkgNameSuffixToPascalCase: string
+  description: string
+  pageName: string
+  pageNameToPascalCase: string
+  title: string
+  time: string
 }
