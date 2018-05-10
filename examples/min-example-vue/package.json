@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@minlib/min": "^2.0.0",
+    "@minlib/minx": "^2.0.0",
     "@minlib/min-async-await": "^2.0.0",
     "@minui/wxc-loading": "^1.0.2",
     "@minui/wxc-toast": "^1.0.6"
