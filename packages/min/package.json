@@ -14,7 +14,7 @@
     "dist": "./node_modules/.bin/webpack-cli --config ./webpack.config.js --watch",
     "watch": "../../node_modules/.bin/tsc -w",
     "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
-    "prepublish": "npm run clean && npm run build"
+    "prepublish": "npm run clean && npm run build && npm run dist"
   },
   "keywords": [
     "min",
