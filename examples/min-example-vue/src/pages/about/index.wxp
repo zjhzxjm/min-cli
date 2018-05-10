@@ -1,0 +1,7 @@
+<template src="../../about2/about.wxml"></template>
+
+<script src="../../about2/about.ts" lang="babel"></script>
+
+<style src="../../about2/about.wxss"></style>
+
+<style src="../../about2/about.less" lang="less"></style>

@@ -1,0 +1,69 @@
+<template>
+  <view>
+    <page></page>
+  </view>
+</template>
+
+<script>
+  import '@minlib/min-async-await'
+  // import min from '@minlib/min'
+  // import interceptors from './interceptors'
+  import loading from './mixins/loading'
+  import toast from 'mixins/toast'
+  import sayHello, {sayGood, sayBye} from "mixins/sayHello";
+
+  // Initialize the configuration for min.
+  // min.init({
+  //   global: true,
+  //   promisify: true,
+  //   requestfix: true
+  //   // interceptors
+  // })
+  import { App } from '@minlib/min'
+
+  export default App({
+    config: {
+      pages: [],
+      window: {
+        backgroundTextStyle: 'dark',
+        backgroundColor: '#efefef',
+        navigationBarBackgroundColor: '#ffffff',
+        navigationBarTitleText: 'Min Mixin',
+        navigationBarTextStyle: 'black'
+      },
+      networkTimeout: {
+        request: 10000
+      }
+    },
+    globalMin: {
+      config: {
+        usingComponents: {
+          'layout-head': './components/layout/head',
+          'layout-foot': 'components/layout/foot'
+        }
+      },
+      mixins: [loading, toast, sayHello, sayGood, sayBye]
+    },
+    globalData: {
+      gName: 'gName',
+      gId: '10086'
+    },
+    onLaunch () {
+      setTimeout(() => {
+        // console.log('========== SET $globalData.name ==========')
+        this.$globalData.gName = 'gName CDS GOOD!'
+      }, 2000)
+    },
+    onShow () { },
+    onHide () { }
+  })
+</script>
+
+<style>
+page {
+  background-color: #F8F8F8;
+  height: 100%;
+  font-size: 32rpx;
+  line-height: 1.5;
+}
+</style>

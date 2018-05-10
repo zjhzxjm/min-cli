@@ -1,0 +1,5 @@
+<view>ABOUT {{count}}</view>
+
+<view wx:for="{{todo}}" wx:key="id">
+  {{item.id}}: {{item.name}}
+</view>

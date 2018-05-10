@@ -1,0 +1,217 @@
+<template>
+  <view>
+
+    <wxc-hello></wxc-hello>
+
+    <view wx:for="{{list}}" wx:key="id">
+      {{item.id}}: {{item.name}}
+    </view>
+    <!-- {{list[0]['id']}} -->
+    <!-- {{obj['a1']['a2']['a3']['a4']}} -->
+    <!-- {{obj.a1.a2.a3.a4}} -->
+    <!-- <view>{{title}}</view> -->
+    <!-- <view wx:for="{{list}}" wx:key="id">
+      {{item.id}} => {{item.name}}
+    </view> -->
+    <!-- {{list.c[b][a]['length'].d}} -->
+    <!-- {{a['length']}} -->
+    <!-- {{obj.a1[0][c].a2['a3'].a4[b]}} -->
+    <!-- {{obj2.a[b].c}} -->
+    <!-- {{obj.a2[1]}} -->
+
+    <!-- <view> {{ message }} </view> -->
+    <!-- <view id="item-{{id}}"> </view> -->
+    <!-- <view wx:if="{{condition}}"> </view> -->
+    <!-- {{0}} -->
+    <!-- {{0+1}} -->
+    <!-- {{null}} -->
+    <!-- {{false}} -->
+    <!-- {{'true'}} -->
+    <!-- {{'哈哈哈'}} -->
+    <!-- <checkbox checked="{{Number}}"> </checkbox> -->
+
+    <!-- {{a,b,c:d}} -->
+
+    <!-- {{[...a, ...b, d[1][e]]}} -->
+    <!-- <view data="{{a.a[...d]}}"></view> -->
+    <!-- <view data="{{...b, ccc['...d'].d}}"></view> -->
+    <!-- <template is="objectCombine" data="{{...obj1, ...obj2, a, c: 6}}"></template> -->
+    <!-- <view data="{{[...a]}}"></view> -->
+    <!-- <view data="{{a:a[b.c][c.d + 2 + d.e ? e.f : f.g], b:d}}"></view> -->
+    <!-- {{list.length['abc'][[abc.a.a]['aaa']]}} -->
+
+    <!-- {{items[prods+1[ab.d['length']]]}} -->
+
+    <!-- {{obj.a3[obj.a5[obj.a6].obj.a4].b.c}} -->
+
+    <!-- {{a(a4.a4)}} -->
+
+    <!-- <view>{{obj*2[a1].a2['a3'].a4}}</view> -->
+
+    <!-- <view>{{list[0][2].id[1+2][a]}}</view> -->
+
+    <!-- <view>{{obj.a1.a2.a3.a4}}</view> -->
+    <!-- <view>{{a4}}</view> -->
+    <!-- <view>{{res.data}}</view> -->
+
+    <!-- <view wx:for="{{res.data.list}}" wx:key="qid">
+      {{item.desc}}
+    </view> -->
+    <!-- {{obj.a*2[a] * 2}} -->
+    <!-- {{1+2[a.a[a.b][c.d][1+b]]}} -->
+    <!-- <view>{{[obj * 2[b][c].d[3].e[f.c][g + f + 1*2] + 111].b1[b2 * b3].b3.b4}}</view> -->
+  </view>
+</template>
+
+<script>
+
+// 只保留 [数字]，其他[]全部过滤
+
+import { Page } from '@minlib/min'
+
+// class Base {
+//   add () {
+
+//   }
+// }
+
+// export class Page extends Base {
+
+// }
+
+export default Page({
+  config: {
+    usingComponents: {
+      'wxc-hello': '@minui/wxc-hello'
+    }
+  },
+
+  data: {
+    title: '测试',
+    list: [
+      {
+        id: 1,
+        name: 'cds'
+      },
+      {
+        id: 2,
+        name: 'lxx'
+      }
+    ],
+    obj: {
+      a1: {
+        a2: {
+          a3: {
+            a4: 'a4',
+            a5: 'a5'
+          },
+          a4: {
+            a5: 'a5'
+          }
+        }
+      },
+      b1: {
+        b2: {
+          b3: {
+            b4: 'b4'
+          }
+        }
+      }
+    }
+  },
+
+  mixins: [{
+    onLoad () {
+
+    },
+    onShareAppMessage () {
+
+    }
+  }],
+  computed: {
+    a4 () {
+      return this.obj.a1.a2.a3.a4
+    },
+    gName () {
+      return this.$globalData.gName;
+    }
+  },
+
+  methods: {},
+  // onLoad () {
+  //   console.log(this)
+  // },
+  onShow () {
+    console.log('onShow in home')
+  },
+  onReady () {
+    setTimeout(() => {
+      this.list[0] = {
+        id: 2
+      }
+      this.obj.a1.a2.a3.a4 = 'aa4'
+      this.obj.a1.a2.a3.a5 = 'aa5'
+      this.obj.a1.a2.a4.a5 = 'aa6'
+    }, 2000)
+
+    setTimeout(() => {
+      // this.obj.b1.b2.b3.b4 = 'bb4'
+      this.list.push(4)
+
+      // this.$wxPage.setData({
+      //   'list[length]': 100
+      // })
+    }, 4000)
+
+    // setTimeout(() => {
+    //   this.list = [1,2,3]
+    // }, 6000)
+
+    // setTimeout(() => {
+    //   this.list.slice()
+    // }, 8000)
+
+    // setInterval(() => {
+    //   this.list.push({
+    //     id: 1,
+    //     name: 'cds'
+    //   })
+    // }, 100)
+  }
+})
+</script>
+
+<style>
+.index-hd {
+  padding: 70rpx;
+  text-align: center;
+}
+.index-bd {
+  margin-top: 10rpx;
+  padding: 20rpx 30rpx;
+  background-color:cadetblue;
+  color: #fff;
+  text-align: center;
+}
+.index-ft {
+  padding-bottom: 20rpx;
+  text-align: center;
+}
+.index-logo {
+  width: 100rpx;
+  height: 100rpx;
+}
+.index-desc {
+  margin-top: 20rpx;
+  color: #888888;
+  font-size: 28rpx;
+}
+
+.provider {
+  position: fixed;
+  width: 100%;
+  bottom: 120rpx;
+  color: #a9a9a9;
+  text-align: center;
+}
+</style>
