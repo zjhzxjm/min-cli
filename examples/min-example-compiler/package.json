@@ -15,7 +15,7 @@
   "devDependencies": {
     "@mindev/min-compiler-babel": "^2.0.0",
     "@mindev/min-compiler-less": "^2.0.0",
-    "@mindev/min-compiler-postcss": "^2.0.1",
+    "@mindev/min-compiler-postcss": "2.0.1",
     "@mindev/min-compiler-pug": "^2.0.0",
     "@mindev/min-compiler-sass": "^2.0.0",
     "@mindev/min-compiler-stylus": "^2.0.0",
