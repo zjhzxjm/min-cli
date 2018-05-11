@@ -1,0 +1,28 @@
+{
+  "name": "@minlib/minx",
+  "version": "2.0.0",
+  "description": "minx for min",
+  "main": "lib/core.js",
+  "types": "lib/core.d.js",
+  "scripts": {
+    "build": "rm -rf ./{lib,types} && ./node_modules/.bin/tsc",
+    "watch": "./node_modules/.bin/tsc -w",
+    "prepublish": "npm run build",
+    "lint": "tslint --package tsconfig.json",
+    "test": "npm run lint && npm run test:unit",
+    "test:unit": "jest"
+  },
+  "author": "zhiruo",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "22.2.3",
+    "@types/node": "10.0.3",
+    "chalk": "2.4.1",
+    "jest": "22.4.3",
+    "ts-jest": "22.4.4",
+    "tslint": "5.10.0",
+    "typescript": "2.8.3",
+    "vue": "2.5.16"
+  },
+  "dependencies": {}
+}
