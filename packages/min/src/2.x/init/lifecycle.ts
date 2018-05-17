@@ -50,6 +50,15 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
   // Get Data、Properties、Computed
   // Set WxConfig.data = {...}
 
+  function beforeCreate () {
+    const { $app } = $global
+    ctx.$app = ctx.$app || $app
+    ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
+    callHook(ctx, 'beforeCreate')
+  }
+
+  beforeCreate()
+
   createRenderWatcher(ctx, (dirtyData, isInit) => {
     let { $wxPage } = ctx
 
@@ -68,14 +77,14 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
 
   // Proxy onLoad
   wxPageConfig.onLoad = function proxyLifecycleHook () {
-    const { $app } = $global
+    // const { $app } = $global
     const $wxPage = this
 
-    ctx.$app = ctx.$app || $app
-    ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
+    // ctx.$app = ctx.$app || $app
+    // ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
     ctx.$wxPage = $wxPage
     $wxPage.$page = ctx
-    callHook(ctx, 'beforeCreate', arguments)
+
     callHook(ctx, 'onLoad', arguments)
   }
 
@@ -117,6 +126,15 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
     }
   })
 
+  function beforeCreate () {
+    const { $app } = $global
+    ctx.$app = ctx.$app || $app
+    ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
+    callHook(ctx, 'beforeCreate')
+  }
+
+  beforeCreate()
+
   createRenderWatcher(ctx, (dirtyData, isInit) => {
     let { $wxComponent } = ctx
     if (isInit) {
@@ -145,16 +163,16 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
 
   // Proxy created
   wxCompConfig.created = function proxyLifecycleHook () {
-    const { $app } = $global
+    // const { $app } = $global
     const $wxComponent = this
     const $wxPage = getWxPage($wxComponent)
 
-    ctx.$app = ctx.$app || $app
-    ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
+    // ctx.$app = ctx.$app || $app
+    // ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
     ctx.$wxComponent = $wxComponent
     ctx.$root = $wxPage ? $wxPage.$page : null
     ctx.$wxRoot = $wxPage
-    callHook(ctx, 'beforeCreate', arguments)
+
     callHook(ctx, 'created', arguments)
   }
 
@@ -307,7 +325,7 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
   return renderWatcher
 }
 
-export function callHook (ctx: Weapp.Context | App.Context, hook: string, args: IArguments) {
+export function callHook (ctx: Weapp.Context | App.Context, hook: string, args?: IArguments) {
   const handlers = ctx.$options[hook]
   if (handlers) {
     for (let i = 0; i < handlers.length; i++) {

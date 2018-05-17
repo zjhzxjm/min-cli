@@ -26,12 +26,16 @@ export default class Min {
 
   readonly _isWeapp = true
 
-  constructor (options: Weapp.Options) {
+  constructor (options: Weapp.Options, init: boolean = false) {
     this.$options = mergeOptions(
       resolveConstructorOptions(this.constructor),
       options || {},
       this
     ) as Weapp.Options
+
+    if (init) {
+      this.$init()
+    }
   }
 
   static mixin (mixin: Object) {
