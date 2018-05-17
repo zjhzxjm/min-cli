@@ -8,11 +8,11 @@ module.exports = {<% if (useGlobalStyle) { %>
     splitLineColor: '#ECECEC',
     backgroundColour: '#EFEFEF'
   },<% } %>
-  prefix: '<%= prefix %>',
-  dest: '<%= dest %>',
+  prefix: '<%= packagePrefix %>',
+  dest: '<%= projectDest %>',
   npm: {
     dest: '<%= npmDest %>'<% if (projectType === options.ProjectType.Component) { %>,
-    scope: '<%= npmScope %>'<% } %>
+    scope: '<%= packageScope %>'<% } %>
   },
   alias: {
     components: 'src/components'

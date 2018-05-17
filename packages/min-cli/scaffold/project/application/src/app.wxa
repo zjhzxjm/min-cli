@@ -1,4 +1,4 @@
-<template><% if (useGlobalLayout) { %>
+<template><% if (useGlobalTemplate) { %>
   <view>
     <layout-head></layout-head>
 
@@ -17,7 +17,7 @@
         backgroundTextStyle: 'dark',
         backgroundColor: '#efefef',
         navigationBarBackgroundColor: '#ffffff',
-        navigationBarTitleText: '<%= title %>',
+        navigationBarTitleText: '<%= projectName %>',
         navigationBarTextStyle: 'black'
       },
       networkTimeout: {
@@ -25,7 +25,7 @@
       }
     },
     globalMin: {
-      config: {<% if (useGlobalLayout) { %>
+      config: {<% if (useGlobalTemplate) { %>
         usingComponents: {
           'layout-head': 'components/layout/head',
           'layout-foot': 'components/layout/foot'

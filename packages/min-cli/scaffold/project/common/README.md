@@ -1,4 +1,4 @@
-# <%= proName %>
+# <%= projectName %>
 <% if (description) { %>
 > <%= description %>
 <% } %>

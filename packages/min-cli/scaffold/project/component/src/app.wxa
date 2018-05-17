@@ -11,7 +11,7 @@
         backgroundTextStyle: 'dark',
         backgroundColor: '#efefef',
         navigationBarBackgroundColor: '#ffffff',
-        navigationBarTitleText: '<%= title %>',
+        navigationBarTitleText: '<%= projectName %>',
         navigationBarTextStyle: 'black'
       },
       networkTimeout: {

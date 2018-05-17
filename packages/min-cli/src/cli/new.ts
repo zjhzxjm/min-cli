@@ -25,10 +25,10 @@ export default {
     '--help': () => {
       new CLIExample('new')
         .group('New component')
-        .rule('loading', 'Create a new loading component.')
+        .rule('my-component')
 
         .group('New page')
-        .rule('home', 'Create a new home page.')
+        .rule('my-page')
     }
   },
   async action (rawName: string = '', cliOptions: NewCommand.CLIOptions) {
