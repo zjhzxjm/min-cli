@@ -1,25 +1,19 @@
+// https://www.tslang.cn/docs/handbook/tsconfig-json.html
 {
+  "extends": "../../tsconfig",
   "compilerOptions": {
-    "outDir": "lib",
-    "module": "commonjs",
-    "typeRoots": [
-      "./types/*.d.ts"
-    ],
-    "types": [
-      "node"
-    ],
-    "declaration": true,
-    "strict": true,
-    "moduleResolution": "node",
-    "target": "es6",
-    "suppressImplicitAnyIndexErrors": true,
-    "lib": ["dom", "es2016", "es5"]
+    "target": "es5",
+    "declarationDir": "./types",
+    "outDir": "./lib",
+    "removeComments": true,
+    "noImplicitUseStrict": true,
+    "strict": false,
+    "sourceMap": true,
+    "lib": [
+      "es2015"
+  ]
   },
   "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules/*",
-    "**/*.spec.js"
+    "src/**/*.ts"
   ]
 }

@@ -1,28 +1,25 @@
 {
   "name": "@minlib/minx",
   "version": "2.0.0",
-  "description": "minx for min",
-  "main": "lib/core.js",
-  "types": "lib/core.d.js",
+  "description": "state management for min",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
   "scripts": {
-    "build": "rm -rf ./{lib,types} && ./node_modules/.bin/tsc",
-    "watch": "./node_modules/.bin/tsc -w",
-    "prepublish": "npm run build",
-    "lint": "tslint --package tsconfig.json",
+    "clean": "rm -rf ./{dist,lib,types}",
+    "build": "../../node_modules/.bin/rollup --config ./rollup.config.js",
+    "watch": "../../node_modules/.bin/rollup --config ./rollup.config.js --watch",
+    "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
+    "prepublish": "npm run clean && npm run build && npm run dist",
     "test": "npm run lint && npm run test:unit",
     "test:unit": "jest"
   },
-  "author": "zhiruo",
-  "license": "ISC",
+  "author": "Min Team",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "22.2.3",
-    "@types/node": "10.0.3",
     "chalk": "2.4.1",
     "jest": "22.4.3",
-    "ts-jest": "22.4.4",
-    "tslint": "5.10.0",
-    "typescript": "2.8.3",
-    "vue": "2.5.16"
+    "ts-jest": "22.4.4"
   },
   "dependencies": {}
 }

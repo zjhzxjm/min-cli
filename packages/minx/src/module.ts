@@ -1,4 +1,4 @@
-import { forEachObjValue } from './common/utils';
+import { forEachObjValue } from './common/utils'
 
 /**
  * root: { // 当前moudle
@@ -15,27 +15,27 @@ import { forEachObjValue } from './common/utils';
  * }
  */
 export interface RawModule {
-  state?: any; // 公用state
-  getters?: any;
-  actions?: any;
-  mutations?: any;
-  modules?: RawModule;
-  plugins?: any;
+  state?: any // 公用state
+  getters?: any
+  actions?: any
+  mutations?: any
+  modules?: RawModule
+  plugins?: any
 }
 
 export class Module {
-  state: any;
-  children: RawModule;
-  rawModule: RawModule;
+  state: any
+  children: RawModule
+  rawModule: RawModule
 
   constructor (options: RawModule) {
-    this.state = options.state || {};
-    this.children = Object.create(null);
-    this.rawModule = options;
+    this.state = options.state || {}
+    this.children = Object.create(null)
+    this.rawModule = options
   }
 
   getChild (key: string) {
-    return this.children[key];
+    return this.children[key]
   }
 
   /**
@@ -44,32 +44,32 @@ export class Module {
    * @param {*} module a的内容
    */
   addChild (key: string, module: Module) {
-    this.children[key] = module;
+    this.children[key] = module
   }
 
   removeChild (key: string) {
-    delete this.children[key];
+    delete this.children[key]
   }
 
   forEachGetter (fn: Function) {
-    this.rawModule.getters && forEachObjValue(this.rawModule.getters, fn);
+    this.rawModule.getters && forEachObjValue(this.rawModule.getters, fn)
   }
 
   forEachMutation (fn: Function) {
-    this.rawModule.mutations && forEachObjValue(this.rawModule.mutations, fn);
+    this.rawModule.mutations && forEachObjValue(this.rawModule.mutations, fn)
   }
 
   forEachAction (fn: Function) {
-    this.rawModule.actions && forEachObjValue(this.rawModule.actions, fn);
+    this.rawModule.actions && forEachObjValue(this.rawModule.actions, fn)
   }
 }
 
 export class ModulePool {
-  root: Module;
+  root: Module
 
   constructor (options: RawModule) {
-    this.root = Object.create(null);
-    this.install([], options);
+    this.root = Object.create(null)
+    this.install([], options)
   }
 
   /**
@@ -78,8 +78,8 @@ export class ModulePool {
    */
   getModuleByPath (path: string[]): Module {
     return path.reduce((module, key) => {
-      return module.getChild(key);
-    }, this.root);
+      return module.getChild(key)
+    }, this.root)
   }
 
   /**
@@ -89,26 +89,27 @@ export class ModulePool {
    * @returns {null}
    */
   install (path: string[], options: RawModule): void {
-    const module = new Module(options);
+    const module = new Module(options)
     if (path.length === 0) {
-      this.root = module;
-    } else {
+      this.root = module
+    }
+    else {
       // path: ['aa/bb'] parent的path是['aa']，取前面几位
-      const parent = this.getModuleByPath(path.slice(0, -1));
+      const parent = this.getModuleByPath(path.slice(0, -1))
       // 添加到父module.children ['bb']
-      parent.addChild(path[path.length - 1], module);
+      parent.addChild(path[path.length - 1], module)
     }
 
     if (options.modules) {
       forEachObjValue(options.modules, (module: Module, key: string) => {
-        this.install(path.concat(key), module);
-      });
+        this.install(path.concat(key), module)
+      })
     }
   }
 
   uninstall (path: string[]) {
-    const parent = this.getModuleByPath(path.slice(0, -1));
-    const childKey = path[path.length - 1];
-    parent.removeChild(childKey);
+    const parent = this.getModuleByPath(path.slice(0, -1))
+    const childKey = path[path.length - 1]
+    parent.removeChild(childKey)
   }
 }

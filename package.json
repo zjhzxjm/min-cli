@@ -19,10 +19,14 @@
   },
   "homepage": "https://meili.github.io/min/index.html",
   "devDependencies": {
-    "@types/node": "^9.4.7",
     "@types/glob": "^5.0.32",
     "@types/lodash": "^4.14.71",
+    "@types/node": "^9.4.7",
     "lerna": "^2.8.0",
+    "rollup": "^0.58.2",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-typescript2": "^0.13.0",
+    "rollup-plugin-uglify": "^3.0.0",
     "tslint": "^5.9.1",
     "tslint-config-standard": "^6.0.1",
     "typescript": "^2.6.2"
