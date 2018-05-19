@@ -50,14 +50,14 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
   // Get Data、Properties、Computed
   // Set WxConfig.data = {...}
 
-  function beforeCreate () {
-    const { $app } = $global
-    ctx.$app = ctx.$app || $app
-    ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
-    callHook(ctx, 'beforeCreate')
-  }
+  // function beforeCreate () {
+  //   const { $app } = $global
+  //   ctx.$app = ctx.$app || $app
+  //   ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
+  //   callHook(ctx, 'beforeCreate')
+  // }
 
-  beforeCreate()
+  // beforeCreate()
 
   createRenderWatcher(ctx, (dirtyData, isInit) => {
     let { $wxPage } = ctx
@@ -126,14 +126,14 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
     }
   })
 
-  function beforeCreate () {
-    const { $app } = $global
-    ctx.$app = ctx.$app || $app
-    ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
-    callHook(ctx, 'beforeCreate')
-  }
+  // function beforeCreate () {
+  //   const { $app } = $global
+  //   ctx.$app = ctx.$app || $app
+  //   ctx.$wxApp = ctx.$wxApp || ($app ? $app.$wxApp : undefined)
+  //   callHook(ctx, 'beforeCreate')
+  // }
 
-  beforeCreate()
+  // beforeCreate()
 
   createRenderWatcher(ctx, (dirtyData, isInit) => {
     let { $wxComponent } = ctx

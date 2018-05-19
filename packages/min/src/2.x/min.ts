@@ -2,7 +2,7 @@ import Watcher from './observer/watcher'
 import $global from './global'
 import { defineReactive } from './observer'
 import { isPlainObject, nextTick, warn, noop, toArray, mergeOptions, resolveConstructorOptions } from './util'
-import { initData, initMethods, initComputed, initWatch } from './init'
+import { initData, initMethods, initComputed, initWatch, callHook } from './init'
 
 export default class Min {
 
@@ -121,9 +121,17 @@ export default class Min {
   }
 
   protected $init () {
+    this._beforeCreate()
     this._initGlobalDataDef()
     this._initState()
     this._initDataDef()
+  }
+
+  private _beforeCreate () {
+    const { $app } = $global
+    this.$app = this.$app || $app
+    this.$wxApp = this.$wxApp || ($app ? $app.$wxApp : undefined)
+    callHook(this, 'beforeCreate')
   }
 
   private _initState () {
@@ -138,10 +146,10 @@ export default class Min {
       $wxConfig.data = {}
     }
 
-    initData(this)
     initMethods(this, $wxConfig)
-    initWatch(this)
+    initData(this)
     initComputed(this)
+    initWatch(this)
   }
 
   private _initDataDef () {
