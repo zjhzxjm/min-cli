@@ -1,21 +1,37 @@
 <template>
   <view class="wxc-hello">
-    <view>WxcHello Component</view>
+    <view>WxcHello Component {{fullName}}</view>
   </view>
 </template>
 
 <script>
-export default {
+import Min, { Component } from '@minlib/min'
+
+export default Component({
   config: {
     usingComponents: { }
   },
   behaviors: [ ],
   properties: { },
-  data: { },
-  methods: { }
-}
+  data: {
+    name: '哇哈哈哈'
+  },
+  methods: { },
+  computed: {
+    getName () {
+      return this.name + ':' + this.$store.state.count
+    },
+    fullName () {
+      return this.getName
+    }
+  },
 
-
+  watch: {
+    getName (val) {
+      console.log(val)
+    }
+  }
+})
 </script>
 
 <style>

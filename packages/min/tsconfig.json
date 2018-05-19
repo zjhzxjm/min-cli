@@ -8,7 +8,7 @@
     "removeComments": true,
     "noImplicitUseStrict": true,
     "strict": false,
-    "sourceMap": true
+    "sourceMap": false
   },
   "include": [
     "src/**/*.ts"

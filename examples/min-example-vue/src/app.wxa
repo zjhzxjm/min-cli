@@ -6,7 +6,6 @@
 
 <script>
   import '@minlib/min-async-await'
-  // import min from '@minlib/min'
   // import interceptors from './interceptors'
   import loading from './mixins/loading'
   import toast from 'mixins/toast'
@@ -19,9 +18,24 @@
   //   requestfix: true
   //   // interceptors
   // })
-  import { App } from '@minlib/min'
+  import Min, { App } from '@minlib/min'
+  import Minx from '@minlib/minx'
+
+  Min.use(Minx)
+
+  const store = new Minx.Store({
+    state: {
+      count: 0
+    },
+    mutations: {
+      increment (state) {
+        state.count++
+      }
+    }
+  })
 
   export default App({
+    store,
     config: {
       pages: [],
       window: {

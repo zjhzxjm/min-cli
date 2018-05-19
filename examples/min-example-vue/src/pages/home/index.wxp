@@ -3,63 +3,7 @@
 
     <wxc-hello></wxc-hello>
 
-    <view wx:for="{{list}}" wx:key="id">
-      {{item.id}}: {{item.name}}
-    </view>
-    <!-- {{list[0]['id']}} -->
-    <!-- {{obj['a1']['a2']['a3']['a4']}} -->
-    <!-- {{obj.a1.a2.a3.a4}} -->
-    <!-- <view>{{title}}</view> -->
-    <!-- <view wx:for="{{list}}" wx:key="id">
-      {{item.id}} => {{item.name}}
-    </view> -->
-    <!-- {{list.c[b][a]['length'].d}} -->
-    <!-- {{a['length']}} -->
-    <!-- {{obj.a1[0][c].a2['a3'].a4[b]}} -->
-    <!-- {{obj2.a[b].c}} -->
-    <!-- {{obj.a2[1]}} -->
-
-    <!-- <view> {{ message }} </view> -->
-    <!-- <view id="item-{{id}}"> </view> -->
-    <!-- <view wx:if="{{condition}}"> </view> -->
-    <!-- {{0}} -->
-    <!-- {{0+1}} -->
-    <!-- {{null}} -->
-    <!-- {{false}} -->
-    <!-- {{'true'}} -->
-    <!-- {{'哈哈哈'}} -->
-    <!-- <checkbox checked="{{Number}}"> </checkbox> -->
-
-    <!-- {{a,b,c:d}} -->
-
-    <!-- {{[...a, ...b, d[1][e]]}} -->
-    <!-- <view data="{{a.a[...d]}}"></view> -->
-    <!-- <view data="{{...b, ccc['...d'].d}}"></view> -->
-    <!-- <template is="objectCombine" data="{{...obj1, ...obj2, a, c: 6}}"></template> -->
-    <!-- <view data="{{[...a]}}"></view> -->
-    <!-- <view data="{{a:a[b.c][c.d + 2 + d.e ? e.f : f.g], b:d}}"></view> -->
-    <!-- {{list.length['abc'][[abc.a.a]['aaa']]}} -->
-
-    <!-- {{items[prods+1[ab.d['length']]]}} -->
-
-    <!-- {{obj.a3[obj.a5[obj.a6].obj.a4].b.c}} -->
-
-    <!-- {{a(a4.a4)}} -->
-
-    <!-- <view>{{obj*2[a1].a2['a3'].a4}}</view> -->
-
-    <!-- <view>{{list[0][2].id[1+2][a]}}</view> -->
-
-    <!-- <view>{{obj.a1.a2.a3.a4}}</view> -->
-    <!-- <view>{{a4}}</view> -->
-    <!-- <view>{{res.data}}</view> -->
-
-    <!-- <view wx:for="{{res.data.list}}" wx:key="qid">
-      {{item.desc}}
-    </view> -->
-    <!-- {{obj.a*2[a] * 2}} -->
-    <!-- {{1+2[a.a[a.b][c.d][1+b]]}} -->
-    <!-- <view>{{[obj * 2[b][c].d[3].e[f.c][g + f + 1*2] + 111].b1[b2 * b3].b3.b4}}</view> -->
+    {{fullName}} {{count}}
   </view>
 </template>
 
@@ -67,7 +11,9 @@
 
 // 只保留 [数字]，其他[]全部过滤
 
-import { Page } from '@minlib/min'
+import Min, { Page } from '@minlib/min'
+import { mapState } from '@minlib/minx'
+
 
 // class Base {
 //   add () {
@@ -79,6 +25,38 @@ import { Page } from '@minlib/min'
 
 // }
 
+// let $min = new Min({
+//   data: {
+//     firstname: 'c',
+//     lastname: 'ds',
+//     word: 'hello'
+//   },
+
+//   // computed: {
+//   //   fullname () {
+//   //     return this.firstname + this.lastname
+//   //   }
+//   // },
+
+//   computed: {
+//     getName () {
+//       return this.word
+//     }
+//   },
+
+//   watch: {
+//     getName () {
+//       console.log(123123123)
+//     }
+//   }
+// }, true)
+
+
+// setTimeout(() => {
+//   $min.word = '123'
+// }, 2000);
+
+
 export default Page({
   config: {
     usingComponents: {
@@ -87,96 +65,42 @@ export default Page({
   },
 
   data: {
-    title: '测试',
-    list: [
-      {
-        id: 1,
-        name: 'cds'
-      },
-      {
-        id: 2,
-        name: 'lxx'
-      }
-    ],
-    obj: {
-      a1: {
-        a2: {
-          a3: {
-            a4: 'a4',
-            a5: 'a5'
-          },
-          a4: {
-            a5: 'a5'
-          }
-        }
-      },
-      b1: {
-        b2: {
-          b3: {
-            b4: 'b4'
-          }
-        }
-      }
-    }
+    name: 'cds'
   },
 
   mixins: [{
     onLoad () {
+      setTimeout(() => {
+        this.name = 'lxx'
+      }, 2000)
 
-    },
-    onShareAppMessage () {
-
+      setInterval(() => {
+        this.$store.commit('increment')
+      }, 1000)
     }
   }],
   computed: {
-    a4 () {
-      return this.obj.a1.a2.a3.a4
+    getName () {
+      return this.name + this.$store.state.count
     },
-    gName () {
-      return this.$globalData.gName;
+    fullName () {
+      return this.getName
+    },
+    ...mapState({
+      count: state => state.count
+    })
+  },
+
+  watch: {
+    getName (val) {
+
+    },
+    count (value) {
+
     }
   },
 
-  methods: {},
-  // onLoad () {
-  //   console.log(this)
-  // },
-  onShow () {
-    console.log('onShow in home')
-  },
-  onReady () {
-    setTimeout(() => {
-      this.list[0] = {
-        id: 2
-      }
-      this.obj.a1.a2.a3.a4 = 'aa4'
-      this.obj.a1.a2.a3.a5 = 'aa5'
-      this.obj.a1.a2.a4.a5 = 'aa6'
-    }, 2000)
-
-    setTimeout(() => {
-      // this.obj.b1.b2.b3.b4 = 'bb4'
-      this.list.push(4)
-
-      // this.$wxPage.setData({
-      //   'list[length]': 100
-      // })
-    }, 4000)
-
-    // setTimeout(() => {
-    //   this.list = [1,2,3]
-    // }, 6000)
-
-    // setTimeout(() => {
-    //   this.list.slice()
-    // }, 8000)
-
-    // setInterval(() => {
-    //   this.list.push({
-    //     id: 1,
-    //     name: 'cds'
-    //   })
-    // }, 100)
+  methods: {
   }
 })
 </script>

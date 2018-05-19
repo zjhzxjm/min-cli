@@ -3,16 +3,18 @@
   "version": "2.0.0",
   "description": "Min2.0 优化原生小程序支持 mixin、wx.api promise化、intercept 拦截器、似vue的computed、watch等",
   "main": "dist/index.js",
-  "typings": "types/index.d.ts",
+  "typings": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/meili/min/tree/master/packages/min"
   },
   "scripts": {
     "clean": "rm -rf ./{dist,lib,types}",
-    "build": "../../node_modules/.bin/tsc",
-    "dist": "./node_modules/.bin/webpack-cli --config ./webpack.config.js --watch",
-    "watch": "../../node_modules/.bin/tsc -w",
+    "build": "../../node_modules/.bin/rollup --config ./rollup.config.js",
+    "prod": "NODE_ENV=production ../../node_modules/.bin/rollup --config ./rollup.config.js",
+    "watch": "../../node_modules/.bin/rollup --config ./rollup.config.js --watch",
+    "webpack-build": "./node_modules/.bin/webpack-cli --config ./webpack.config.js",
+    "tsc-build": "../../node_modules/.bin/tsc",
     "lint": "../../node_modules/.bin/tslint --project tsconfig.json --config tslint.json",
     "prepublish": "npm run clean && npm run build && npm run dist"
   },
