@@ -2,6 +2,7 @@
 
 import { noop, isNative } from '../shared'
 import { handleError } from './error'
+import $global from '../global'
 
 const callbacks = []
 let pending = false
@@ -114,6 +115,32 @@ export function nextTick (cb?: Function, ctx?: Object) {
       microTimerFunc()
     }
   }
+  // @ts-ignore
+  if (!cb && typeof Promise !== 'undefined') {
+    // @ts-ignore
+    return new Promise(resolve => {
+      _resolve = resolve
+    })
+  }
+}
+
+export function nextTickForWeapp (cb?: Function, ctx?: Weapp.Context) {
+  let _resolve
+
+  (ctx || $global)._nextTicks.push(() => {
+    if (cb) {
+      try {
+        cb.call(ctx)
+      }
+      catch (e) {
+        handleError(e, ctx, 'nextTick')
+      }
+    }
+    else if (_resolve) {
+      _resolve(ctx)
+    }
+  })
+
   // @ts-ignore
   if (!cb && typeof Promise !== 'undefined') {
     // @ts-ignore

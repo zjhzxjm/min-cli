@@ -14,7 +14,6 @@
 import Min, { Page } from '@minlib/min'
 import { mapState } from '@minlib/minx'
 
-
 // class Base {
 //   add () {
 
@@ -75,7 +74,15 @@ export default Page({
       }, 2000)
 
       setInterval(() => {
-        this.$store.commit('increment')
+
+        this.$nextTick(function () {
+          debugger
+        })
+
+        setTimeout(() => {
+          this.$store.commit('increment')
+        }, 1000)
+
       }, 1000)
     }
   }],

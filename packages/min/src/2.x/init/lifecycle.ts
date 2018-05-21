@@ -66,11 +66,11 @@ export function initPageLifecycle (ctx: Page.Context, wxPageConfig: Page.Config)
       wxPageConfig.data = dirtyData
     }
     else if ($wxPage) {
-      try {
-        $wxPage.setData(dirtyData)
+      if (Object.keys(dirtyData).length > 0) {
+        $wxPage.setData(dirtyData, flushNextTicks.bind(null, ctx))
       }
-      catch (err) {
-        console.error(err)
+      else {
+        flushNextTicks(ctx)
       }
     }
   })
@@ -137,15 +137,16 @@ export function initComponentLifecycle (ctx: Component.Context, wxCompConfig: Co
 
   createRenderWatcher(ctx, (dirtyData, isInit) => {
     let { $wxComponent } = ctx
+
     if (isInit) {
       wxCompConfig.data = dirtyData
     }
     else if ($wxComponent) {
-      try {
-        $wxComponent.setData(dirtyData)
+      if (Object.keys(dirtyData).length > 0) {
+        $wxComponent.setData(dirtyData, flushNextTicks.bind(null, ctx))
       }
-      catch (err) {
-        console.error(err)
+      else {
+        flushNextTicks(ctx)
       }
     }
   })
@@ -315,8 +316,11 @@ function createRenderWatcher (ctx: Weapp.Context, watchDirtyFn: (dirtyData: Obje
     // console.log(JSON.parse(JSON.stringify(cached)))
     // console.groupEnd()
 
-    if (Object.keys(dirtyData).length > 0) {
+    try {
       watchDirtyFn(dirtyData, isInit)
+    }
+    catch (err) {
+      console.error(err)
     }
 
     isInit = false
@@ -336,5 +340,17 @@ export function callHook (ctx: Weapp.Context | App.Context, hook: string, args?:
         handleError(e, ctx, `${hook} hook`)
       }
     }
+  }
+}
+
+function flushNextTicks (ctx: Weapp.Context) {
+
+  const nextTicks = [...$global._nextTicks, ...ctx._nextTicks]
+
+  $global._nextTicks.length = 0
+  ctx._nextTicks.length = 0
+
+  for (let i = 0; i < nextTicks.length; i++) {
+    nextTicks[i]()
   }
 }

@@ -26,6 +26,7 @@ declare namespace Weapp {
     _watchers?: {
       [key: string]: any
     }
+    _nextTicks?: Function[]
     _isWeapp?: Boolean
     _isComponent?: Boolean
   }

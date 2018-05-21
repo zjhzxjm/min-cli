@@ -1,13 +1,13 @@
 import Watcher from './observer/watcher'
 import $global from './global'
 import { defineReactive } from './observer'
-import { isPlainObject, nextTick, warn, noop, toArray, mergeOptions, resolveConstructorOptions } from './util'
+import { isPlainObject, nextTickForWeapp, warn, noop, toArray, mergeOptions, resolveConstructorOptions } from './util'
 import { initData, initMethods, initComputed, initWatch, callHook } from './init'
 
 export default class Min {
 
   static options = Object.create(null)
-  static nextTick = nextTick
+  static nextTick = nextTickForWeapp
   static util = { warn, mergeOptions, defineReactive }
   static _installedPlugins: any[] = []
 
@@ -23,6 +23,8 @@ export default class Min {
   _computedWatchers = Object.create(null)
   _watcher: Watcher = null
   _watchers: Watcher[] = []
+
+  _nextTicks: Function[] = []
 
   readonly _isWeapp = true
 
@@ -117,7 +119,7 @@ export default class Min {
       return
     }
 
-    return nextTick(fn, this)
+    return nextTickForWeapp(fn, this)
   }
 
   protected $init () {
