@@ -9,6 +9,12 @@ export { WxSFM } from './WxSFM'
 export { WxSFMScript } from './WxSFMScript'
 export { WxSFMStyle } from './WxSFMStyle'
 export { WxSFMTemplate } from './WxSFMTemplate'
+
+export * from './WxTemplate'
+export * from './WxaTemplate'
+export * from './WxpTemplate'
+export * from './WxcTemplate'
+
 export { Xcx } from './Xcx'
 export { XcxNode } from './XcxNode'
 export { XcxTraverse } from './XcxTraverse'

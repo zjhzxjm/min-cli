@@ -12,6 +12,8 @@ const { DomHandler, Parser, DomUtils } = require('htmlparser2')
  * @returns
  */
 function make (source: string) {
+  if (!source) return null
+
   let handler = new DomHandler()
   let parser = new Parser(handler, {
     lowerCaseAttributeNames: false

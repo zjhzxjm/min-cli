@@ -40,6 +40,7 @@ export namespace WxSFM {
  */
 export class WxSFM {
   public source: string
+  public rawSource: string
   protected dest: string
   protected destRelative: string
   protected destExt: string
@@ -63,6 +64,7 @@ export class WxSFM {
    */
   constructor (source: string, public request: Request, public baseOptions: WxSFM.Options) {
     this.source = (source || '').trim()
+    this.rawSource = this.source
     this.destExt = baseOptions.destExt
     this.initDest()
     this.initReference()
