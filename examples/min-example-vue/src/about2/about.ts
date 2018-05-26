@@ -1,9 +1,8 @@
-import { Page } from '@minlib/min'
 import todo from './todo'
 
 const count = 1000
 
-export default Page({
+export default {
   data: {
     count,
     todo: todo.list
@@ -37,4 +36,4 @@ export default Page({
   onSayHello () {
     this.sayHello('lingxiao')
   }
-})
+}

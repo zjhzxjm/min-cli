@@ -18,7 +18,7 @@
   //   requestfix: true
   //   // interceptors
   // })
-  import Min, { App } from '@minlib/min'
+  import Min from '@minlib/min'
   import Minx from '@minlib/minx'
 
   Min.use(Minx)
@@ -34,7 +34,7 @@
     }
   })
 
-  export default App({
+  export default {
     store,
     config: {
       pages: [],
@@ -70,7 +70,7 @@
     },
     onShow () { },
     onHide () { }
-  })
+  }
 </script>
 
 <style>

@@ -11,7 +11,7 @@
 
 // 只保留 [数字]，其他[]全部过滤
 
-import Min, { Page } from '@minlib/min'
+import Min from '@minlib/min'
 import { mapState } from '@minlib/minx'
 
 // class Base {
@@ -56,7 +56,7 @@ import { mapState } from '@minlib/minx'
 // }, 2000);
 
 
-export default Page({
+export default {
   config: {
     usingComponents: {
       'wxc-hello': '@minui/wxc-hello'
@@ -75,9 +75,9 @@ export default Page({
 
       setInterval(() => {
 
-        this.$nextTick(function () {
-          debugger
-        })
+        // this.$nextTick(function () {
+        //   debugger
+        // })
 
         setTimeout(() => {
           this.$store.commit('increment')
@@ -109,7 +109,7 @@ export default Page({
 
   methods: {
   }
-})
+}
 </script>
 
 <style>

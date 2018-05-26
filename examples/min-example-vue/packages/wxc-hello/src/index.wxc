@@ -5,9 +5,7 @@
 </template>
 
 <script>
-import Min, { Component } from '@minlib/min'
-
-export default Component({
+export default {
   config: {
     usingComponents: { }
   },
@@ -31,7 +29,7 @@ export default Component({
       console.log(val)
     }
   }
-})
+}
 </script>
 
 <style>
