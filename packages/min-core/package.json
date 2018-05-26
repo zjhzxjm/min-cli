@@ -20,12 +20,14 @@
     "core"
   ],
   "dependencies": {
+    "babel-core": "^6.25.0",
     "colors": "^1.1.2",
     "lodash": "^4.17.4",
     "tslib": "^1.9.0",
     "fs-extra": "^4.0.1"
   },
   "devDependencies": {
+    "@types/babel-core": "^6.25.0",
     "@types/fs-extra": "^4.0.0"
   },
   "author": "Min Team",

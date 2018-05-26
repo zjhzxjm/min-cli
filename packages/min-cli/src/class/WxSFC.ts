@@ -1,4 +1,8 @@
-import { Depend, Request, WxFile, WxSFMScript, WxSFMStyle, WxSFMTemplate } from '../class'
+import { Depend, Request } from '../class'
+import { WxFile } from '../class'
+import { WxTemplate, createWxTemplate } from './m-template'
+import { WxStyle, createWxStyle } from './m-style'
+import { WxScript, createWxScript } from './m-script'
 import { dom, getRenderExps, xcxNext } from '../util'
 import core from '@mindev/min-core'
 
@@ -13,9 +17,9 @@ export class WxSFC implements WxFile.Core {
   /**
    * 单文件组合，与.js、.json、.wxml、.wxss组件成一体 (单文件组件、单文件页面、单文件应用)
    */
-  template: WxSFMTemplate
-  styles: WxSFMStyle[]
-  script: WxSFMScript
+  wxTemplate: WxTemplate
+  wxStyles: WxStyle[]
+  wxScript: WxScript
 
   /**
    * Creates an instance of WxSFC.
@@ -29,27 +33,28 @@ export class WxSFC implements WxFile.Core {
     } = dom.getSFC(this.source, request.src)
 
     // SCRIPT
-    this.script = new WxSFMScript(script.code, request, {
+    this.wxScript = createWxScript(script.code, request, {
       lang: script.lang,
       referenceSrc: script.src
     })
 
-    let usingComponents = this.script.getUsingComponents()
+    let usingComponents = this.wxScript.getUsingComponents()
 
     // TEMPLATE
-    this.template = new WxSFMTemplate(template.code, request, {
+    this.wxTemplate = createWxTemplate(template.code, request, {
       lang: template.lang,
       referenceSrc: template.src,
       usingComponents
     })
 
-    let renderExps = getRenderExps(this.template.dom)
-    this.script.addRenderExps(renderExps)
+    let renderExps = getRenderExps(this.wxTemplate.dom)
+
+    this.wxScript.setRenderExps(renderExps)
     // console.log('>>>>>>>>>>>>>>>>>>>>', request.srcRelative, renderExps)
 
     // STYLE
-    this.styles = styles.map(style => {
-      return new WxSFMStyle(style.code, request, {
+    this.wxStyles = styles.map(style => {
+      return createWxStyle(style.code, request, {
         lang: style.lang,
         referenceSrc: style.src
       })
@@ -63,7 +68,7 @@ export class WxSFC implements WxFile.Core {
    * @memberof WxSFC
    */
   get sfms () {
-    return [this.template, ...this.styles, this.script]
+    return [this.wxTemplate, ...this.wxStyles, this.wxScript]
   }
 
   /**
@@ -72,17 +77,17 @@ export class WxSFC implements WxFile.Core {
    * @memberof WxSFC
    */
   save () {
-    this.template.save()
-    this.script.save()
+    this.wxTemplate.save()
+    this.wxScript.save()
 
-    if (this.styles.length > 0) {
-      let generators = this.styles.map(style => style.generator())
+    if (this.wxStyles.length > 0) {
+      let generators = this.wxStyles.map(style => style.generator())
 
       Promise
         .all(generators)
         .then((values) => {
           let content = values.join('\n')
-          let style = this.styles[0]
+          let style = this.wxStyles[0]
 
           style.beforeSave()
           style.saveContent(content)

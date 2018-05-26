@@ -1,6 +1,6 @@
-import minApp from './app'
-import minPage from './page'
-import minComponent from './component'
+import createApp from './app'
+import createPage from './page'
+import createComponent from './component'
 import Min from './min'
 import $global, { Global } from './global'
 
@@ -12,7 +12,7 @@ import $global, { Global } from './global'
 
 export default Min
 
-export const App = minApp
-export const Page = minPage
-export const Component = minComponent
+export const App = createApp
+export const Page = createPage
+export const Component = createComponent
 export const global = $global

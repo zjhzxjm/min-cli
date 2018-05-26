@@ -1,6 +1,7 @@
 import * as path from 'path'
 import * as changeCase from 'change-case'
-import { Depend, Request, WxSFM } from '../class'
+import { Depend, Request } from '../class'
+import { WxSFM } from '../class'
 import util, { config, dom, log, beautifyHtml, Global, getOuterHTML } from '../util'
 import { RequestType } from '../declare/RequestType'
 import core, { loader } from '@mindev/min-core'

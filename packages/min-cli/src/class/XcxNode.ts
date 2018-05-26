@@ -1,5 +1,7 @@
 import * as path from 'path'
-import { Request, WxFile, Depend } from '../class'
+import { WxFile } from './WxFile'
+import { Depend } from './Depend'
+import { Request } from './Request'
 import { log, xcxCache, xcxNext, config, src2destRelative } from '../util'
 import core from '@mindev/min-core'
 

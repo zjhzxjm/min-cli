@@ -58,6 +58,11 @@ declare namespace Weapp {
     _renderExps?: string[]
   }
 
+  interface Extends {
+    init?: boolean,
+    renderExps?: string[]
+  }
+
   /**
    * Properties of components
    *

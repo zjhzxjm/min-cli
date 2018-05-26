@@ -12,8 +12,8 @@ class MinComponent extends Min implements Component.Context {
   _properties: Weapp.Properties = Object.create(null)
   readonly _isComponent: boolean = true
 
-  constructor (options: Component.Options) {
-    super(options)
+  constructor (options: Component.Options, exts?: Weapp.Extends) {
+    super(options, exts)
 
     if (process.env.NODE_ENV !== 'production' && !(this instanceof MinComponent)) {
       warn('MinComponent is a constructor and should be called with the `new` keyword')
@@ -44,8 +44,8 @@ class MinComponent extends Min implements Component.Context {
   }
 }
 
-export default function minComponent (options: Component.Options) {
-  let com = new MinComponent(options)
+export default function createComponent (options: Component.Options, exts?: Weapp.Extends) {
+  let com = new MinComponent(options, exts)
   return Component(com.$wxConfig)
 }
 

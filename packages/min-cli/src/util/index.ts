@@ -15,8 +15,6 @@ export { dom } from './dom'
 
 export { exec } from './exec'
 
-export * from './git-user'
-
 export { Global } from './global'
 
 export { eslint } from './lint'

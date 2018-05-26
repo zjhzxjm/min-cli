@@ -43,7 +43,7 @@ class MinApp implements App.Context {
   }
 }
 
-export default function minApp (options: App.Options) {
+export default function createApp (options: App.Options) {
   let app = new MinApp(options)
   $global.$app = app
 

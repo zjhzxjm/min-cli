@@ -10,7 +10,7 @@ import * as memFs from 'mem-fs'
 import * as editor from 'mem-fs-editor'
 import { CLIExample } from '../class'
 import { ScaffoldType, ProjectType, NewType } from '../declare'
-import util, { config, defaultConfig, exec, log, LogType, filterPrefix, filterNpmScope, getGitUser, beautifyJs } from '../util'
+import util, { config, defaultConfig, exec, log, LogType, filterPrefix, filterNpmScope, beautifyJs } from '../util'
 import { NewCommand } from './new'
 import core from '@mindev/min-core'
 
@@ -339,7 +339,7 @@ function getAnswers (projectName: string): Promise<InitCommand.Options> {
     message: 'Author',
     name: 'author',
     default () {
-      return getGitUser()
+      return core.util.getGitUser()
     }
   }
 

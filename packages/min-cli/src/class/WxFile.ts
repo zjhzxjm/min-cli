@@ -1,4 +1,5 @@
-import { Depend, Request, WxNFC, WxSFC, WxSRF } from '../class'
+import { Depend, Request } from '../class'
+import { WxNFC, WxSFC, WxSRF } from '../class'
 import util, { log, eslint } from '../util'
 
 export namespace WxFile {

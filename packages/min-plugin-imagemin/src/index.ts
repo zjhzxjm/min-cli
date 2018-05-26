@@ -2,6 +2,7 @@ import * as path from 'path'
 import * as imagemin from 'imagemin'
 import * as imageminMozjpeg from 'imagemin-mozjpeg'
 import * as imageminPngquant from 'imagemin-pngquant'
+import * as imageminSvgo from 'imagemin-svgo'
 // import * as imageminWebp from 'imagemin-webp'
 // import * as imageminGifsicle from 'imagemin-gifsicle'
 import { util, PluginHelper } from '@mindev/min-core'
@@ -12,6 +13,7 @@ const DEFAULTS: ImageminPlugin.Options = {
     png: {
       quality: '65-80'
     },
+    svg: {},
     webp: {
       quality: 50
     },
@@ -27,6 +29,7 @@ export namespace ImageminPlugin {
   export interface Config {
     jpg: any,
     png: any,
+    svg: any,
     webp: any,
     gif: any
   }
@@ -70,7 +73,8 @@ export default class ImageminPlugin extends PluginHelper.ImagePlugin {
       let files = await imagemin([filepath], '', {
         plugins: [
           imageminMozjpeg(config.jpg),
-          imageminPngquant(config.png)
+          imageminPngquant(config.png),
+          imageminSvgo(config.svg)
           // imageminWebp(config.webp),
           // imageminGifsicle(config.gif)
         ]

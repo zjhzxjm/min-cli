@@ -7,8 +7,8 @@ class MinPage extends Min implements Page.Context {
   $wxPage: any = null
   $store?: Store
 
-  constructor (options: Page.Options) {
-    super(options)
+  constructor (options: Page.Options, exts?: Weapp.Extends) {
+    super(options, exts)
 
     if (process.env.NODE_ENV !== 'production' && !(this instanceof MinPage)) {
       warn('MinPage is a constructor and should be called with the `new` keyword')
@@ -22,7 +22,7 @@ class MinPage extends Min implements Page.Context {
   }
 }
 
-export default function minPage (options: Page.Options) {
-  let page = new MinPage(options)
+export default function createPage (options: Page.Options, exts?: Weapp.Extends) {
+  let page = new MinPage(options, exts)
   return Page(page.$wxConfig)
 }

@@ -28,14 +28,18 @@ export default class Min {
 
   readonly _isWeapp = true
 
-  constructor (options: Weapp.Options, init: boolean = false) {
+  constructor (options: Weapp.Options, public exts: Weapp.Extends = {}) {
     this.$options = mergeOptions(
       resolveConstructorOptions(this.constructor),
       options || {},
       this
     ) as Weapp.Options
 
-    if (init) {
+    if (exts.renderExps) {
+      this.$options._renderExps = [...(this.$options._renderExps || []), ...exts.renderExps]
+    }
+
+    if (exts.init) {
       this.$init()
     }
   }

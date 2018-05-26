@@ -4,7 +4,8 @@ import * as _ from 'lodash'
 import * as changeCase from 'change-case'
 import * as babel from 'babel-core'
 import * as traverse from 'babel-traverse'
-import { Depend, Request, WxSFM } from '../class'
+import { Depend, Request } from '../class'
+import { WxSFM } from '../class'
 import { RequestType } from '../declare'
 import util, { config, log, LogType, md, Global } from '../util'
 import core, { loader, PluginHelper } from '@mindev/min-core'
@@ -74,7 +75,7 @@ export namespace WxSFMScript {
       usingComponents: UsingComponents
     },
     mixins: string[],
-    requestDeclaration: (t.ImportDeclaration | t.VariableDeclarator)[]
+    dependDeclaration: (t.ImportDeclaration | t.VariableDeclarator)[]
   }
 }
 
@@ -114,7 +115,7 @@ export class WxSFMScript extends WxSFM {
       usingComponents: {}
     },
     mixins: [],
-    requestDeclaration: []
+    dependDeclaration: []
   }
 
   /**
@@ -340,29 +341,29 @@ export class WxSFMScript extends WxSFM {
   }
 
   private initConfig () {
-    if (!this.isWxp) return
+    // if (!this.isWxp) return
 
-    let { globalMin } = Global.layout.app
-    let { config } = globalMin
-    let { usingComponents } = config
+    // let { globalMin } = Global.layout.app
+    // let { config } = globalMin
+    // let { usingComponents } = config
 
-    // The require path of the usingComponents is resolved.
-    let resolvePath = (requirePath: string): string => {
-      if (requirePath.charAt(0) !== '.') {
-        return requirePath
-      }
+    // // The require path of the usingComponents is resolved.
+    // let resolvePath = (requirePath: string): string => {
+    //   if (requirePath.charAt(0) !== '.') {
+    //     return requirePath
+    //   }
 
-      // For example: ../../ + '../components/wxc-loading'
-      return path.join(this.getRelativePathFromWxa(), requirePath)
-    }
+    //   // For example: ../../ + '../components/wxc-loading'
+    //   return path.join(this.getRelativePathFromWxa(), requirePath)
+    // }
 
-    usingComponents = _.forIn(_.cloneDeep(usingComponents), (value, key, object) => {
-      object[key] = resolvePath(value)
-    })
+    // usingComponents = _.forIn(_.cloneDeep(usingComponents), (value, key, object) => {
+    //   object[key] = resolvePath(value)
+    // })
 
-    this.config = _.merge({}, this.config, {
-      usingComponents
-    })
+    // this.config = _.merge({}, this.config, {
+    //   usingComponents
+    // })
   }
 
   private getRelativePathFromWxa (): string {
@@ -724,8 +725,8 @@ export class WxSFMScript extends WxSFM {
     }
 
     // Add request declaration
-    let addRequestDeclaration = () => {
-      let { requestDeclaration } = this.globalMin
+    let addDependDeclaration = () => {
+      let { dependDeclaration } = this.globalMin
       let { node, parent } = path
       let $node = null
 
@@ -740,7 +741,7 @@ export class WxSFMScript extends WxSFM {
       if (!$node) return
 
       // Add a request declaration
-      requestDeclaration.push($node)
+      dependDeclaration.push($node)
     }
 
     let { node } = path
@@ -752,7 +753,7 @@ export class WxSFMScript extends WxSFM {
       if (!isContinue) return
 
       // Add request declaration
-      addRequestDeclaration()
+      addDependDeclaration()
       return
     }
 
@@ -763,7 +764,7 @@ export class WxSFMScript extends WxSFM {
       if (!isContinue) return
 
       // Add request declaration
-      addRequestDeclaration()
+      addDependDeclaration()
       return
     }
   }
@@ -810,40 +811,40 @@ export class WxSFMScript extends WxSFM {
    */
   private addMixinsProperty (properties: Array<t.ObjectProperty | t.ObjectMethod | t.SpreadProperty>) {
 
-    // Get the mixins properties.
-    let prop = properties.find(prop => {
-      if (!t.isObjectProperty(prop)) return false
+    // // Get the mixins properties.
+    // let prop = properties.find(prop => {
+    //   if (!t.isObjectProperty(prop)) return false
 
-      let keyField = getKeyOrValueFieldByExpression(prop.key)
+    //   let keyField = getKeyOrValueFieldByExpression(prop.key)
 
-      if (keyField === MIXINS_KEY) return true
-    })
+    //   if (keyField === MIXINS_KEY) return true
+    // })
 
-    let { mixins } = Global.layout.app.globalMin
+    // let { mixins } = Global.layout.app.globalMin
 
-    // Create an arrayExpression.
-    // For example：[mixin1, mixin2]
-    let arrExp = t.arrayExpression(mixins.map(mixin => {
-      return t.identifier(mixin)
-    }))
+    // // Create an arrayExpression.
+    // // For example：[mixin1, mixin2]
+    // let arrExp = t.arrayExpression(mixins.map(mixin => {
+    //   return t.identifier(mixin)
+    // }))
 
-    // The mixins property already exists.
-    if (prop && t.isObjectProperty(prop)) {
-      let { value } = prop
-      if (!t.isArrayExpression(value)) return
+    // // The mixins property already exists.
+    // if (prop && t.isObjectProperty(prop)) {
+    //   let { value } = prop
+    //   if (!t.isArrayExpression(value)) return
 
-      // Extend the new value from the existing mixins attribute.
-      // For example：[newMixin1, newMixin2, oldMixin1, oldMixin2]
-      value.elements = [
-        ...arrExp.elements,
-        ...value.elements
-      ]
-    } else {
-      // Create a mixins attribute.
-      // For example：{mixins: [mixin1, mixin2]}
-      prop = t.objectProperty(t.identifier(MIXINS_KEY), arrExp)
-      properties.push(prop)
-    }
+    //   // Extend the new value from the existing mixins attribute.
+    //   // For example：[newMixin1, newMixin2, oldMixin1, oldMixin2]
+    //   value.elements = [
+    //     ...arrExp.elements,
+    //     ...value.elements
+    //   ]
+    // } else {
+    //   // Create a mixins attribute.
+    //   // For example：{mixins: [mixin1, mixin2]}
+    //   prop = t.objectProperty(t.identifier(MIXINS_KEY), arrExp)
+    //   properties.push(prop)
+    // }
   }
 
   private addRenderExpsProperty (properties: Array<t.ObjectProperty | t.ObjectMethod | t.SpreadProperty>, renderExps: string[]) {
@@ -868,126 +869,126 @@ export class WxSFMScript extends WxSFM {
    * @memberof WxSFMScript
    */
   private createMixinsDeclaration (path: NodePath<t.Program>) {
-    if (!this.isWxp) return
+    // if (!this.isWxp) return
 
-    let { node: { body } } = path
+    // let { node: { body } } = path
 
-    // For import Declaration
-    // Example:
-    // 1. import mixin from 'mixins/xxx'
-    // 2. import { mixin1, mixin2 } from 'mixins/xxx'
-    let importDecl = (mixin: string, decl: t.ImportDeclaration) => {
+    // // For import Declaration
+    // // Example:
+    // // 1. import mixin from 'mixins/xxx'
+    // // 2. import { mixin1, mixin2 } from 'mixins/xxx'
+    // let importDecl = (mixin: string, decl: t.ImportDeclaration) => {
 
-      // specifiers => [mixin, mixin1, mixin2]
-      // source => mixins/xxx
-      let { specifiers, source } = decl
+    //   // specifiers => [mixin, mixin1, mixin2]
+    //   // source => mixins/xxx
+    //   let { specifiers, source } = decl
 
-      // Find a name that is the same as specifiers.
-      let spe = specifiers.find(spe => {
-        let { local: { name } } = spe
-        return name === mixin
-      })
+    //   // Find a name that is the same as specifiers.
+    //   let spe = specifiers.find(spe => {
+    //     let { local: { name } } = spe
+    //     return name === mixin
+    //   })
 
-      if (!spe) return
+    //   if (!spe) return
 
-      let newSpecifiers = [spe]
-      let newSource = resolvePath(source.value)
-      let newImportDeclaration = t.importDeclaration(newSpecifiers, newSource)
+    //   let newSpecifiers = [spe]
+    //   let newSource = resolvePath(source.value)
+    //   let newImportDeclaration = t.importDeclaration(newSpecifiers, newSource)
 
-      // Insert the top of the body.
-      body.unshift(newImportDeclaration)
-    }
+    //   // Insert the top of the body.
+    //   body.unshift(newImportDeclaration)
+    // }
 
-    // For require Declaration
-    // Example:
-    // 1. const mixn = require('mixins/xxx')
-    // 2. const { mixin1, mixin2 } = require('mixins/xxx')
-    // 3. const { mixin2: mixin22 } = require('mixins/xxx')
-    let requireDecl = (mixin: string, decl: t.VariableDeclarator) => {
-      let { id, init } = decl
+    // // For require Declaration
+    // // Example:
+    // // 1. const mixn = require('mixins/xxx')
+    // // 2. const { mixin1, mixin2 } = require('mixins/xxx')
+    // // 3. const { mixin2: mixin22 } = require('mixins/xxx')
+    // let requireDecl = (mixin: string, decl: t.VariableDeclarator) => {
+    //   let { id, init } = decl
 
-      if (!t.isCallExpression(init)) return
-      if (!init.arguments.length) return
+    //   if (!t.isCallExpression(init)) return
+    //   if (!init.arguments.length) return
 
-      // Get first argument，Ignore other arguments
-      // For example: 'mixins/xxx'
-      let fistArgument = init.arguments[0]
+    //   // Get first argument，Ignore other arguments
+    //   // For example: 'mixins/xxx'
+    //   let fistArgument = init.arguments[0]
 
-      if (!t.isStringLiteral(fistArgument)) return
+    //   if (!t.isStringLiteral(fistArgument)) return
 
-      let newDeclarations = []
+    //   let newDeclarations = []
 
-      // Get the resolved require path.
-      // For example: ['~/mixins/xxx']
-      let newArguments = [resolvePath(fistArgument.value)]
-      // For example: require('~/mixns/xxx')
-      let newInit = t.callExpression(init.callee, newArguments)
+    //   // Get the resolved require path.
+    //   // For example: ['~/mixins/xxx']
+    //   let newArguments = [resolvePath(fistArgument.value)]
+    //   // For example: require('~/mixns/xxx')
+    //   let newInit = t.callExpression(init.callee, newArguments)
 
-      // ①
-      // For example:
-      // id => { mixin1 }
-      // id => { mixin2: mixin22 }
-      if (t.isObjectPattern(id)) {
-        let { properties } = id
+    //   // ①
+    //   // For example:
+    //   // id => { mixin1 }
+    //   // id => { mixin2: mixin22 }
+    //   if (t.isObjectPattern(id)) {
+    //     let { properties } = id
 
-        // Find a name that is the same a properties.
-        let prop = properties.find(prop => {
-          if (!t.isObjectProperty(prop)) return false
+    //     // Find a name that is the same a properties.
+    //     let prop = properties.find(prop => {
+    //       if (!t.isObjectProperty(prop)) return false
 
-          // Get mixin22 from { mixin2: mixin22 }
-          let valueField = getKeyOrValueFieldByExpression(prop.value)
-          return valueField === mixin
-        })
+    //       // Get mixin22 from { mixin2: mixin22 }
+    //       let valueField = getKeyOrValueFieldByExpression(prop.value)
+    //       return valueField === mixin
+    //     })
 
-        if (!prop) return
+    //     if (!prop) return
 
-        // Create an objectPattern
-        let newId = t.objectPattern([prop])
-        newDeclarations = [t.variableDeclarator(newId, newInit)]
-      }
+    //     // Create an objectPattern
+    //     let newId = t.objectPattern([prop])
+    //     newDeclarations = [t.variableDeclarator(newId, newInit)]
+    //   }
 
-      // ②
-      // For example:
-      // id => mixin
-      if (t.isIdentifier(id) && id.name === mixin) {
-        // Use the original id
-        let newId = id
-        newDeclarations = [t.variableDeclarator(newId, newInit)]
-      }
+    //   // ②
+    //   // For example:
+    //   // id => mixin
+    //   if (t.isIdentifier(id) && id.name === mixin) {
+    //     // Use the original id
+    //     let newId = id
+    //     newDeclarations = [t.variableDeclarator(newId, newInit)]
+    //   }
 
-      if (newDeclarations.length === 0) return
+    //   if (newDeclarations.length === 0) return
 
-      let newVariableDeclaration = t.variableDeclaration('const', newDeclarations)
+    //   let newVariableDeclaration = t.variableDeclaration('const', newDeclarations)
 
-      // Insert the top of the body.
-      body.unshift(newVariableDeclaration)
-    }
+    //   // Insert the top of the body.
+    //   body.unshift(newVariableDeclaration)
+    // }
 
-    // The require path of the mixins is resolved.
-    let resolvePath = (requirePath: string): t.StringLiteral => {
-      if (requirePath.charAt(0) === '.') {
-        // For example: ../../ + './mixins/index.js'
-        requirePath = $path.join(this.getRelativePathFromWxa(), requirePath)
-      }
-      return t.stringLiteral(requirePath)
-    }
+    // // The require path of the mixins is resolved.
+    // let resolvePath = (requirePath: string): t.StringLiteral => {
+    //   if (requirePath.charAt(0) === '.') {
+    //     // For example: ../../ + './mixins/index.js'
+    //     requirePath = $path.join(this.getRelativePathFromWxa(), requirePath)
+    //   }
+    //   return t.stringLiteral(requirePath)
+    // }
 
-    let { globalMin } = Global.layout.app
-    let { mixins, requestDeclaration } = globalMin
+    // let { globalMin } = Global.layout.app
+    // let { mixins, dependDeclaration } = globalMin
 
-    mixins.forEach(mixin => {
-      requestDeclaration.forEach(decl => {
-        if (t.isImportDeclaration(decl)) {
+    // mixins.forEach(mixin => {
+    //   dependDeclaration.forEach(decl => {
+    //     if (t.isImportDeclaration(decl)) {
 
-          importDecl(mixin, decl)
-        }
+    //       importDecl(mixin, decl)
+    //     }
 
-        if (t.isVariableDeclarator(decl)) {
+    //     if (t.isVariableDeclarator(decl)) {
 
-          requireDecl(mixin, decl)
-        }
-      })
-    })
+    //       requireDecl(mixin, decl)
+    //     }
+    //   })
+    // })
   }
 
   /**
@@ -1106,7 +1107,7 @@ export class WxSFMScript extends WxSFM {
         usingComponents: {}
       },
       mixins: [],
-      requestDeclaration: []
+      dependDeclaration: []
     })
 
     path.remove()

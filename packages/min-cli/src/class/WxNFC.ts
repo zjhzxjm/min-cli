@@ -1,4 +1,8 @@
-import { Depend, Request, WxFile, WxSFMTemplate, WxSFMScript, WxSFMStyle } from '../class'
+import { Depend, Request } from '../class'
+import { WxFile } from '../class'
+import { NativeTemplate } from '../class/m-template'
+import { NativeStyle } from '../class/m-style'
+import { NativeScript } from '../class/m-script'
 
 /**
  * 原生文件类
@@ -8,7 +12,7 @@ import { Depend, Request, WxFile, WxSFMTemplate, WxSFMScript, WxSFMStyle } from 
  * @implements {WxFile.Core}
  */
 export class WxNFC implements WxFile.Core {
-  sfm: WxSFMTemplate | WxSFMStyle | WxSFMScript
+  nativeModule: NativeTemplate | NativeStyle | NativeScript
 
   /**
    * Creates an instance of WxNFC.
@@ -22,17 +26,17 @@ export class WxNFC implements WxFile.Core {
 
     if (isScript) {
       // SCRIPT
-      this.sfm = new WxSFMScript(this.source, request, {
+      this.nativeModule = new NativeScript(this.source, request, {
         lang
       })
     } else if (isStyle) {
       // STYLE
-      this.sfm = new WxSFMStyle(this.source, request, {
+      this.nativeModule = new NativeStyle(this.source, request, {
         lang
       })
     } else if (isTemplate) {
       // TEMPLATE
-      this.sfm = new WxSFMTemplate(this.source, request, {
+      this.nativeModule = new NativeTemplate(this.source, request, {
         lang
       })
     } else {
@@ -46,7 +50,7 @@ export class WxNFC implements WxFile.Core {
    * @memberof WxNFC
    */
   save () {
-    this.sfm.save()
+    this.nativeModule.save()
   }
 
   /**
@@ -55,7 +59,7 @@ export class WxNFC implements WxFile.Core {
    * @memberof WxNFC
    */
   remove () {
-    this.sfm.remove()
+    this.nativeModule.remove()
   }
 
   /**
@@ -65,7 +69,7 @@ export class WxNFC implements WxFile.Core {
    * @memberof WxNFC
    */
   getDepends (): Depend[] {
-    return this.sfm.getDepends()
+    return this.nativeModule.getDepends()
   }
 
   /**
@@ -75,7 +79,7 @@ export class WxNFC implements WxFile.Core {
    * @memberof WxNFC
    */
   updateDepends (useRequests: Request.Core[]): void {
-    this.sfm.updateDepends(useRequests)
+    this.nativeModule.updateDepends(useRequests)
   }
 
   /**
@@ -85,6 +89,6 @@ export class WxNFC implements WxFile.Core {
    * @memberof WxSFC
    */
   getImplicitReferences (): string[] {
-    return this.sfm.getImplicitReferences()
+    return this.nativeModule.getImplicitReferences()
   }
 }

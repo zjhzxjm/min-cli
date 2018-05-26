@@ -1,13 +1,14 @@
 import * as url from 'url'
 import * as path from 'path'
 import * as postcss from 'postcss'
-import { Depend, Request } from '../class'
-import { WxSFM } from '../class'
-import { RequestType } from '../declare'
-import util, { log, config, Global, ICONFONT_PATTERN } from '../util'
+import { Depend } from '../Depend'
+import { Request } from '../Request'
+import { WxSFM } from '../WxSFM'
+import { RequestType } from '../../declare'
+import util, { log, config, Global, ICONFONT_PATTERN } from '../../util'
 import core, { loader, CompilerHelper } from '@mindev/min-core'
 
-export namespace WxSFMStyle {
+export namespace BaseStyle {
 
   export interface Options {
 
@@ -33,17 +34,17 @@ export namespace WxSFMStyle {
  * STYLE 模块类
  *
  * @export
- * @class WxSFMStyle
+ * @class BaseStyle
  * @extends {WxSFM}
  */
-export class WxSFMStyle extends WxSFM {
+export class BaseStyle extends WxSFM {
 
   /**
    * PostCSS 处理器的结果
    *
    * @private
    * @type {postcss.Result}
-   * @memberof WxSFMStyle
+   * @memberof BaseStyle
    */
   private result: postcss.Result = null
 
@@ -52,18 +53,18 @@ export class WxSFMStyle extends WxSFM {
    *
    * @private
    * @type {Depend[]}
-   * @memberof WxSFMStyle
+   * @memberof BaseStyle
    */
   private depends: Depend[] = []
 
   /**
-   * Creates an instance of WxSFMStyle.
+   * Creates an instance of BaseStyle.
    * @param {string} source
    * @param {Request} request
-   * @param {WxSFMStyle.Options} options
-   * @memberof WxSFMStyle
+   * @param {BaseStyle.Options} options
+   * @memberof BaseStyle
    */
-  constructor (source: string, request: Request, public options: WxSFMStyle.Options) {
+  constructor (source: string, request: Request, public options: BaseStyle.Options) {
     super(source, request, {
       destExt: config.ext.wxss,
       referenceSrc: options.referenceSrc
@@ -76,7 +77,7 @@ export class WxSFMStyle extends WxSFM {
    * 生成代码
    *
    * @returns {Promise<string>}
-   * @memberof WxSFMStyle
+   * @memberof BaseStyle
    */
   async generator (): Promise<string> {
     let source = this.source
@@ -143,28 +144,10 @@ export class WxSFMStyle extends WxSFM {
   }
 
   /**
-   * 保存文件
-   *
-   * @memberof WxSFMStyle
-   */
-  save () {
-    super.save()
-  }
-
-  /**
-   * 移除文件
-   *
-   * @memberof WxSFMStyle
-   */
-  remove () {
-    super.remove()
-  }
-
-  /**
    * 获取依赖列表
    *
    * @returns {Depend[]}
-   * @memberof WxSFMStyle
+   * @memberof BaseStyle
    */
   getDepends (): Depend[] {
     return this.depends
@@ -174,7 +157,7 @@ export class WxSFMStyle extends WxSFM {
    * 更新依赖列表
    *
    * @param {Request.Core[]} useRequests 可用的请求列表
-   * @memberof WxSFMStyle
+   * @memberof BaseStyle
    */
   updateDepends (useRequests: Request.Core[]): void {
     let depends = this.getDepends()
@@ -253,7 +236,7 @@ export class WxSFMStyle extends WxSFM {
    * 初始化 depends 依赖列表
    *
    * @private
-   * @memberof WxSFMStyle
+   * @memberof BaseStyle
    */
   private initDepends () {
     if (!this.source) return

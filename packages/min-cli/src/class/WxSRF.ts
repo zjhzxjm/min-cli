@@ -1,4 +1,5 @@
-import { Depend, Request, WxFile } from '../class'
+import { Depend, Request } from '../class'
+import { WxFile } from '../class'
 import util, { config, log, LogType } from '../util'
 
 /**

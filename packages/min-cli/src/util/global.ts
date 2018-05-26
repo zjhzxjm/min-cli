@@ -1,7 +1,8 @@
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import * as _ from 'lodash'
-import { WxSFMScript, Request } from '../class'
+import { Request } from '../class'
+import { BaseScript, WxaScript } from '../class/m-script'
 import { config, dom, log, LogType, xcxNext } from '../util'
 import core from '@mindev/min-core'
 
@@ -60,7 +61,7 @@ export namespace Global {
     app: {
       request: Request,
       template: string,
-      globalMin: WxSFMScript.GlobalMin
+      usingComponents: BaseScript.UsingComponents
     }
   }
 
@@ -334,13 +335,7 @@ export class Global {
 
     let template = ''
     let appConfig = {}
-    let globalMin = {
-      config: {
-        usingComponents: {}
-      },
-      mixins: [],
-      requestDeclaration: []
-    }
+    let usingComponents = {}
 
     if (request.src) {
       let source = fs.readFileSync(request.src, 'utf-8')
@@ -353,13 +348,13 @@ export class Global {
 
       try {
         // script模块
-        let wxSFMScript = new WxSFMScript(script.code, request, {
+        let wxaScript = new WxaScript(script.code, request, {
           lang: script.lang
         })
 
         template = templateCode
-        globalMin = wxSFMScript.getGlobalMin()
-        appConfig = wxSFMScript.getConfig()
+        usingComponents = wxaScript.getUsingComponents()
+        appConfig = wxaScript.getConfig()
       } catch (err) {
         core.util.error(err)
         xcxNext.add(request)
@@ -371,7 +366,7 @@ export class Global {
       app: {
         request,
         template,
-        globalMin
+        usingComponents
       }
     }
 

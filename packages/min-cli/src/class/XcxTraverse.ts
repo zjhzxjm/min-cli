@@ -1,6 +1,6 @@
 import * as _ from 'lodash'
 import * as path from 'path'
-import { XcxNode } from '../class'
+import { XcxNode } from './XcxNode'
 import { RequestType } from '../declare'
 import { config } from '../util'
 

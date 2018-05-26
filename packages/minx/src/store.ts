@@ -34,7 +34,9 @@ export class BaseStore {
     this._actions = Object.create(null)
     this._mutations = Object.create(null)
     this._modules = new ModulePool(options)
-    this._watch = new Min({}, true)
+    this._watch = new Min({}, {
+      init: true
+    })
 
     const store = this
     const root = this._modules.root
@@ -178,7 +180,9 @@ function setVitrualDom (store: BaseStore, state: any) {
       $state: state
     },
     computed
-  }, true)
+  }, {
+    init: true
+  })
 }
 
 function resetStore (store: BaseStore) {

@@ -1,6 +1,6 @@
 import * as babel from 'babel-core'
 import * as postcss from 'postcss'
-import { Request } from '../class'
+import { Request } from './Request'
 import { RequestType } from '../declare'
 
 import t = babel.types

@@ -1,6 +1,7 @@
 import * as path from 'path'
 import * as _ from 'lodash'
-import { Depend, Request } from '../class'
+import { Depend } from './Depend'
+import { Request } from './Request'
 import util, { log, LogType, config, xcxNext } from '../util'
 import core, { PluginHelper } from '@mindev/min-core'
 
@@ -51,7 +52,7 @@ export class WxSFM {
    *
    * @private
    * @type {string[]}
-   * @memberof WxSFMStyle
+   * @memberof WxSFM
    */
   private implicitReferences: string[] = []
 
