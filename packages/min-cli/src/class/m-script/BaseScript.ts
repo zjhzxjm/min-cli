@@ -197,7 +197,7 @@ export class BaseScript extends WxSFM {
       let result = babel.transformFromAst(this.node, this.source, {
         ast: false,
         babelrc: false,
-        sourceMaps: 'inline',
+        sourceMaps: process.env.NODE_ENV === 'production' ? false : 'inline',
         filename: this.request.src
       })
       return result.code || ''

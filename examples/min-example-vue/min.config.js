@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
   alias: {
     mixins: 'src/mixins',
     components: 'src/components'
@@ -24,3 +24,9 @@ module.exports = {
     }
   }
 }
+
+if (process.env.NODE_ENV === 'production') {
+  delete config.compilers.babel.sourceMaps
+}
+
+module.exports = config
