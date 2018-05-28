@@ -272,7 +272,9 @@ export class BaseScript extends WxSFM {
       source = result.extend.code
     }
 
-    let babelConfig = lang === 'babel' ? config.compilers['babel'] : {}
+    let babelConfig = lang === 'babel'
+      ? config.compilers['babel'] || {}
+      : {}
     let { plugins = [] } = babelConfig
 
     // Support for extension operators.
