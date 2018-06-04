@@ -47,6 +47,7 @@ export class WxScript extends BaseScript {
     this.source = [
       `
         import * as __Min__ from '@minlib/min';
+        // const __Min__ = require('@minlib/min');
         const __RenderExps__ = [];
       `,
       this.source

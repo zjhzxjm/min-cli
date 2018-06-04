@@ -264,7 +264,7 @@ export class BaseScript extends WxSFM {
       let result = compiler.sync({
         cwd: config.cwd,
         filename: this.request.src,
-        config: config.compilers[lang],
+        config: config.compilers[lang] || {},
         extend: {
           code: this.source
         }
@@ -278,7 +278,19 @@ export class BaseScript extends WxSFM {
     let { plugins = [] } = babelConfig
 
     // Support for extension operators.
-    plugins = plugins.filter((plugin: string) => plugin.indexOf('transform-object-rest-spread') !== -1)
+    const usePlugins = [
+      'transform-class-properties',
+      'transform-object-rest-spread'
+    ]
+    plugins = plugins.filter((plugin: string | any[]) => {
+      let name = ''
+      if (core.util.isArray(plugin)) {
+        name = plugin[0] as string
+      } else {
+        name = plugin
+      }
+      return usePlugins.indexOf(name) > -1
+    })
 
     let result = babel.transform(source, {
       ast: true,

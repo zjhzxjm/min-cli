@@ -40,3 +40,11 @@ declare module 'imagemin-gifsicle' {
   const gifsicle: Gifsicle
   export = gifsicle
 }
+
+declare module 'imagemin-svgo' {
+  interface Svgo {
+    (options: object): Promise<Buffer>
+  }
+  const svgo: Svgo
+  export = svgo
+}

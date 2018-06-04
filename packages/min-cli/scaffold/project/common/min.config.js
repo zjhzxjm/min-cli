@@ -1,4 +1,4 @@
-module.exports = {<% if (useGlobalStyle) { %>
+const config = {<% if (useGlobalStyle) { %>
   style: {
     brandColor: '#FF0077',
     controlColor: '#FF5777',
@@ -19,7 +19,7 @@ module.exports = {<% if (useGlobalStyle) { %>
   },
   compilers: {
     babel: {
-      sourceMaps: 'inline',
+      sourceMaps: process.env.NODE_ENV === 'production' ? false : 'inline',
       presets: [
         'env'
       ],
@@ -32,3 +32,5 @@ module.exports = {<% if (useGlobalStyle) { %>
     }
   }
 }
+
+module.exports = config

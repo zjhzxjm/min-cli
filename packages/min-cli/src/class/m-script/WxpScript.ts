@@ -121,7 +121,7 @@ export class WxpScript extends WxScript {
     properties.push(
       t.objectProperty(
         t.identifier('readme'), // readme
-        t.stringLiteral(md2htmlFromFile(readmeFile))
+        t.stringLiteral(this.md2htmlFromFile(readmeFile))
       )
     )
 
@@ -160,7 +160,7 @@ export class WxpScript extends WxScript {
       properties.push(
         t.objectProperty(
           t.identifier(changeCase.camelCase(key)), // demoDefault
-          t.stringLiteral(md2htmlFromFile(file)) // <template><wxc-hello></wxc-hello><template>
+          t.stringLiteral(this.md2htmlFromFile(file)) // <template><wxc-hello></wxc-hello><template>
         )
       )
     })
@@ -203,29 +203,29 @@ export class WxpScript extends WxScript {
 
     return $path.relative(from, to)
   }
-}
 
-/**
- * 将文件的MD内容转换成HTML
- *
- * @private
- * @param {string} file 文件地址
- * @returns
- * @memberof WxpScript
- */
-function md2htmlFromFile (file: string) {
-  if (!path.isAbsolute(file)) {
-    file = path.join(path.dirname(this.request.src), file)
-  }
-  if (fs.existsSync(file)) {
-    let source = fs.readFileSync(file, 'utf-8')
-    let isWxc = path.extname(file) === config.ext.wxc
-    if (isWxc) {
-      source = '``` html\n' + source + '\n```'
+  /**
+   * 将文件的MD内容转换成HTML
+   *
+   * @private
+   * @param {string} file 文件地址
+   * @returns
+   * @memberof WxpScript
+   */
+  private md2htmlFromFile (file: string) {
+    if (!path.isAbsolute(file)) {
+      file = path.join(path.dirname(this.request.src), file)
     }
-    return `${md.md2html(source, isWxc)}`
+    if (fs.existsSync(file)) {
+      let source = fs.readFileSync(file, 'utf-8')
+      let isWxc = path.extname(file) === config.ext.wxc
+      if (isWxc) {
+        source = '``` html\n' + source + '\n```'
+      }
+      return `${md.md2html(source, isWxc)}`
+    }
+    return ''
   }
-  return ''
 }
 
 // /**
