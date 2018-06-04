@@ -1,0 +1,16 @@
+// https://www.tslang.cn/docs/handbook/tsconfig-json.html
+{
+  "extends": "../../tsconfig",
+  "compilerOptions": {
+    "target": "es5",
+    "declarationDir": "./types",
+    "outDir": "./lib",
+    "removeComments": true,
+    "noImplicitUseStrict": true,
+    "strict": false,
+    "sourceMap": false
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}
