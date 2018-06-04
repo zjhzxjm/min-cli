@@ -8,7 +8,7 @@ declare namespace Weapp {
    */
   interface Context {
     $app?: App.Context
-    $wxApp?: any
+    $wx?: any
     $wxConfig: Config
 
     $data: Data
@@ -125,7 +125,7 @@ declare namespace App {
    * @interface Context
    */
   interface Context {
-    $wxApp: any
+    $wx: any
     $options: Options
     $globalData: GlobalData
     $store?: Store
@@ -142,6 +142,7 @@ declare namespace App {
   interface Options extends Lifecycle {
     globalData?: GlobalData
     store?: Store
+    wxApi?: WxApi
   }
 
   /**
@@ -186,10 +187,7 @@ declare namespace Page {
    * @extends {Weapp.Context}
    */
   interface Context extends Weapp.Context {
-    $wxPage?: any
-    $wxConfig: Config
-    $options: Options
-    $store?: Store
+
   }
 
   /**
@@ -240,11 +238,7 @@ declare namespace Component {
    * @extends {Weapp.Context}
    */
   interface Context extends Weapp.Context {
-    $root?: Page.Context // in Current Page
-    $wxRoot?: any // in Current Page
-    $wxComponent?: any
-    $wxConfig: Config
-    $options: Options
+    $page?: Page.Context // in Current Page
 
     $properties: Weapp.Properties
     _properties: Weapp.Properties
@@ -297,6 +291,12 @@ interface Store {
   _modules: any;
   _watch: any;
   _vitrualDom: any;
+}
+
+interface WxApi {
+  $wxApi: {
+    [key: string]: (...arg) => {}
+  }
 }
 
 /**

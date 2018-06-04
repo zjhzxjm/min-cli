@@ -185,12 +185,12 @@ export class BaseScript extends WxSFM {
     let { lang = 'babel' } = this.options
     let { isThreeNpm, ext } = this.request
 
-    if (lang === 'ts') {
-      lang = 'typescript'
-    }
-
     if (lang === 'js') {
       lang = 'babel'
+    }
+
+    if (lang === 'ts') {
+      lang = 'typescript'
     }
 
     if (isThreeNpm || lang === 'typescript') {
@@ -244,6 +244,10 @@ export class BaseScript extends WxSFM {
 
     if (!source) {
       return
+    }
+
+    if (lang === 'js') {
+      lang = 'babel'
     }
 
     if (lang === 'ts') {
