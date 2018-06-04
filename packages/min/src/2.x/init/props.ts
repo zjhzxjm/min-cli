@@ -1,26 +1,15 @@
 import { defineReactive, toggleObserving, observe } from '../observer'
 import { warn, hyphenate, isReservedAttribute, isPlainObject, noop } from '../util'
 import { proxy } from './data'
+import MinComponent from '../class/MinComponent'
 
-export function initProps (ctx: Component.Context, wxConfig: Component.Config) {
-  const { $options } = ctx
+export function initProps (ctx: Component.Context) {
+  const { $options, $wx } = ctx
   const { properties = {} } = $options
   const keys = Object.keys(properties)
   const _properties = ctx._properties = {}
 
   keys.forEach(key => {
-    const property = properties[key]
-    let value = undefined
-    let observer
-
-    if (isPlainObject(property)) {
-      value = property.value
-      observer = property.observer
-    }
-    else if (typeof property !== 'function') {
-      value = property
-      observer = noop
-    }
 
     if (process.env.NODE_ENV !== 'production') {
       const hyphenatedKey = hyphenate(key)
@@ -39,20 +28,7 @@ export function initProps (ctx: Component.Context, wxConfig: Component.Config) {
       // }
     }
 
-    // Proxy observer
-    properties[key].observer = function (newVal, oldVal) {
-      _properties[key] = newVal
-
-      if (typeof observer === 'string' && wxConfig.methods) {
-        observer = wxConfig.methods[observer]
-      }
-
-      if (typeof observer === 'function') {
-        observer.apply(ctx, arguments)
-      }
-    }
-
-    _properties[key] = value
+    _properties[key] = properties[key].value
     // defineReactive(_properties, key, value)
 
     // instantiation here.
@@ -63,6 +39,55 @@ export function initProps (ctx: Component.Context, wxConfig: Component.Config) {
 
   // observe properties
   observe(_properties, true /* asRootData */)
+}
 
-  wxConfig.properties = properties
+export function patchProps (wxConfig: Weapp.Config, properties: Weapp.Properties) {
+  if (!properties) {
+    properties = {}
+  }
+
+  const props = {}
+  const keys = Object.keys(properties)
+
+  keys.forEach(key => {
+    const property = properties[key]
+    let type = null
+    let value = undefined
+    let observer = noop
+
+    if (isPlainObject(property)) {
+      value = property.value
+      observer = property.observer || noop
+      type = property.type || null
+    }
+    else if (typeof property === 'function') {
+      observer = property
+    }
+    else {
+      value = property
+    }
+
+    // Proxy observer
+    props[key] = {
+      type,
+      value,
+      observer (newVal, oldVal) {
+        const ctx = this.$min as MinComponent
+        const { _properties = {} } = ctx
+
+        // TODO: optimization
+        _properties[key] = newVal
+
+        if (typeof observer === 'string' && typeof this[observer] === 'function') {
+          observer = this[observer]
+        }
+
+        if (typeof observer === 'function') {
+          observer.apply(ctx, arguments)
+        }
+      }
+    }
+  })
+
+  wxConfig.properties = props
 }

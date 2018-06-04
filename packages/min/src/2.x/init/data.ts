@@ -58,52 +58,6 @@ export function initData (ctx: Weapp.Context) {
 
   // observe data
   observe(data, true /* asRootData */)
-
-  // weappConfig.data = data
-}
-
-export function initGlobalData (ctx: App.Context, appConfig: App.Config) {
-  const { $options } = ctx
-  let { globalData = {} } = $options
-
-  globalData = ctx._globalData = typeof globalData === 'function'
-    ? getData(globalData, ctx)
-    : globalData || {}
-
-  if (!isPlainObject(globalData)) {
-    globalData = {}
-
-    if (process.env.NODE_ENV !== 'production') {
-      warn(
-        'data functions should return an object:\n',
-        // 'https://vuejs.org/v2/guide/components.html#data-Must-Be-a-Function',
-        ctx
-      )
-    }
-  }
-
-  // proxy data on instance
-  const keys = Object.keys(globalData)
-  // const { methods } = $options
-
-  keys.forEach(key => {
-    // if (process.env.NODE_ENV !== 'production') {
-    //   if (methods && hasOwn(methods, key)) {
-    //     warn(
-    //       `Method "${key}" has already been defined as a data property.`,
-    //       ctx
-    //     )
-    //   }
-    // }
-    if (!isReserved(key)) {
-      proxy(ctx, `_globalData`, key)
-    }
-  })
-
-  // observe data
-  observe(globalData, true /* asRootData */)
-
-  appConfig.globalData = globalData
 }
 
 export function proxy (target: Object, sourceKey: string, key: string) {
@@ -116,7 +70,7 @@ export function proxy (target: Object, sourceKey: string, key: string) {
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
-export function getData (data: Function, ctx: any): any {
+export function getData (data: Function, ctx: Weapp.Context | App.Context): any {
   // #7573 disable dep collection when invoking data getters
   pushTarget()
   try {
@@ -129,4 +83,11 @@ export function getData (data: Function, ctx: any): any {
   finally {
     popTarget()
   }
+}
+
+export function patchData (wxConfig: Weapp.Config, data: Weapp.Data) {
+  if (!data) {
+    data = {}
+  }
+  wxConfig.data = data
 }

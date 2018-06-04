@@ -217,9 +217,9 @@ strats.watch = function (
 /**
  * Other object hashes.
  */
-strats.props =
+strats.properties =
 strats.methods =
-strats.inject =
+// strats.inject =
 strats.computed = function (
   parentVal: Object,
   childVal: Object,
@@ -276,7 +276,7 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
  * Object-based format.
  */
 function normalizeProps (options: Object | any, vm?: any) {
-  const props = options.props
+  const props = options.properties
   if (!props) return
   const res = {}
   let i
@@ -312,7 +312,7 @@ function normalizeProps (options: Object | any, vm?: any) {
       vm
     )
   }
-  options.props = res
+  options.properties = res
 }
 
 /**

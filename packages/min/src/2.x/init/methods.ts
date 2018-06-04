@@ -1,38 +1,11 @@
+import MinComponent from '../class/MinComponent'
 import { warn, hasOwn, isReserved, noop, PAGE_EVENT, COMPONENT_EVENT } from '../util'
 
-export function initMethods (ctx: Weapp.Context, weappConfig: Weapp.Config) {
-  const { $options, _isComponent } = ctx
-  const { methods, properties } = $options
-  const mountMethods = _isComponent
-    ? weappConfig.methods = weappConfig.methods || {}
-    : weappConfig
-  const EVENT = _isComponent
-    ? COMPONENT_EVENT
-    : PAGE_EVENT
+export function initMethods (ctx: Weapp.Context) {
+  const { $options } = ctx
+  const { methods = {}, properties = {} } = $options
 
-  // Proxy method in ctx.$options
-  Object.keys($options).forEach(option => {
-    const fn = $options[option]
-
-    if (EVENT.indexOf(option) !== -1) {
-      return
-    }
-
-    if (option === 'data') {
-      return
-    }
-
-    if (typeof fn !== 'function') {
-      return
-    }
-
-    mountMethods[option] = function proxyMethod () {
-      return fn.apply(ctx, arguments)
-    }
-  })
-
-  // Proxy method in ctx.$options.methods
-  Object.keys(methods || []).forEach(method => {
+  Object.keys(methods).forEach(method => {
     if (process.env.NODE_ENV !== 'production') {
       if (methods[method] == null) {
         warn(
@@ -55,14 +28,34 @@ export function initMethods (ctx: Weapp.Context, weappConfig: Weapp.Config) {
       }
     }
 
-    mountMethods[method] = function proxyMethod () {
-      const fn = methods[method] || noop
+    ctx[method] = methods[method]
+  })
+}
 
-      if (typeof fn !== 'function') {
-        return
-      }
+export function patchMethods (wxConfig: Weapp.Config, options: Weapp.Options, isComponent: boolean = false) {
+  const { methods = {} } = options
+  const target = isComponent
+    ? wxConfig.methods = wxConfig.methods || {}
+    : wxConfig
 
-      return fn.apply(ctx, arguments)
+  const EVENT = isComponent
+    ? COMPONENT_EVENT
+    : PAGE_EVENT
+
+  Object.keys(options).forEach(key => {
+    const value = options[key]
+
+    if (key === 'data') return
+    if (typeof value !== 'function') return
+    if (typeof methods[key] !== 'undefined') return
+    if (EVENT.indexOf(key) !== -1) return
+
+    methods[key] = value
+  })
+
+  Object.keys(methods).forEach(key => {
+    target[key] = function proxyMethod (...args) {
+      return methods[key].apply(this.$min, args)
     }
   })
 }

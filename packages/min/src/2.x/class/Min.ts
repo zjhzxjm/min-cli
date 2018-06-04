@@ -1,10 +1,17 @@
-import Watcher from './observer/watcher'
-import $global from './global'
-import { defineReactive } from './observer'
-import { isPlainObject, nextTickForWeapp, warn, noop, toArray, mergeOptions, resolveConstructorOptions } from './util'
-import { initData, initMethods, initComputed, initWatch, callHook } from './init'
+import Base from './Base'
+import Watcher from '../observer/watcher'
+import $global from '../global'
+import { defineReactive } from '../observer'
+import { isPlainObject, nextTickForWeapp, warn, noop, toArray, mergeOptions, resolveConstructorOptions } from '../util'
+import { initData, initMethods, initComputed, initWatch, callHook, initRender } from '../init'
 
-export default class Min {
+// 兼容模式下支持代理到原生实例上
+const ProxyProperties = [
+  'is', 'id', 'data', 'dataset', 'route', 'properties',
+  'setData', 'hasBehavior', 'triggerEvent', 'createSelectorQuery', 'selectComponent', 'selectAllComponents', 'getRelationNodes'
+]
+
+export default class Min extends Base {
 
   static options = Object.create(null)
   static nextTick = nextTickForWeapp
@@ -12,7 +19,7 @@ export default class Min {
   static _installedPlugins: any[] = []
 
   $app?: App.Context = null
-  $wxApp?: any = null
+  $wx?: any = Object.create(null)
   $wxConfig: Weapp.Config = Object.create(null)
 
   $data: Weapp.Data = Object.create(null)
@@ -25,10 +32,13 @@ export default class Min {
   _watchers: Watcher[] = []
 
   _nextTicks: Function[] = []
+  _isInit: boolean = false
 
   readonly _isWeapp = true
+  readonly _isComponent: boolean = false
 
   constructor (options: Weapp.Options, public exts: Weapp.Extends = {}) {
+    super()
     this.$options = mergeOptions(
       resolveConstructorOptions(this.constructor),
       options || {},
@@ -42,6 +52,8 @@ export default class Min {
     if (exts.init) {
       this.$init()
     }
+
+    this._proxyNative()
   }
 
   static mixin (mixin: Object) {
@@ -66,6 +78,43 @@ export default class Min {
     }
     installedPlugins.push(plugin)
     return this
+  }
+
+  $init () {
+    if (this._isInit) return
+
+    this._beforeCreate()
+    this._initGlobalDataDef()
+    this._initState()
+    this._initDataDef()
+
+    if (!this._isComponent) {
+      this.$initRender()
+    }
+    this._isInit = true
+  }
+
+  $initRender () {
+    if (!this.$wx) return
+
+    initRender(this, (dirtyData, isInit) => {
+      if (Object.keys(dirtyData).length > 0) {
+        this.$wx.setData(dirtyData, this._flushNextTicks.bind(this))
+      }
+      else {
+        this._flushNextTicks()
+      }
+    })
+  }
+
+  teardown () {
+    if (this._watcher) {
+      this._watcher.teardown()
+      this._watcher = null
+    }
+
+    this.$app = null
+    this.$wx = null
   }
 
   $watch (expOrFn: string | Function, cb: Weapp.WatchCallback, options?: Object | any): Function {
@@ -126,33 +175,13 @@ export default class Min {
     return nextTickForWeapp(fn, this)
   }
 
-  protected $init () {
-    this._beforeCreate()
-    this._initGlobalDataDef()
-    this._initState()
-    this._initDataDef()
-  }
-
   private _beforeCreate () {
-    const { $app } = $global
-    this.$app = this.$app || $app
-    this.$wxApp = this.$wxApp || ($app ? $app.$wxApp : undefined)
+    this.$app = this.$app || $global.$app || null
     callHook(this, 'beforeCreate')
   }
 
   private _initState () {
-    let { $wxConfig } = this
-    let { $options } = this
-
-    if (!$options.data) {
-      $options.data = {}
-    }
-
-    if (!$wxConfig.data) {
-      $wxConfig.data = {}
-    }
-
-    initMethods(this, $wxConfig)
+    initMethods(this)
     initData(this)
     initComputed(this)
     initWatch(this)
@@ -193,5 +222,30 @@ export default class Min {
       }
     }
     Object.defineProperty(this, '$globalData', globalDataDef)
+  }
+
+  private _proxyNative () {
+    ProxyProperties.forEach(property => {
+      Object.defineProperty(this, property, {
+        get () {
+          let value = this.$wx[property]
+          return typeof value === 'function'
+            ? value.bind(this.$wx)
+            : value
+        }
+      })
+    })
+  }
+
+  private _flushNextTicks () {
+
+    const nextTicks = [...$global._nextTicks, ...this._nextTicks]
+
+    $global._nextTicks.length = 0
+    this._nextTicks.length = 0
+
+    for (let i = 0; i < nextTicks.length; i++) {
+      nextTicks[i]()
+    }
   }
 }
