@@ -273,14 +273,13 @@ min.intercept('request', {
   - 支持 min.intercept 拦截器
   - 优化 wx.request 并发次数限制
 
-## Todo
-
-- **2.0.1**
+- **2.0.2**
   - computed
   - watch
 
-- **2.0.2**
-  - @minlib/min-vuex
+- **2.0.4**
+  - Fixing the data attribute is not valid when it is a function
+  - Fixed an invalid problem that defined a method
 
 ## Tip
 

@@ -33,6 +33,10 @@ export function initMethods (ctx: Weapp.Context) {
 }
 
 export function patchMethods (wxConfig: Weapp.Config, options: Weapp.Options, isComponent: boolean = false) {
+  if (!options.methods) {
+    options.methods = {}
+  }
+
   const { methods = {} } = options
   const target = isComponent
     ? wxConfig.methods = wxConfig.methods || {}
