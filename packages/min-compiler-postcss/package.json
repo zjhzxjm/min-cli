@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-compiler-postcss",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "min compile postcss",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",

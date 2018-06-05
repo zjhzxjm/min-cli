@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-compiler-typescript",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "min compile typescript",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",

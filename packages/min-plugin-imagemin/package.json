@@ -1,6 +1,6 @@
 {
   "name": "@mindev/min-plugin-imagemin",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "min plugin-imagemin",
   "main": "lib/index.js",
   "typings": "types/index.d.ts",
