@@ -71,11 +71,21 @@ export function patchProps (wxConfig: Weapp.Config, properties: Weapp.Properties
     props[key] = {
       type,
       value,
-      observer (newVal, oldVal) {
+      observer (newVal: any, oldVal: any, patchs: string[]) {
         const ctx = this.$min as MinComponent
         const { _properties = {} } = ctx
 
         // TODO: optimization
+        ;((_props) => {
+          patchs.forEach((patch, index) => {
+            if (index === patchs.length - 1) {
+              _props[patch] = newVal
+            }
+            else {
+              _props = _props[patch]
+            }
+          })
+        })(_properties)
         _properties[key] = newVal
 
         if (typeof observer === 'string' && typeof this[observer] === 'function') {

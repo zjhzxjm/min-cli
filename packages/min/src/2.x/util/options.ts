@@ -3,14 +3,12 @@ import config from '../config'
 import { warn } from './debug'
 import { nativeWatch } from '../shared'
 import { set } from '../observer'
-import { APP_EVENT, PAGE_EVENT, COMPONENT_EVENT } from './const'
+import { APP_LIFE_CYCLE, PAGE_LIFE_CYCLE, COMPONENT_LIFE_CYCLE } from './const'
 import {
   extend,
   hasOwn,
   camelize,
   toRawType,
-  capitalize,
-  isBuiltInTag,
   isPlainObject
 } from '../shared/util'
 
@@ -145,7 +143,7 @@ function mergeHook (
     : parentVal
 }
 
-const LIFECYCLE_HOOKS = [...APP_EVENT, ...PAGE_EVENT, ...COMPONENT_EVENT]
+const LIFECYCLE_HOOKS = [...APP_LIFE_CYCLE, ...PAGE_LIFE_CYCLE, ...COMPONENT_LIFE_CYCLE]
 
 LIFECYCLE_HOOKS.forEach(hook => {
   strats[hook] = mergeHook

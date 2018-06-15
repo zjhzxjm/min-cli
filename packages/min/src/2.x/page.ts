@@ -1,9 +1,9 @@
-import { patchProps, patchMethods, patchData, patchPageLifecycle } from './init'
+import { patchPageMethods, patchData, patchPageLifecycle } from './init'
 
 export default function createPage (options: Page.Options, exts?: Weapp.Extends) {
   const wxConfig = {}
 
-  patchMethods(wxConfig, options)
+  patchPageMethods(wxConfig, options)
   patchData(wxConfig, options.data)
   patchPageLifecycle(wxConfig, options, exts)
 

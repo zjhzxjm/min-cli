@@ -1,5 +1,6 @@
 import Base from './Base'
-import { warn, mergeOptions } from '../util'
+import { mergeOptions } from '../util'
+import { initMethods } from '../init/methods'
 import { initGlobalData } from '../init/global-data'
 
 export default class MinApp extends Base implements App.Context {
@@ -24,6 +25,7 @@ export default class MinApp extends Base implements App.Context {
   }
 
   private _init () {
+    initMethods(this)
     initGlobalData(this)
   }
 

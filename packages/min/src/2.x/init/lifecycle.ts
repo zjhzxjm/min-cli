@@ -4,7 +4,7 @@ import MinPage from '../class/MinPage'
 import MinApp from '../class/MinApp'
 import $global from '../global'
 import { handleError } from '../util'
-import { noop, APP_EVENT, PAGE_EVENT, COMPONENT_EVENT } from '../util'
+import { APP_LIFE_CYCLE, PAGE_LIFE_CYCLE, COMPONENT_LIFE_CYCLE } from '../util'
 
 export function patchAppLifecycle (wxConfig: App.Config, options: App.Options) {
   const onLaunchLifecycle = function proxyLifecycleHook (...args) {
@@ -22,7 +22,7 @@ export function patchAppLifecycle (wxConfig: App.Config, options: App.Options) {
   Object.keys(options).forEach(hook => {
 
     if (
-      APP_EVENT.indexOf(hook) === -1 ||
+      APP_LIFE_CYCLE.indexOf(hook) === -1 ||
       hook === 'onLaunch'
     ) return
 
@@ -63,7 +63,7 @@ export function patchPageLifecycle (wxConfig: Page.Config, options: Page.Options
   Object.keys(options).forEach(hook => {
 
     if (
-      PAGE_EVENT.indexOf(hook) === -1 ||
+      PAGE_LIFE_CYCLE.indexOf(hook) === -1 ||
       hook === 'onLoad' ||
       hook === 'onUnload'
     ) return
@@ -123,7 +123,7 @@ export function patchComponentLifecycle (wxConfig: Component.Config, options: Co
 
   Object.keys(options).forEach(hook => {
     if (
-      COMPONENT_EVENT.indexOf(hook) === -1 ||
+      COMPONENT_LIFE_CYCLE.indexOf(hook) === -1 ||
       ['created', 'attached', 'ready', 'detached'].indexOf(hook) > -1
     ) return
 

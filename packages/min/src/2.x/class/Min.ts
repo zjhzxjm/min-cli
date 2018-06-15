@@ -4,6 +4,7 @@ import $global from '../global'
 import { defineReactive } from '../observer'
 import { isPlainObject, nextTickForWeapp, warn, noop, toArray, mergeOptions, resolveConstructorOptions } from '../util'
 import { initData, initMethods, initComputed, initWatch, callHook, initRender } from '../init'
+import { APP_LIFE_CYCLE, PAGE_LIFE_CYCLE, COMPONENT_LIFE_CYCLE } from '../util/const'
 
 // 兼容模式下支持代理到原生实例上
 const ProxyProperties = [
@@ -15,7 +16,16 @@ export default class Min extends Base {
 
   static options = Object.create(null)
   static nextTick = nextTickForWeapp
-  static util = { warn, mergeOptions, defineReactive }
+  static util = {
+    warn,
+    mergeOptions,
+    defineReactive
+  }
+  static lifeCycle = {
+    APP: APP_LIFE_CYCLE,
+    PAGE: PAGE_LIFE_CYCLE,
+    COMPONENT: COMPONENT_LIFE_CYCLE
+  }
   static _installedPlugins: any[] = []
 
   $app?: App.Context = null
@@ -56,8 +66,13 @@ export default class Min extends Base {
     this._proxyNative()
   }
 
-  static mixin (mixin: Object) {
-    this.options = mergeOptions(this.options, mixin)
+  static mixin (mixin: Object | Object[]) {
+    if (Array.isArray(mixin)) {
+      mixin.forEach((val) => this.mixin(val))
+    }
+    else {
+      this.options = mergeOptions(this.options, mixin)
+    }
     return this
   }
 
