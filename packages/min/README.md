@@ -274,14 +274,19 @@ min.intercept('request', {
   - 优化 wx.request 并发次数限制
 
 - **2.0.2**
-  - computed
-  - watch
+  - 增加 似 vue 的 computed
+  - 增加 似 vue 的 watch
 
 - **2.0.4**
-  - Fixing the data attribute is not valid when it is a function
-  - Fixed an invalid problem that defined a method
+  - 修复 data 属性可以作为一个函数
+  - 修复 在页面和组件上无法自定义一个方法
+
+- **2.0.5**
+  - 修复 app.wxa 支持自定义 method 方法，建议自定义方法放在 methods 对象里管理
+  - 优化 Min.mixin 支持混合多个，多个使用数组传递
+  - 修复组件properties接受动态数据更新失败问题
 
 ## Tip
 
 - min cli 2.x 版本开始支持
-- promisify: true 支持 wx.api promise 化，前提是依赖 `@minlib/min-async-await`
+- 支持 wx.api promise 化，前提是依赖 `@minlib/min-async-await`
