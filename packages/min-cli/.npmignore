@@ -1,6 +1,6 @@
 /src
 test
-example
+/example
 node_modules
 tsconfig.json
 tslint.json

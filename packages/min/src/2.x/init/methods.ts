@@ -1,7 +1,6 @@
-import MinComponent from '../class/MinComponent'
-import { warn, hasOwn, isReserved, noop, PAGE_EVENT, COMPONENT_EVENT } from '../util'
+import { warn, hasOwn, isReserved, APP_LIFE_CYCLE, PAGE_LIFE_CYCLE, COMPONENT_LIFE_CYCLE } from '../util'
 
-export function initMethods (ctx: Weapp.Context) {
+export function initMethods (ctx: Weapp.Context | App.Context) {
   const { $options } = ctx
   const { methods = {}, properties = {} } = $options
 
@@ -32,15 +31,12 @@ export function initMethods (ctx: Weapp.Context) {
   })
 }
 
-export function patchMethods (wxConfig: Weapp.Config, options: Weapp.Options, isComponent: boolean = false) {
-  const { methods = {} } = options
-  const target = isComponent
-    ? wxConfig.methods = wxConfig.methods || {}
-    : wxConfig
+function patchMethods (output: {[key: string]: any}, options: Weapp.Options | App.Options, LIFE_CYCLE: string[]) {
+  if (!options.methods) {
+    options.methods = {}
+  }
 
-  const EVENT = isComponent
-    ? COMPONENT_EVENT
-    : PAGE_EVENT
+  const { methods = {} } = options
 
   Object.keys(options).forEach(key => {
     const value = options[key]
@@ -48,14 +44,30 @@ export function patchMethods (wxConfig: Weapp.Config, options: Weapp.Options, is
     if (key === 'data') return
     if (typeof value !== 'function') return
     if (typeof methods[key] !== 'undefined') return
-    if (EVENT.indexOf(key) !== -1) return
+    if (LIFE_CYCLE.indexOf(key) !== -1) return
 
     methods[key] = value
   })
 
   Object.keys(methods).forEach(key => {
-    target[key] = function proxyMethod (...args) {
+    output[key] = function proxyMethod (...args) {
       return methods[key].apply(this.$min, args)
     }
   })
+}
+
+export function patchComponentMethods (wxConfig: Weapp.Config, options: Weapp.Options) {
+  if (!wxConfig.methods) {
+    wxConfig.methods = {}
+  }
+
+  patchMethods(wxConfig.methods, options, COMPONENT_LIFE_CYCLE)
+}
+
+export function patchPageMethods (wxConfig: Weapp.Config, options: Weapp.Options) {
+  patchMethods(wxConfig, options, PAGE_LIFE_CYCLE)
+}
+
+export function patchAppMethods (wxConfig: App.Config, options: App.Options) {
+  patchMethods(wxConfig, options, APP_LIFE_CYCLE)
 }

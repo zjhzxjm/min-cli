@@ -1,5 +1,6 @@
 export const PAGE_EVENT = ['onLoad', 'onReady', 'onShow', 'onHide', 'onUnload', 'onPullDownRefresh', 'onReachBottom', 'onShareAppMessage']
 export const APP_EVENT = ['onLaunch', 'onShow', 'onHide', 'onError']
+
 export const NO_PROMISE_METHODS = {
   // 媒体
   stopRecord: true,

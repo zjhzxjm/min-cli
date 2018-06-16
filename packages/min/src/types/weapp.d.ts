@@ -140,6 +140,8 @@ declare namespace App {
    * @extends {Lifecycle}
    */
   interface Options extends Lifecycle {
+    properties?: Weapp.Properties // TODO: 兼容 ./init/methods/initMethods 方法能复用 Weapp 和 App
+    methods?: Weapp.Methods
     globalData?: GlobalData
     store?: Store
     wxApi?: WxApi

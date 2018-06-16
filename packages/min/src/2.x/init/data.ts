@@ -85,9 +85,12 @@ export function getData (data: Function, ctx: Weapp.Context | App.Context): any 
   }
 }
 
-export function patchData (wxConfig: Weapp.Config, data: Weapp.Data) {
+export function patchData (wxConfig: Weapp.Config, data: Weapp.Data | Function) {
   if (!data) {
     data = {}
+  }
+  if (typeof data === 'function') {
+    data = data()
   }
   wxConfig.data = data
 }

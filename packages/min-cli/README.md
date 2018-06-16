@@ -1,4 +1,4 @@
-# Min Cli【2.x内测版】
+# Min Cli【2.x公测版】
 
 > Min 2.x 版本新增 compilers 和 plugins 机制，通过预编译的手段让开发者可以选择喜好的开发风格去开发小程序
 
